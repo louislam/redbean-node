@@ -1,0 +1,19 @@
+{
+    "name": "redbean-node",
+    "version": "0.0.1",
+    "description": "",
+    "main": "dist/index.js",
+    "types": "dist/index.d.ts",
+    "scripts": {
+        "build": "tsc",
+        "example": "ts-node example.ts"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "@types/node": "^14.11.2",
+        "knex": "^0.21.6",
+        "mysql": "^2.18.1",
+        "sqlite3": "^5.0.0"
+    }
+}
