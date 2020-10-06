@@ -94,8 +94,13 @@ import { R } from "./lib/redbean-node";
         page = R.dispense("page");
         page.title = "Many-to-one";
 
-        book.set(page);
+        book.set("page", page);
+        book.set("page2", page);
+
         console.log(book);
+        await R.store(book);
+        console.log(book);
+        //book.set("page2", null);
         await R.store(book);
         console.log(book);
 
@@ -105,7 +110,7 @@ import { R } from "./lib/redbean-node";
         let b2 = await R.load("book", book.id);
 
         if (b2) {
-            console.log(await b2.get("page"));
+            console.log(await b2.get("page2", "page"));
         }
 
     } catch (error) {

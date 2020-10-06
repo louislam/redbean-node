@@ -16,18 +16,21 @@ export class Bean {
         return this.#type;
     }
 
-    set(bean : Bean) {
-        let type = bean.getType();
+    set(alias : string, bean : Bean | null) {
+        if (bean) {
+            if (bean.id) {
+                if (this.getType() == bean.getType() && this.id === bean.id) {
+                    throw "Error, same type and id";
+                }
 
-        if (bean.id) {
-            if (this.getType() == bean.getType() && this.id === bean.id) {
-                throw "Error, same type and id";
+                this[this.getTypeFieldName(alias)] = bean.id;
             }
 
-            this[this.getTypeFieldName(type)] = bean.id;
+            this.#typeBeanList[alias] = bean;
+        } else {
+            delete this.#typeBeanList[alias];
+            this[this.getTypeFieldName(alias)] = null;
         }
-
-        this.#typeBeanList[type] = bean;
     }
 
     async storeTypeBeanList(noIDOnly = true) {
@@ -36,8 +39,9 @@ export class Bean {
 
             if (! bean.id) {
                 await this.#R.store(bean);
-                this[this.getTypeFieldName(type)] = bean.id;
             }
+
+            this[this.getTypeFieldName(type)] = bean.id;
         }
     }
 
@@ -45,8 +49,18 @@ export class Bean {
         return type + "_id";
     }
 
-    async get(type : string) {
-        if (! this.#typeBeanList[type]) {
+    async get(alias : string, type? : string, force = false) {
+        if (! type) {
+            type = alias;
+        }
+
+        let fieldName = this.getTypeFieldName(type);
+
+        if (! this[fieldName]) {
+            return null;
+        }
+
+        if (! this.#typeBeanList[type] || force) {
             let id = this[this.getTypeFieldName(type)];
 
             if (! id) {
