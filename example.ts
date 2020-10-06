@@ -53,6 +53,35 @@ import { R } from "./lib/R";
         let obj  = await R.getRow("SELECT * FROM book WHERE id = 1");
         console.log(obj);
 
+        let col = await R.getCol('SELECT title FROM book');
+        console.log(col);
+
+        let cell = await R.getCell('SELECT title FROM book LIMIT 1', [], false);
+        console.log(cell);
+
+        let assoc = await R.getAssoc( 'SELECT id, title FROM book' );
+        console.log(assoc);
+
+        console.log(await R.inspect("book"));
+
+        //R.freeze(true);
+
+        // Transaction
+        await R.transaction(async () => {
+            let page = R.dispense("page");
+            page.title = "About us in callback 3";
+            await R.store(page);
+            throw "this is an error"
+        });
+
+        await R.begin();
+        let page = R.dispense("page");
+        page.title = "About us";
+        await R.store(page);
+
+        //await R.commit();
+        await R.rollback();
+
     } catch (error) {
         console.log(error);
     }

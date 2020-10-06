@@ -4,8 +4,22 @@ import {Bean} from "./Bean";
 export class R {
 
     protected static _freeze = false;
+    protected static _transaction;
 
-    public static knex;
+
+    private static _knex;
+
+
+    static get knex() {
+        if (this._transaction) {
+            return this._transaction;
+        }
+        return this._knex;
+    }
+
+    static set knex(value) {
+        this._knex = value;
+    }
 
     static setup(dbType = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }) {
         let useNullAsDefault = (dbType == "sqlite")
@@ -45,19 +59,21 @@ export class R {
 
     protected static async updateTableSchema(bean : Bean) {
 
-        let exists = await R.knex.schema.hasTable(bean.getType());
+        let exists = await R._knex.schema.hasTable(bean.getType());
 
         if (! exists) {
             console.log("Create table: " + bean.getType());
-            await R.knex.schema.createTable(bean.getType(), function (table) {
+
+            await R._knex.schema.createTable(bean.getType(), function (table) {
                 table.increments().primary();
             });
         }
 
         // Don't put it inside callback, causes problem than cannot add columns!
-        let columnInfo = await R.knex.table(bean.getType()).columnInfo();
 
-        await R.knex.schema.table(bean.getType(), async (table) => {
+        let columnInfo = await this.inspect(bean.getType());
+
+        await R._knex.schema.table(bean.getType(), async (table) => {
 
             for (let fieldName in bean) {
                 let value = bean[fieldName];
@@ -214,11 +230,13 @@ export class R {
         return R.knex.raw(sql, data);
     }
 
-    static async getRow(sql: string, data: string[] = []) {
-        let limitTemplate = R.knex.limit(1).toSQL().toNative();
+    static async getRow(sql: string, data: string[] = [], autoLimit = true) {
 
-        sql = sql + limitTemplate.sql.replace("select *", "");
-        data = data.concat(limitTemplate.bindings);
+        if (autoLimit) {
+            let limitTemplate = R.knex.limit(1).toSQL().toNative();
+            sql = sql + limitTemplate.sql.replace("select *", "");
+            data = data.concat(limitTemplate.bindings);
+        }
 
         let result = await R.knex.raw(sql, data);
 
@@ -226,6 +244,96 @@ export class R {
             return result[0];
         } else {
             return null;
+        }
+    }
+
+    static async getCol(sql: string, data: string[] = []) {
+        let list = await R.getAll(sql, data);
+        let key : string;
+
+        return list.map((obj) => {
+            if (! key) {
+                for (let k in obj) {
+                    key = k;
+                    break;
+                }
+            }
+            return obj[key];
+        });
+    }
+
+    static async getCell(sql: string, data: string[] = [], autoLimit = true) {
+        let row = await R.getRow(sql, data, autoLimit);
+
+        if (row) {
+            return Object.values(row)[0];
+        } else {
+            return null;
+        }
+    }
+
+    static async getAssoc(sql: string, data: string[] = []) {
+        let list = await R.getAll(sql, data);
+        let keyKey : string;
+        let valueKey : string;
+        let obj = {};
+
+        if (list.length > 0) {
+            let keys = Object.keys(list[0]);
+            keyKey = keys[0];
+            valueKey = keys[1];
+
+            for (let i = 0; i < list.length; i++) {
+                let key = list[i][keyKey];
+                let value = list[i][valueKey];
+                obj[key] = value;
+            }
+        }
+
+        return obj;
+    }
+
+    static inspect(type) {
+        return R.knex.table(type).columnInfo();
+    }
+
+    static async begin() {
+        if (! R._freeze) {
+            console.warn("Warning: Transaction is not working in non-freeze mode.");
+            return;
+        }
+
+        if (R._transaction) {
+            throw "Previous transaction is not committed";
+        }
+
+        R._transaction = await R.knex.transaction();
+
+        return R._transaction;
+    }
+
+    static async commit() {
+        if (R._transaction) {
+            await R._transaction.commit();
+            R._transaction = null;
+        }
+    }
+
+
+    static async rollback() {
+        if (R._transaction) {
+            await R._transaction.rollback();
+            R._transaction = null;
+        }
+    }
+
+    static async transaction(callback: () => void) {
+        try {
+            await R.begin();
+            await callback();
+            await R.commit();
+        } catch (error) {
+            await R.rollback();
         }
     }
 }
