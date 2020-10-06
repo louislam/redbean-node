@@ -9,7 +9,6 @@ export class R {
 
     private static _knex;
 
-
     static get knex() {
         if (this._transaction) {
             return this._transaction;
@@ -17,14 +16,10 @@ export class R {
         return this._knex;
     }
 
-    static set knex(value) {
-        this._knex = value;
-    }
-
     static setup(dbType = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }) {
         let useNullAsDefault = (dbType == "sqlite")
 
-        R.knex = knex({
+        R._knex = knex({
             client: dbType,
             connection,
             useNullAsDefault,

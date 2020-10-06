@@ -12,7 +12,8 @@
         "outDir": "dist",
         "strict": true,
         "esModuleInterop": true,
-        "noImplicitAny": false
+        "noImplicitAny": false,
+        "removeComments": true
     },
     "exclude": [
         "node_modules",
