@@ -25,14 +25,16 @@ export class RedBeanNode {
     }
 
     dispense(type) {
-        return new Bean(type);
+        return new Bean(type, this);
     }
 
-    async freeze( v = true) {
+    freeze( v = true) {
         this._freeze = v;
     }
 
     async store(bean: Bean) {
+        await bean.storeTypeBeanList();
+
         if (! this._freeze) {
             await this.updateTableSchema(bean);
         }
@@ -40,12 +42,11 @@ export class RedBeanNode {
         // Update
         // else insert
         if (bean.id) {
-            await this.knex(bean.getType()).where({ id: bean.id}).update(bean.toNoMetaObject());
+            await this.knex(bean.getType()).where({ id: bean.id }).update(bean);
         } else {
-            let result = await this.knex(bean.getType()).insert(bean.toNoMetaObject());
+            let result = await this.knex(bean.getType()).insert(bean);
             bean.id = result[0];
         }
-
 
         return bean.id;
     }
@@ -198,7 +199,7 @@ export class RedBeanNode {
         return this.convertToBean(type, obj);
     }
 
-    static convertToBean(type : string, obj) : Bean {
+    convertToBean(type : string, obj) : Bean {
         let bean = R.dispense(type);
         return Object.assign(bean, obj);
     }

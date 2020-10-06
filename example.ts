@@ -19,12 +19,13 @@ import { R } from "./lib/redbean-node";
         book.active = false;
         await R.store(book);
 
+
         // Load
         let book2 = await R.load( 'book', id);
         console.log(book2);
 
-
         if (book2 != null) {
+
             // Trash
             await R.trash(book2);
         }
@@ -81,6 +82,31 @@ import { R } from "./lib/redbean-node";
 
         //await R.commit();
         await R.rollback();
+
+
+        // Many-to-one
+        R.freeze(false);
+
+        book = R.dispense("book");
+        book.title = "Learn to Program 2";
+        book.active = false;
+
+        page = R.dispense("page");
+        page.title = "Many-to-one";
+
+        book.set(page);
+        console.log(book);
+        await R.store(book);
+        console.log(book);
+
+        console.log(page);
+        console.log(await book.get("page"));
+
+        let b2 = await R.load("book", book.id);
+
+        if (b2) {
+            console.log(await b2.get("page"));
+        }
 
     } catch (error) {
         console.log(error);
