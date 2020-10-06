@@ -1,50 +1,48 @@
 import knex, {RawBinding, StaticConnectionConfig, ValueDict} from "knex";
 import {Bean} from "./Bean";
 
-export class R {
+export class RedBeanNode {
 
-    protected static _freeze = false;
-    protected static _transaction;
+    protected _freeze = false;
+    protected _transaction;
+    private _knex;
 
-
-    private static _knex;
-
-    static get knex() {
+    get knex() {
         if (this._transaction) {
             return this._transaction;
         }
         return this._knex;
     }
 
-    static setup(dbType = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }) {
+    setup(dbType = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }) {
         let useNullAsDefault = (dbType == "sqlite")
 
-        R._knex = knex({
+        this._knex = knex({
             client: dbType,
             connection,
             useNullAsDefault,
         });
     }
 
-    static dispense(type) {
+    dispense(type) {
         return new Bean(type);
     }
 
-    static async freeze( v = true) {
-        R._freeze = v;
+    async freeze( v = true) {
+        this._freeze = v;
     }
 
-    static async store(bean: Bean) {
-        if (! R._freeze) {
-            await R.updateTableSchema(bean);
+    async store(bean: Bean) {
+        if (! this._freeze) {
+            await this.updateTableSchema(bean);
         }
 
         // Update
         // else insert
         if (bean.id) {
-            await R.knex(bean.getType()).where({ id: bean.id}).update(bean);
+            await this.knex(bean.getType()).where({ id: bean.id}).update(bean.toNoMetaObject());
         } else {
-            let result = await R.knex(bean.getType()).insert(bean);
+            let result = await this.knex(bean.getType()).insert(bean.toNoMetaObject());
             bean.id = result[0];
         }
 
@@ -52,14 +50,14 @@ export class R {
         return bean.id;
     }
 
-    protected static async updateTableSchema(bean : Bean) {
+    protected async updateTableSchema(bean : Bean) {
 
-        let exists = await R._knex.schema.hasTable(bean.getType());
+        let exists = await this._knex.schema.hasTable(bean.getType());
 
         if (! exists) {
             console.log("Create table: " + bean.getType());
 
-            await R._knex.schema.createTable(bean.getType(), function (table) {
+            await this._knex.schema.createTable(bean.getType(), function (table) {
                 table.increments().primary();
             });
         }
@@ -68,20 +66,20 @@ export class R {
 
         let columnInfo = await this.inspect(bean.getType());
 
-        await R._knex.schema.table(bean.getType(), async (table) => {
+        await this._knex.schema.table(bean.getType(), async (table) => {
 
             for (let fieldName in bean) {
                 let value = bean[fieldName];
                 let addField = false;
                 let alterField = false;
-                let valueType = R.getDataType(value);
+                let valueType = this.getDataType(value);
 
                 if (! columnInfo.hasOwnProperty(fieldName)) {
                     addField = true;
                 }
 
                 /**
-                 else if (! R.isValidType(columnInfo[fieldName].type, valueType)) {
+                 else if (! this.isValidType(columnInfo[fieldName].type, valueType)) {
                     addField = true;
                     alterField = true;
                 }
@@ -115,7 +113,7 @@ export class R {
         });
     }
 
-    static getDataType(value) {
+    getDataType(value) {
         let type = typeof value;
         if (type == "number") {
             if (Number.isInteger(value)) {
@@ -128,7 +126,7 @@ export class R {
         }
     }
 
-    static isValidType(columnType, valueType) {
+    isValidType(columnType, valueType) {
         if (columnType == "boolean") {
             if (valueType == "integer" || valueType == "float" || valueType == "string") {
                 return false;
@@ -144,17 +142,17 @@ export class R {
         return true;
     }
 
-    static async close() {
-        await R.knex.destroy();
+    async close() {
+        await this.knex.destroy();
     }
 
-    static async load(type: string, id: number) {
-        let result = await R.knex.select().table(type).whereRaw("id = ?", [
+    async load(type: string, id: number) {
+        let result = await this.knex.select().table(type).whereRaw("id = ?", [
             id
         ]).limit(1);
 
         if (result.length > 0) {
-            return R.convertToBean(type, result[0]);
+            return this.convertToBean(type, result[0]);
         } else {
             return null;
         }
@@ -166,38 +164,38 @@ export class R {
      * TODO: only update the fields which are changed to database
      * @protected
      */
-    protected static watchBean() {
+    protected watchBean() {
 
     }
 
-    static async trash(bean: Bean) {
-        await R.knex.table(bean.getType()).where({ id : bean.id }).delete();
-        delete bean.id;
+    async trash(bean: Bean) {
+        await this.knex.table(bean.getType()).where({ id : bean.id }).delete();
+        bean.id = 0;
     }
 
-    static async trashAll(beans : Bean[]) {
+    async trashAll(beans : Bean[]) {
         beans.forEach((bean) => {
-            R.trash(bean);
+            this.trash(bean);
         });
     }
 
-    static async find(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
-        let list = await R.knex.table(type).whereRaw(clause, data);
-        return R.convertToBeans(type, list);
+    async find(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+        let list = await this.knex.table(type).whereRaw(clause, data);
+        return this.convertToBeans(type, list);
     }
 
-    static findAll(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
-        return R.find(type, " 1=1 " + clause, data);
+    findAll(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+        return this.find(type, " 1=1 " + clause, data);
     }
 
-    static async findOne(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
-        let obj = await R.knex.table(type).whereRaw(clause, data).first();
+    async findOne(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+        let obj = await this.knex.table(type).whereRaw(clause, data).first();
 
         if (! obj) {
             return null;
         }
 
-        return R.convertToBean(type, obj);
+        return this.convertToBean(type, obj);
     }
 
     static convertToBean(type : string, obj) : Bean {
@@ -205,35 +203,35 @@ export class R {
         return Object.assign(bean, obj);
     }
 
-    static convertToBeans(type : string, objList){
+    convertToBeans(type : string, objList){
         let list : Bean[] = [];
 
         objList.forEach((obj) => {
             if (obj != null) {
-                list.push(R.convertToBean(type, obj))
+                list.push(this.convertToBean(type, obj))
             }
         });
 
         return list;
     }
 
-    static exec(sql: string, data: string[] = []) {
-        R.knex.raw(sql, data);
+    exec(sql: string, data: string[] = []) {
+        this.knex.raw(sql, data);
     }
 
-    static getAll(sql: string, data: string[] = []) {
-        return R.knex.raw(sql, data);
+    getAll(sql: string, data: string[] = []) {
+        return this.knex.raw(sql, data);
     }
 
-    static async getRow(sql: string, data: string[] = [], autoLimit = true) {
+    async getRow(sql: string, data: string[] = [], autoLimit = true) {
 
         if (autoLimit) {
-            let limitTemplate = R.knex.limit(1).toSQL().toNative();
+            let limitTemplate = this.knex.limit(1).toSQL().toNative();
             sql = sql + limitTemplate.sql.replace("select *", "");
             data = data.concat(limitTemplate.bindings);
         }
 
-        let result = await R.knex.raw(sql, data);
+        let result = await this.knex.raw(sql, data);
 
         if (result.length > 0) {
             return result[0];
@@ -242,8 +240,8 @@ export class R {
         }
     }
 
-    static async getCol(sql: string, data: string[] = []) {
-        let list = await R.getAll(sql, data);
+    async getCol(sql: string, data: string[] = []) {
+        let list = await this.getAll(sql, data);
         let key : string;
 
         return list.map((obj) => {
@@ -257,8 +255,8 @@ export class R {
         });
     }
 
-    static async getCell(sql: string, data: string[] = [], autoLimit = true) {
-        let row = await R.getRow(sql, data, autoLimit);
+    async getCell(sql: string, data: string[] = [], autoLimit = true) {
+        let row = await this.getRow(sql, data, autoLimit);
 
         if (row) {
             return Object.values(row)[0];
@@ -267,8 +265,8 @@ export class R {
         }
     }
 
-    static async getAssoc(sql: string, data: string[] = []) {
-        let list = await R.getAll(sql, data);
+    async getAssoc(sql: string, data: string[] = []) {
+        let list = await this.getAll(sql, data);
         let keyKey : string;
         let valueKey : string;
         let obj = {};
@@ -288,47 +286,49 @@ export class R {
         return obj;
     }
 
-    static inspect(type) {
-        return R.knex.table(type).columnInfo();
+    inspect(type) {
+        return this.knex.table(type).columnInfo();
     }
 
-    static async begin() {
-        if (! R._freeze) {
+    async begin() {
+        if (! this._freeze) {
             console.warn("Warning: Transaction is not working in non-freeze mode.");
             return;
         }
 
-        if (R._transaction) {
+        if (this._transaction) {
             throw "Previous transaction is not committed";
         }
 
-        R._transaction = await R.knex.transaction();
+        this._transaction = await this.knex.transaction();
 
-        return R._transaction;
+        return this._transaction;
     }
 
-    static async commit() {
-        if (R._transaction) {
-            await R._transaction.commit();
-            R._transaction = null;
+    async commit() {
+        if (this._transaction) {
+            await this._transaction.commit();
+            this._transaction = null;
         }
     }
 
 
-    static async rollback() {
-        if (R._transaction) {
-            await R._transaction.rollback();
-            R._transaction = null;
+    async rollback() {
+        if (this._transaction) {
+            await this._transaction.rollback();
+            this._transaction = null;
         }
     }
 
-    static async transaction(callback: () => void) {
+    async transaction(callback: () => void) {
         try {
-            await R.begin();
+            await this.begin();
             await callback();
-            await R.commit();
+            await this.commit();
         } catch (error) {
-            await R.rollback();
+            await this.rollback();
         }
     }
 }
+
+export const R = new RedBeanNode();

@@ -1,4 +1,4 @@
-import { R } from "./R";
+import { R } from "./redbean-node";
 
 export class Bean {
     [key: string]: any;

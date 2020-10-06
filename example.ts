@@ -1,4 +1,4 @@
-import { R } from "./lib/R";
+import { R } from "./lib/redbean-node";
 
 (async () => {
     R.setup();

@@ -1,6 +1,6 @@
 {
     "compilerOptions": {
-        "target": "es2015",
+        "target": "es6",
         "module": "commonjs",
         "lib": [
             "es2017",
@@ -13,7 +13,8 @@
         "strict": true,
         "esModuleInterop": true,
         "noImplicitAny": false,
-        "removeComments": true
+        "removeComments": true,
+        "experimentalDecorators": true
     },
     "exclude": [
         "node_modules",
