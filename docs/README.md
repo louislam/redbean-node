@@ -2,11 +2,11 @@
 
 ## Welcome
 
-RedBeanNode is an easy to use **ORM** tool for Node.js, inspired by RedBeanPHP. 
+RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by RedBeanPHP. 
 
 * **Automatically** creates **tables** and **columns** as you go
 * No configuration, just fire and forget
-* Ported RedBeanPHP's core features and api design
+* Ported RedBeanPHP's main features and api design
 * Build on top of knex.js
 * Supports **JavaScript** & **TypeScript**
 * **async/await** or **promise** friendly
@@ -23,6 +23,7 @@ This is how you do CRUD in RedBeanNode:
 ```javascript
 const {R} = require("redbean-node");
 
+// Setup connection
 R.setup();
 
 (async () => {

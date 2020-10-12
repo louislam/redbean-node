@@ -29,7 +29,7 @@ It is ready to be used. You do not need to use await / callback before query.
 SQLite is file based database, ideal for embedded applications, prototyping, small (and smart) applications, small websites (not too much traffic) and data analysis. To connect to an SQLite database:
 
 ```javascript
-R::setup('sqlite', {
+R.setup('sqlite', {
     filename: './dbfile.db'
 });
 ```
@@ -40,7 +40,7 @@ R::setup('sqlite', {
 To disconnect use:
 
 ```javascript
-await R::close();
+await R.close();
 ```
 
 This will close the database connection.
