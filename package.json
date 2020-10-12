@@ -1,12 +1,14 @@
 {
     "name": "redbean-node",
-    "version": "0.0.1",
+    "version": "0.0.4",
     "description": "",
-    "main": "dist/index.js",
-    "types": "dist/index.d.ts",
+    "main": "dist/lib/redbean-node.js",
+    "types": "dist/lib/redbean-node.d.ts",
     "scripts": {
         "build": "tsc",
-        "example": "ts-node example.ts"
+        "example": "ts-node example.ts",
+        "example2": "ts-node example2.ts",
+        "publish" : "npm publish"
     },
     "author": "",
     "license": "ISC",

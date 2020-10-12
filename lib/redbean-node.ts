@@ -1,11 +1,13 @@
 import knex, {RawBinding, StaticConnectionConfig, ValueDict} from "knex";
-import {Bean} from "./Bean";
+import {Bean} from "./bean";
+import {isEmptyObject} from "./helper/helper";
 
 export class RedBeanNode {
 
     protected _freeze = false;
     protected _transaction;
-    private _knex;
+    protected _knex;
+    protected dbType;
 
     get knex() {
         if (this._transaction) {
@@ -14,14 +16,30 @@ export class RedBeanNode {
         return this._knex;
     }
 
-    setup(dbType = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }) {
-        let useNullAsDefault = (dbType == "sqlite")
+    setup(dbType : string | knex = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }) {
+        if (typeof dbType === "string") {
 
-        this._knex = knex({
-            client: dbType,
-            connection,
-            useNullAsDefault,
-        });
+            if (dbType == "mariadb") {
+                dbType = "mysql";
+            }
+
+            this.dbType = dbType;
+
+            let useNullAsDefault = (dbType == "sqlite")
+
+            this._knex = knex({
+                client: dbType,
+                connection,
+                useNullAsDefault,
+                pool: {
+                    min: 2,
+                    max: 10,
+                    idleTimeoutMillis: 30000,
+                }
+            });
+        } else {
+            this._knex = dbType;
+        }
     }
 
     dispense(type) {
@@ -39,12 +57,15 @@ export class RedBeanNode {
             await this.updateTableSchema(bean);
         }
 
+        let obj = bean.export(false);
+        delete obj.id;
+
         // Update
         // else insert
-        if (bean.id) {
-            await this.knex(bean.getType()).where({ id: bean.id }).update(bean);
+        if (bean.id && !isEmptyObject(obj)) {
+            await this.knex(bean.getType()).where({ id: bean.id }).update(obj);
         } else {
-            let result = await this.knex(bean.getType()).insert(bean);
+            let result = await this.knex(bean.getType()).insert(obj);
             bean.id = result[0];
         }
 
@@ -64,13 +85,14 @@ export class RedBeanNode {
         }
 
         // Don't put it inside callback, causes problem than cannot add columns!
-
         let columnInfo = await this.inspect(bean.getType());
 
         await this._knex.schema.table(bean.getType(), async (table) => {
 
-            for (let fieldName in bean) {
-                let value = bean[fieldName];
+            let obj = bean.export(false);
+
+            for (let fieldName in obj) {
+                let value = obj[fieldName];
                 let addField = false;
                 let alterField = false;
                 let valueType = this.getDataType(value);
@@ -170,8 +192,10 @@ export class RedBeanNode {
     }
 
     async trash(bean: Bean) {
-        await this.knex.table(bean.getType()).where({ id : bean.id }).delete();
-        bean.id = 0;
+        if (bean.id) {
+            await this.knex.table(bean.getType()).where({ id : bean.id }).delete();
+            bean.id = 0;
+        }
     }
 
     async trashAll(beans : Bean[]) {
@@ -201,7 +225,8 @@ export class RedBeanNode {
 
     convertToBean(type : string, obj) : Bean {
         let bean = R.dispense(type);
-        return Object.assign(bean, obj);
+        bean.import(obj);
+        return bean;
     }
 
     convertToBeans(type : string, objList){
@@ -216,12 +241,12 @@ export class RedBeanNode {
         return list;
     }
 
-    exec(sql: string, data: string[] = []) {
-        this.knex.raw(sql, data);
+    async exec(sql: string, data: string[] = []) {
+        await this.normalizeRaw(sql, data);
     }
 
     getAll(sql: string, data: string[] = []) {
-        return this.knex.raw(sql, data);
+        return this.normalizeRaw(sql, data);
     }
 
     async getRow(sql: string, data: string[] = [], autoLimit = true) {
@@ -232,13 +257,23 @@ export class RedBeanNode {
             data = data.concat(limitTemplate.bindings);
         }
 
-        let result = await this.knex.raw(sql, data);
+        let result = await this.normalizeRaw(sql, data);
 
         if (result.length > 0) {
             return result[0];
         } else {
             return null;
         }
+    }
+
+    async normalizeRaw(sql, data) {
+        let result = await this.knex.raw(sql, data);
+
+        if (this.dbType == "mysql") {
+            result = result[0];
+        }
+
+        return result;
     }
 
     async getCol(sql: string, data: string[] = []) {

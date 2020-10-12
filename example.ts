@@ -3,11 +3,15 @@ import { R } from "./lib/redbean-node";
 (async () => {
     R.setup();
 
+
     let book = R.dispense("book");
+    book.title = "Learn to Program";
     book.title = "Learn to Program";
     book.rating = 10;
     book.active = true;
     book.price = 29.99;
+
+    console.log(book);
 
     try {
         // Create
@@ -17,10 +21,16 @@ import { R } from "./lib/redbean-node";
         // Update
         book.title = "Learn to Program 2";
         book.active = false;
+
         await R.store(book);
 
 
+        // Refresh
+        await book.refresh();
+        console.log(book);
+
         // Load
+        console.log("load");
         let book2 = await R.load( 'book', id);
         console.log(book2);
 
@@ -48,6 +58,7 @@ import { R } from "./lib/redbean-node";
             "RAW INSERT"
         ]);
 
+        console.log("SELECT get All");
         let objList  = await R.getAll("SELECT * FROM book WHERE id = 1");
         console.log(objList);
 
@@ -112,6 +123,17 @@ import { R } from "./lib/redbean-node";
         if (b2) {
             console.log(await b2.get("page2", "page"));
         }
+
+
+        let shop = R.dispense("shop");
+        shop.name = "My Shop"
+
+        let product = R.dispense("product");
+        product.name = "Apple";
+
+        shop.add(product);
+
+        let list = await shop.ownList("product");
 
     } catch (error) {
         console.log(error);
