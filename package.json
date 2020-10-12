@@ -10,12 +10,20 @@
         "example2": "ts-node example2.ts",
         "publish" : "npm publish"
     },
-    "author": "",
-    "license": "ISC",
+    "author": "Louis Lam",
+    "license": "MIT",
     "dependencies": {
         "@types/node": "^14.11.2",
         "knex": "^0.21.6",
         "mysql": "^2.18.1",
         "sqlite3": "^5.0.0"
+    },
+    "homepage": "https://redbean-node.whatsticker.online",
+    "bugs": {
+        "url": "https://github.com/louislam/redbean-node/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/louislam/redbean-node"
     }
 }

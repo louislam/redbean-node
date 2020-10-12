@@ -10,5 +10,8 @@ import { R } from "./lib/redbean-node";
 
     let bean = R.dispense("shop");
     bean.longDescription = "123213";
+
+    bean.
+
     await R.store(bean);
 })();
