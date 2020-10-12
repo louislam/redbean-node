@@ -17,13 +17,27 @@ export class Bean {
             throw "invalid property name: starts with underscore is not allowed";
         }
 
-        let key = Bean.internalName(name);
-        this[key] = value;
+        if (value instanceof Bean) {
+            this.set(name, value);
+        } else {
+            let key = Bean.internalName(name);
+            this[key] = value;
+        }
+
     }
 
     __get(name) {
-        let key = Bean.internalName(name);
-        return this[key];
+        // Check if relation field
+        // converting product to this["product_id"] for example
+        let id = this[Bean.getTypeFieldName(name)];
+
+        // if it is null or number, it is a relation field!
+        if (id !== undefined) {
+            return this.get(name);
+        } else {
+            let key = Bean.internalName(name);
+            return this[key];
+        }
     }
 
 
@@ -67,7 +81,7 @@ export class Bean {
      * @param type
      * @param force
      */
-    async get(alias : string, type? : string, force = false) {
+    async get(alias : string, type? : string, force = false) : Promise<Bean | null> {
         if (! type) {
             type = alias;
         }
@@ -95,7 +109,12 @@ export class Bean {
         let updatedBean = await this.R().load("book", this.id);
 
         if (updatedBean != null) {
+            this.beanMeta.refresh();
             this.import(updatedBean.export());
+        } else {
+            // Deleted in database?!
+            // Do Nothing for now
+            // TODO: Maybe remove all property?
         }
     }
 
@@ -138,8 +157,9 @@ export class Bean {
         return this.beanMeta.R;
     }
 
+
     static getTypeFieldName(type : string) {
-        return type + "_id";
+        return this.prefixUnderscore(type + "Id");
     }
 
     static prefixUnderscore(name : string) {
@@ -195,5 +215,9 @@ class BeanMeta {
 
     set type(value: string) {
         this.#_type = value;
+    }
+
+    refresh() {
+        this.#_typeBeanList = {};
     }
 }

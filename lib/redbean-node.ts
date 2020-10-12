@@ -86,6 +86,7 @@ export class RedBeanNode {
 
         // Don't put it inside callback, causes problem than cannot add columns!
         let columnInfo = await this.inspect(bean.getType());
+        //console.log(columnInfo);
 
         await this._knex.schema.table(bean.getType(), async (table) => {
 
@@ -97,16 +98,18 @@ export class RedBeanNode {
                 let alterField = false;
                 let valueType = this.getDataType(value);
 
+
+                // Check if the field exists in current database
                 if (! columnInfo.hasOwnProperty(fieldName)) {
                     addField = true;
                 }
 
-                /**
+                // If exists in current database, but the type is not good for the data
                  else if (! this.isValidType(columnInfo[fieldName].type, valueType)) {
+                     console.log(`Alter column is needed: ${fieldName} (dbType: ${columnInfo[fieldName].type}) (valueType: ${valueType})`);
                     addField = true;
                     alterField = true;
                 }
-             */
 
                 if (addField) {
                     let col;
@@ -123,12 +126,18 @@ export class RedBeanNode {
                         console.log("Create field (Boolean): " + fieldName);
                         col = table.boolean(fieldName);
 
+
+                    } else if (valueType == "text") {
+                        console.log("Create field (Text): " + fieldName);
+                        col = table.text(fieldName, "longtext");
+
                     } else {
                         console.log("Create field (String): " + fieldName);
                         col = table.string(fieldName);
                     }
 
                     if (alterField) {
+                        console.log("This is modify column");
                         col.alter();
                     }
                 }
@@ -144,20 +153,38 @@ export class RedBeanNode {
             } else {
                 return "float";
             }
+        } else if (type == "string") {
+            if (value.length > 230) {
+                return "text";
+            } else {
+                return "varchar";
+            }
         } else {
-            return type;
+            return "varchar";
         }
     }
 
     isValidType(columnType, valueType) {
         if (columnType == "boolean") {
-            if (valueType == "integer" || valueType == "float" || valueType == "string") {
+            if (valueType == "integer" || valueType == "float" || valueType == "varchar" || valueType == "text") {
                 return false;
             }
         }
 
         if (columnType == "integer") {
-            if (valueType == "float" || valueType == "string") {
+            if (valueType == "float" || valueType == "varchar" || valueType == "text") {
+                return false;
+            }
+        }
+
+        if (columnType == "float") {
+            if (valueType == "varchar" || valueType == "text") {
+                return false;
+            }
+        }
+
+        if (columnType == "varchar") {
+            if (valueType == "text") {
                 return false;
             }
         }
@@ -220,7 +247,9 @@ export class RedBeanNode {
             return null;
         }
 
-        return this.convertToBean(type, obj);
+        let bean = this.convertToBean(type, obj);
+
+        return bean;
     }
 
     convertToBean(type : string, obj) : Bean {

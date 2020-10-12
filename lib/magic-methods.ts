@@ -2,6 +2,8 @@
  * From: https://gist.github.com/loilo/4d385d64e2b8552dcc12a0f5126b6df8
  * @param clazz
  */
+import {RedBeanNode} from "./redbean-node";
+
 export function magicMethods (clazz) {
   // A toggle switch for the __isset method
   // Needed to control "prop in instance" inside of getters
@@ -31,6 +33,12 @@ export function magicMethods (clazz) {
         if (exists) {
           return Reflect.get(target, name, receiver)
         } else {
+
+            // No idea why Bean is being called then(), just skip this
+            if (name == "then" && args[1] instanceof RedBeanNode) {
+                return undefined;
+            }
+
           return get.value.call(target, name)
         }
       }
