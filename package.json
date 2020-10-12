@@ -1,9 +1,14 @@
 {
     "name": "redbean-node",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "RedBeanNode is an easy to use ORM tool for Node.js, strongly inspired by RedBeanPHP. It automatically generates the tables and columns on-the-fly",
     "main": "dist/lib/redbean-node.js",
     "types": "dist/lib/redbean-node.d.ts",
+    "files":  [
+        "dist",
+        "README.md",
+        ".gitignore"
+    ],
     "scripts": {
         "build": "tsc",
         "example": "ts-node example.ts",
@@ -27,16 +32,17 @@
         "url": "https://github.com/louislam/redbean-node"
     },
     "keywords": [
-        "redbean",
         "redbeanphp",
-        "redbean-node",
-        "redbeannode",
         "orm",
         "sql",
         "mysql",
         "mariadb",
         "sqlite",
         "query",
-        "bean"
+        "knex",
+        "bean",
+        "redbean",
+        "redbean-node",
+        "redbeannode"
     ]
 }

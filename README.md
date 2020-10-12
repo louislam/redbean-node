@@ -1,5 +1,8 @@
 # RedBeanNode
 
+> Caution: Not Production Ready
+
+Status: Early Development / No Unit Testing yet / API will be changed
 
 RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by RedBeanPHP. 
 
