@@ -3,21 +3,21 @@
         "target": "es6",
         "module": "commonjs",
         "lib": [
-            "es2017",
-            "es7",
-            "es6",
-            "dom"
+            "es2020",
+            "es6"
         ],
         "declaration": true,
         "outDir": "dist",
+        "rootDir": "lib",
         "strict": true,
         "esModuleInterop": true,
         "noImplicitAny": false,
         "removeComments": true,
-        "experimentalDecorators": true
+        "experimentalDecorators": true,
     },
     "exclude": [
         "node_modules",
-        "dist"
+        "dist",
+        "dev_*.ts"
     ]
 }

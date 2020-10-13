@@ -232,6 +232,8 @@ export class RedBeanNode {
     }
 
     async find(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+        "123".trimStart();
+
         let list = await this.knex.table(type).whereRaw(clause, data);
         return this.convertToBeans(type, list);
     }

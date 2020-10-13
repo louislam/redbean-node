@@ -2,3 +2,5 @@ node_modules
 .idea
 /dist
 dbfile.db
+/dev_*.ts
+/dev_*.js

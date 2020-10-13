@@ -39,7 +39,7 @@ let books = R.findAll('book' , ' ORDER BY title DESC LIMIT 10 ');
 TODO
 
 ## Cursors 
-TODO
+TODO: http://knexjs.org/#Interfaces-stream
 
 ## IN-queries
 TODO
