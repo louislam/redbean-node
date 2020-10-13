@@ -4,6 +4,11 @@ import {isEmptyObject} from "./helper/helper";
 
 export class RedBeanNode {
 
+    /**
+     * For this library dev only
+     */
+    public devDebug = false;
+
     protected _freeze = false;
     protected _transaction;
     protected _knex;
@@ -42,6 +47,11 @@ export class RedBeanNode {
         }
     }
 
+    /**
+     *
+     * @param type
+     * @param loadDefaultValue
+     */
     dispense(type) {
         return new Bean(type, this);
     }
@@ -232,8 +242,6 @@ export class RedBeanNode {
     }
 
     async find(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
-        "123".trimStart();
-
         let list = await this.knex.table(type).whereRaw(clause, data);
         return this.convertToBeans(type, list);
     }

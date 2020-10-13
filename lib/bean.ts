@@ -17,11 +17,21 @@ export class Bean {
             throw "invalid property name: starts with underscore is not allowed";
         }
 
-        if (value instanceof Bean) {
+        let hasRelationField = (this[Bean.getRelationFieldName(name)] !== undefined);
+
+        if (value instanceof Bean || hasRelationField) {
             this.set(name, value);
         } else {
             let key = Bean.internalName(name);
             this[key] = value;
+
+            // If this is relation field, sync the relation bean too!
+            if (Bean.isRelationField(key)) {
+                let type = Bean.getTypeFromRelationField(key);
+                console.log("remove bean", type);
+                delete this.beanMeta.typeBeanList[type];
+                console.log( this.beanMeta.typeBeanList);
+            }
         }
 
     }
@@ -29,7 +39,7 @@ export class Bean {
     __get(name) {
         // Check if relation field
         // converting product to this["product_id"] for example
-        let id = this[Bean.getTypeFieldName(name)];
+        let id = this[Bean.getRelationFieldName(name)];
 
         // if it is null or number, it is a relation field!
         if (id !== undefined) {
@@ -53,25 +63,13 @@ export class Bean {
                     throw "Error, same type and id";
                 }
 
-                this[Bean.getTypeFieldName(alias)] = bean.id;
+                this[Bean.getRelationFieldName(alias)] = bean.id;
             }
 
             this.beanMeta.typeBeanList[alias] = bean;
         } else {
             delete this.beanMeta.typeBeanList[alias];
-            this[Bean.getTypeFieldName(alias)] = null;
-        }
-    }
-
-    async storeTypeBeanList(noIDOnly = true) {
-        for (let type in this.beanMeta.typeBeanList) {
-            let bean = this.beanMeta.typeBeanList[type];
-
-            if (! bean.id) {
-                await this.R().store(bean);
-            }
-
-            this[Bean.getTypeFieldName(type)] = bean.id;
+            this[Bean.getRelationFieldName(alias)] = null;
         }
     }
 
@@ -86,14 +84,10 @@ export class Bean {
             type = alias;
         }
 
-        let fieldName = Bean.getTypeFieldName(type);
-
-        if (! this[fieldName]) {
-            return null;
-        }
+        let fieldName = Bean.getRelationFieldName(type);
 
         if (! this.beanMeta.typeBeanList[type] || force) {
-            let id = this[Bean.getTypeFieldName(type)];
+            let id = this[fieldName];
 
             if (! id) {
                 return null;
@@ -105,8 +99,20 @@ export class Bean {
         return this.beanMeta.typeBeanList[type];
     }
 
+    async storeTypeBeanList(noIDOnly = true) {
+        for (let type in this.beanMeta.typeBeanList) {
+            let bean = this.beanMeta.typeBeanList[type];
+
+            if (! bean.id) {
+                await this.R().store(bean);
+            }
+
+            this[Bean.getRelationFieldName(type)] = bean.id;
+        }
+    }
+
     async refresh() {
-        let updatedBean = await this.R().load("book", this.id);
+        let updatedBean = await this.R().load(this.beanMeta.type, this.id);
 
         if (updatedBean != null) {
             this.beanMeta.refresh();
@@ -157,13 +163,26 @@ export class Bean {
         return this.beanMeta.R;
     }
 
+    static isRelationField(name : string) {
+        return name.endsWith("Id");
+    }
 
-    static getTypeFieldName(type : string) {
+    static getRelationFieldName(type : string) {
         return this.prefixUnderscore(type + "Id");
     }
 
     static prefixUnderscore(name : string) {
         return "_" + name;
+    }
+
+    static getTypeFromRelationField(name : string) {
+        let s = name;
+
+        if (s.endsWith("Id")) {
+            s = s.slice(0, s.length - 2);
+        }
+
+        return Bean.removePrefixUnderscore(s);
     }
 
     static removePrefixUnderscore(name : string) {
@@ -182,17 +201,13 @@ export class Bean {
         return Bean.prefixUnderscore(underscoreToCamelCase(name));
     }
 
-    toString() {
-        return JSON.stringify(this.export());
-    }
 
-    inspect() {
-        return this.export()
-    }
 }
 
+/**
+ * All true private variables are here, haha
+ */
 class BeanMeta {
-
     #_R! : RedBeanNode;
     #_type! : string;
     #_typeBeanList : any = {};
