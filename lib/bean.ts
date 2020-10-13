@@ -10,9 +10,18 @@ export class Bean {
     constructor(type : string, R : RedBeanNode) {
         this.beanMeta.R = R;
         this.beanMeta.type = type;
+
+        this.devLog("Instantiate");
     }
 
+    /**
+     * Magic Setter
+     * @param name
+     * @param value
+     */
     __set(name, value) {
+        this.devLog("Set Property:", name, "=", value);
+
         if (name.startsWith("_")) {
             throw "invalid property name: starts with underscore is not allowed";
         }
@@ -20,7 +29,7 @@ export class Bean {
         let hasRelationField = (this[Bean.getRelationFieldName(name)] !== undefined);
 
         if (value instanceof Bean || hasRelationField) {
-            this.set(name, value);
+            this.setRelationBean(name, value);
         } else {
             let key = Bean.internalName(name);
             this[key] = value;
@@ -28,23 +37,40 @@ export class Bean {
             // If this is relation field, sync the relation bean too!
             if (Bean.isRelationField(key)) {
                 let type = Bean.getTypeFromRelationField(key);
-                console.log("remove bean", type);
                 delete this.beanMeta.typeBeanList[type];
-                console.log( this.beanMeta.typeBeanList);
             }
         }
 
     }
 
+    /**
+     * Magic Getter
+     * @param name
+     */
     __get(name) {
+        this.devLog("Get Property:", name);
+
         // Check if relation field
         // converting product to this["product_id"] for example
         let id = this[Bean.getRelationFieldName(name)];
 
         // if it is null or number, it is a relation field!
         if (id !== undefined) {
-            return this.get(name);
-        } else {
+            this.devLog("Relation Bean Property detected");
+            return this.getRelationBean(name);
+
+        }
+
+        // If own???List, here
+        else if (Bean.isOwnListProperty(name)) {
+            this.devLog("ownList Property detected");
+            let type = Bean.getTypeFromOwnListProperty(name);
+            this.devLog("type =", type);
+            return this.ownList(type);
+
+        }
+
+        else {
             let key = Bean.internalName(name);
             return this[key];
         }
@@ -52,11 +78,12 @@ export class Bean {
 
 
     /**
+     * Many-to-one
      * product.shop = shop;
      * @param alias
      * @param bean
      */
-    set(alias : string, bean : Bean | null) {
+    protected setRelationBean(alias : string, bean : Bean | null) {
         if (bean) {
             if (bean.id) {
                 if (this.getType() == bean.getType() && this.id === bean.id) {
@@ -74,12 +101,13 @@ export class Bean {
     }
 
     /**
+     * Many-to-one
      * let shop = product.shop
      * @param alias
      * @param type
      * @param force
      */
-    async get(alias : string, type? : string, force = false) : Promise<Bean | null> {
+    protected async getRelationBean(alias : string, type? : string, force = false) : Promise<Bean | null> {
         if (! type) {
             type = alias;
         }
@@ -99,6 +127,34 @@ export class Bean {
         return this.beanMeta.typeBeanList[type];
     }
 
+    /**
+     * One-to-many
+     * @param alias
+     * @param type
+     * @param force
+     */
+    protected async ownList(alias : string, type? : string, force = false) {
+        if (! type) {
+            type = alias;
+        }
+
+        if (! this.beanMeta.ownListList[type] || force) {
+            this.devLog("load", type, "list from db");
+
+            let field = Bean.dbFieldName(Bean.getRelationFieldName(this.beanMeta.type));
+
+            this.beanMeta.ownListList[type] = await this.R().find(type, ` ${field} = ? `, [
+                this._id
+            ]);
+        }
+
+        return this.beanMeta.ownListList[type];
+    }
+
+    /**
+     * Store all relation beans
+     * @param noIDOnly
+     */
     async storeTypeBeanList(noIDOnly = true) {
         for (let type in this.beanMeta.typeBeanList) {
             let bean = this.beanMeta.typeBeanList[type];
@@ -148,19 +204,25 @@ export class Bean {
         return obj;
     }
 
-    async ownList(alias : string, type? : string, force = false) {
-        if (! type) {
-            type = alias;
-        }
-    }
-
-
     getType() {
         return this.beanMeta.type;
     }
 
     R() {
         return this.beanMeta.R;
+    }
+
+    static isOwnListProperty(name : string) {
+        return name.startsWith("own") && name.endsWith("List");
+    }
+
+    static getTypeFromOwnListProperty(name : string) {
+        if (this.isOwnListProperty(name)) {
+            // slice 3(own) and 4(List)
+            return name.slice(3, name.length - 4).toLowerCase();
+        } else {
+            throw name + " is not an own list property!";
+        }
     }
 
     static isRelationField(name : string) {
@@ -201,16 +263,27 @@ export class Bean {
         return Bean.prefixUnderscore(underscoreToCamelCase(name));
     }
 
-
+    protected devLog(...params : any[]) {
+        if (this.R().devDebug) {
+            console.log("[" + this.beanMeta.type, this._id + "]", ...params);
+        }
+    }
 }
 
 /**
  * All true private variables are here, haha
  */
 class BeanMeta {
+
     #_R! : RedBeanNode;
     #_type! : string;
     #_typeBeanList : any = {};
+
+    /**
+     * Contains a list of own list
+     * @private
+     */
+    #_ownListList : any = {};
 
     get R(): RedBeanNode {
         return this.#_R;
@@ -229,10 +302,23 @@ class BeanMeta {
     }
 
     set type(value: string) {
+
+        // Limit english, number, _ and - only
+        // Because Unicode table name is not tested and should be hard to test
+        // Another reason is, the type will be used in sql such as 'type_id'. Due to I cannot find a proper way to escape the field name, limiting the following characters can prevents sql injection. If some developers actually let their users input the 'type' from browser. (not encouraged!)
+        if (value.match(/^[a-zA-Z0-9_-]+$/) == null) {
+            throw `type name '${value}' is not allowed`
+        }
+
         this.#_type = value;
+    }
+
+    get ownListList(): any {
+        return this.#_ownListList;
     }
 
     refresh() {
         this.#_typeBeanList = {};
+        this.#_ownListList = {};
     }
 }

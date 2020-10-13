@@ -8,7 +8,7 @@ await R.exec('UPDATE page SET title="test" WHERE id = 1');
 To get an array of rows:
 
 ```javascript
-await R.getAll('SELECT * FROM page');
+let rows = await R.getAll('SELECT * FROM page');
 ```
 
 The result of such a query will be an array of rows:
@@ -33,7 +33,7 @@ The result of such a query will be an array of rows:
 Note that you can use **parameter bindings** as well:
 
 ```javascript
-await R.getAll('SELECT * FROM page WHERE title = ?', [
+let rows = await R.getAll('SELECT * FROM page WHERE title = ?', [
     'Learn to fly'
 ]);
 ```
@@ -41,7 +41,7 @@ await R.getAll('SELECT * FROM page WHERE title = ?', [
 To fetch a **single row**:
 
 ```javascript
-await R.getRow('SELECT * FROM page WHERE title LIKE ? LIMIT 1', [
+let row = await R.getRow('SELECT * FROM page WHERE title LIKE ? LIMIT 1', [
      '%Jazz%',
 ]);
 ```
@@ -49,19 +49,19 @@ await R.getRow('SELECT * FROM page WHERE title LIKE ? LIMIT 1', [
 To fetch a **single column**:
 
 ```javascript
-await R.getCol('SELECT title FROM page');
+let cols = await R.getCol('SELECT title FROM page');
 ```
 
 To fetch a **single cell**:
 
 ```javascript
-await R.getCell('SELECT title FROM page LIMIT 1');
+let value = await R.getCell('SELECT title FROM page LIMIT 1');
 ```
 
 To get a **key-value object** with a specified key and value column use:
 
 ```javascript
-await R::getAssoc('SELECT id, title FROM page');
+let keyValueObject = await R::getAssoc('SELECT id, title FROM page');
 ```
 
 ## Converting records to beans

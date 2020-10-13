@@ -8,6 +8,7 @@ export class RedBeanNode {
      * For this library dev only
      */
     public devDebug = false;
+    protected _debug = false;
 
     protected _freeze = false;
     protected _transaction;
@@ -60,6 +61,10 @@ export class RedBeanNode {
         this._freeze = v;
     }
 
+    debug(v : boolean) {
+        this._debug = v;
+    }
+
     async store(bean: Bean) {
         await bean.storeTypeBeanList();
 
@@ -96,7 +101,7 @@ export class RedBeanNode {
 
         // Don't put it inside callback, causes problem than cannot add columns!
         let columnInfo = await this.inspect(bean.getType());
-        //console.log(columnInfo);
+        //console.devLog(columnInfo);
 
         await this._knex.schema.table(bean.getType(), async (table) => {
 
@@ -207,18 +212,31 @@ export class RedBeanNode {
     }
 
     async load(type: string, id: number) {
-        let result = await this.knex.select().table(type).whereRaw("id = ?", [
-            id
-        ]).limit(1);
+        try {
+             let queryPromise = this.knex.select().table(type).whereRaw("id = ?", [
+                id
+            ]).limit(1);
 
-        if (result.length > 0) {
-            return this.convertToBean(type, result[0]);
-        } else {
-            return null;
+             this.queryLog(queryPromise);
+
+            let result = await queryPromise;
+
+            if (result.length > 0) {
+                return this.convertToBean(type, result[0]);
+            } else {
+                return null;
+            }
+        } catch (error) {
+            this.checkAllowedError(error);
         }
     }
 
-
+    protected checkAllowedError(error) {
+        if (! error.startsWith("ER_NO_SUCH_TABLE")) {
+            return;
+        }
+        throw error;
+    }
 
     /**
      * TODO: only update the fields which are changed to database
@@ -230,19 +248,30 @@ export class RedBeanNode {
 
     async trash(bean: Bean) {
         if (bean.id) {
-            await this.knex.table(bean.getType()).where({ id : bean.id }).delete();
+            let queryPromise = this.knex.table(bean.getType()).where({ id : bean.id }).delete();
+
+            this.queryLog(queryPromise);
+
+            await queryPromise;
             bean.id = 0;
         }
     }
 
+    /**
+     * TODO: Concurrent is better
+     * @param beans
+     */
     async trashAll(beans : Bean[]) {
-        beans.forEach((bean) => {
-            this.trash(bean);
-        });
+        for (let bean of beans) {
+            await this.trash(bean);
+        }
     }
 
     async find(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
-        let list = await this.knex.table(type).whereRaw(clause, data);
+        let queryPromise = this.knex.table(type).whereRaw(clause, data);
+        this.queryLog(queryPromise);
+
+        let list = await queryPromise;
         return this.convertToBeans(type, list);
     }
 
@@ -251,7 +280,10 @@ export class RedBeanNode {
     }
 
     async findOne(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
-        let obj = await this.knex.table(type).whereRaw(clause, data).first();
+        let queryPromise = this.knex.table(type).whereRaw(clause, data).first();
+        this.queryLog(queryPromise);
+
+        let obj = await queryPromise;
 
         if (! obj) {
             return null;
@@ -296,6 +328,8 @@ export class RedBeanNode {
             data = data.concat(limitTemplate.bindings);
         }
 
+        this.queryLog(sql);
+
         let result = await this.normalizeRaw(sql, data);
 
         if (result.length > 0) {
@@ -307,6 +341,8 @@ export class RedBeanNode {
 
     async normalizeRaw(sql, data) {
         let result = await this.knex.raw(sql, data);
+
+        this.queryLog(sql);
 
         if (this.dbType == "mysql") {
             result = result[0];
@@ -402,6 +438,26 @@ export class RedBeanNode {
             await this.commit();
         } catch (error) {
             await this.rollback();
+        }
+    }
+
+    protected devLog(...params : any[]) {
+        if (this.devDebug) {
+            console.log("R", ...params);
+        }
+    }
+
+    protected queryLog(queryPromise : string | Promise<any>) {
+        if (this._debug) {
+            let sql;
+
+            if (typeof queryPromise === "string") {
+                sql = queryPromise;
+            } else {
+                sql = queryPromise.toString();
+            }
+
+            console.log('\x1b[36m%s\x1b[0m', "Query:", sql);
         }
     }
 }

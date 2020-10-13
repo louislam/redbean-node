@@ -4,7 +4,7 @@
     "description": "RedBeanNode is an easy to use ORM tool for Node.js, strongly inspired by RedBeanPHP. It automatically generates the tables and columns on-the-fly",
     "main": "dist/redbean-node.js",
     "types": "dist/redbean-node.d.ts",
-    "files":  [
+    "files": [
         "dist",
         "README.md",
         ".gitignore"
@@ -13,8 +13,8 @@
         "build": "tsc",
         "example": "ts-node dev_example.ts",
         "example2": "ts-node dev_example2.ts",
-        "publish" : "npm publish",
-        "publish-alpha" : "npm publish --tag alpha"
+        "publish": "npm publish",
+        "publish-alpha": "npm publish --tag alpha"
     },
     "author": "Louis Lam",
     "license": "MIT",
@@ -22,6 +22,7 @@
         "@types/node": "^14.11.2",
         "knex": "^0.21.6",
         "mysql": "^2.18.1",
+        "pretty-error": "^2.1.1",
         "sqlite3": "^5.0.0"
     },
     "homepage": "https://redbean-node.whatsticker.online",
