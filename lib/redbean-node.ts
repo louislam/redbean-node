@@ -420,6 +420,19 @@ export class RedBeanNode {
         return obj;
     }
 
+    count(type : string, clause : string = "", data : any[] = [], autoLimit = true) {
+        let where = "";
+
+        if (clause) {
+            where = "WHERE " + clause;
+        }
+
+        return this.getCell(`SELECT COUNT(*) FROM ?? ${where}`, [
+            type,
+            ...data,
+        ], autoLimit);
+    }
+
     inspect(type) {
         return this.knex.table(type).columnInfo();
     }
@@ -445,7 +458,6 @@ export class RedBeanNode {
             this._transaction = null;
         }
     }
-
 
     async rollback() {
         if (this._transaction) {
