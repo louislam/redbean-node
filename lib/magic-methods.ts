@@ -52,7 +52,7 @@ export function magicMethods (clazz) {
         if (name in target) {
           Reflect.set(target, name, value, receiver)
         } else {
-          target.__set.call(target, name, value)
+          target.__set.call(target, name, value, receiver)
             return true;
         }
       }

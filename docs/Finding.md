@@ -22,6 +22,10 @@ If you want a single bean instead of an array, use:
 
 ```javascript
 let book  = await R.findOne('book', ' title = ? ', [ 'SQL Dreams' ]);
+
+if (book) {
+    // Your code
+}
 ```
 
 If no beans match the criteria, this function will return **null**.

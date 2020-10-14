@@ -14,6 +14,8 @@
 * **Relations**     
     * [Many-to-one](Many-to-one.md)
     * [One-to-many](One-to-many.md)
+    * [Aliases](Aliases.md)
 
 * **Advanced**
     * [Transaction](Transaction.md)
+    * [Database](Database.md)

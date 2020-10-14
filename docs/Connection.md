@@ -44,3 +44,33 @@ await R.close();
 ```
 
 This will close the database connection.
+
+## Connection Pool
+
+By default, RedBeanNode is using pool approach.
+
+(TODO)
+
+
+## Advance Setup
+
+You can also pass a knex object to R.setup() to setup the connection for RedBeanNode.  
+
+```javascript
+var knex = require('knex')({
+  client: 'sqlite3',
+  connection: {
+    filename: "./mydb.sqlite"
+  }
+});
+
+R.setup(knex);
+```
+
+Please read https://knexjs.org/#Installation for more details.
+
+## Other Databases?
+
+As RedBeanNode is built on top of knex.js. knex.js is originally supporting PostgreSQL, Amazon Redshift, MySQL, MariaDB, SQLite3 and MS SQL.
+
+However, in this stage, as I personally is only familiar with MariaDB and SQLite, so I only focus on these two databases. You may give it a try on other databases, but it could be unstable currently.

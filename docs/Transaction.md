@@ -2,12 +2,12 @@
 RedBeanNode offers three simple methods to use database transactions: **begin()**, **commit()** and **rollback()**. Usage:
 
 ```javascript
-await R::begin();
+await R.begin();
 try {
-    await R::store(page);
-    await R::commit();
+    await R.store(page);
+    await R.commit();
 } catch (error) {
-    await R::rollback();
+    await R.rollback();
 }
 ```
 

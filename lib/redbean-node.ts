@@ -66,6 +66,8 @@ export class RedBeanNode {
     }
 
     async store(bean: Bean) {
+        this.devLog("Store", bean.beanMeta.type, bean.id);
+
         await bean.storeTypeBeanList();
 
         if (! this._freeze) {
@@ -78,9 +80,13 @@ export class RedBeanNode {
         // Update
         // else insert
         if (bean.id && !isEmptyObject(obj)) {
-            await this.knex(bean.getType()).where({ id: bean.id }).update(obj);
+            let queryPromise = this.knex(bean.getType()).where({ id: bean.id }).update(obj);
+            this.queryLog(queryPromise);
+            await queryPromise;
         } else {
-            let result = await this.knex(bean.getType()).insert(obj);
+            let queryPromise = this.knex(bean.getType()).insert(obj);
+            this.queryLog(queryPromise);
+            let result = await queryPromise;
             bean.id = result[0];
         }
 
@@ -88,6 +94,11 @@ export class RedBeanNode {
     }
 
     protected async updateTableSchema(bean : Bean) {
+        this.devLog("Check Update Table Schema");
+
+        if (! this._knex) {
+            throw "Error: Please execute R.setup(.....) first.";
+        }
 
         let exists = await this._knex.schema.hasTable(bean.getType());
 
@@ -212,6 +223,8 @@ export class RedBeanNode {
     }
 
     async load(type: string, id: number) {
+        this.devLog("Load Bean", type, id);
+
         try {
              let queryPromise = this.knex.select().table(type).whereRaw("id = ?", [
                 id
@@ -232,9 +245,17 @@ export class RedBeanNode {
     }
 
     protected checkAllowedError(error) {
-        if (! error.startsWith("ER_NO_SUCH_TABLE")) {
-            return;
+
+        if (this.dbType == "sqlite") {
+            if (error.errno == 1) {     // No such table
+                return;
+            }
+        } else if (this.dbType == "mysql") {
+            if (! error.startsWith("ER_NO_SUCH_TABLE")) {
+                return;
+            }
         }
+
         throw error;
     }
 
@@ -295,6 +316,8 @@ export class RedBeanNode {
     }
 
     convertToBean(type : string, obj) : Bean {
+        this.devLog("convertToBean", type, obj);
+
         let bean = R.dispense(type);
         bean.import(obj);
         return bean;
@@ -443,7 +466,7 @@ export class RedBeanNode {
 
     protected devLog(...params : any[]) {
         if (this.devDebug) {
-            console.log("R", ...params);
+            console.log("[R]", ...params);
         }
     }
 
@@ -459,6 +482,24 @@ export class RedBeanNode {
 
             console.log('\x1b[36m%s\x1b[0m', "Query:", sql);
         }
+    }
+
+    /**
+     * TODO: deep copy
+     * @param targetBean
+     * @param deepCopy
+     */
+    duplicate(targetBean : Bean, deepCopy = true) {
+        let bean = R.dispense(targetBean.beanMeta.type);
+
+        bean.import(targetBean.export());
+        bean.id = undefined;
+
+        if (! deepCopy) {
+            return bean;
+        }
+
+        throw "Error: deep copy not implemented yet";
     }
 }
 

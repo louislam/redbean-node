@@ -61,7 +61,7 @@ let value = await R.getCell('SELECT title FROM page LIMIT 1');
 To get a **key-value object** with a specified key and value column use:
 
 ```javascript
-let keyValueObject = await R::getAssoc('SELECT id, title FROM page');
+let keyValueObject = await R.getAssoc('SELECT id, title FROM page');
 ```
 
 ## Converting records to beans
@@ -72,7 +72,7 @@ let rows = await R.getAll('SELECT * FROM page WHERE title = ?', [ 'Learn to fly'
 let pages = R.convertToBeans("page", rows);
 ```
 
-You can also use **R::convertToBean()** for single row.
+You can also use **R.convertToBean()** for single row.
 
 ```javascript
 let row = await R.getRow('SELECT * FROM page WHERE title = ? LIMIT 1', [ 'Learn to fly' ]);
