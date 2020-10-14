@@ -14,11 +14,17 @@ let id = await R.store(course);
 let sameCourse = await R.load('course', id);
 
 if (sameCourse) {
-
-
     // when accessing the aliased properties,
     // tell RedBeanNode how to find the bean:
     let teacher = await sameCourse.fetchAs( 'person' ).teacher;
     console.log(teacher);
 }
+```
+
+fetchAs tells RedBeanPHP the **ID** has to be associated with a different type (in this case 'person' instead of 'teacher' or 'student'). This also works the other way:
+
+```javascript
+// returns all courses for this person
+// where he/she is the teacher.
+let courseList = await person.alias('teacher').ownCourseList;
 ```

@@ -88,10 +88,16 @@ export class Bean {
         // If own???List, here
         else if (Bean.isOwnListProperty(name)) {
             this.devLog("ownList Property detected");
+
+            let alias = this.beanMeta.type;
             let type = Bean.getTypeFromOwnListProperty(name);
             this.devLog("type =", type);
-            return this.ownList(type);
 
+            if (this.beanMeta.alias) {
+                alias = this.beanMeta.alias;
+            }
+
+            return this.ownList(type, alias, this.beanMeta.noCache);
         }
 
         else {
@@ -168,15 +174,13 @@ export class Bean {
      * @param type
      * @param force
      */
-    protected async ownList(alias : string, type? : string, force = false) {
-        if (! type) {
-            type = alias;
-        }
+    protected async ownList(type : string, alias : string, force = false) {
+
 
         if (! this.beanMeta.ownListList[type] || force) {
             this.devLog("load", type, "list from db");
 
-            let field = Bean.dbFieldName(Bean.getRelationFieldName(this.beanMeta.type));
+            let field = Bean.dbFieldName(Bean.getRelationFieldName(alias));
 
             this.beanMeta.ownListList[type] = await this.R().find(type, ` ${field} = ? `, [
                 this._id
@@ -244,13 +248,22 @@ export class Bean {
     /**
      * The chain bean can get relation bean only
      * All property cannot be accessed.
-     * @param alias
+     * @param type
      */
-    fetchAs(alias : string) : Bean {
-        this.devLog("fetchAs:", alias)
+    fetchAs(type : string) : Bean {
+        this.devLog("fetchAs:", type)
 
         let chainBean = this.createChainBean();
-        chainBean.beanMeta.fetchAs = alias;
+        chainBean.beanMeta.fetchAs = type;
+
+        return chainBean;
+    }
+
+    alias(alias : string) : Bean {
+        this.devLog("alias:", alias)
+
+        let chainBean = this.createChainBean();
+        chainBean.beanMeta.alias = alias;
 
         return chainBean;
     }
@@ -374,6 +387,7 @@ class BeanMeta {
      * For chain fetchAs() / fetchAs()
      */
     fetchAs = "";
+    alias = "";
 
     get R(): RedBeanNode {
         return this.#_R;
