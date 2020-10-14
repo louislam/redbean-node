@@ -182,7 +182,8 @@ export class Bean {
 
             let field = Bean.dbFieldName(Bean.getRelationFieldName(alias));
 
-            this.beanMeta.ownListList[type] = await this.R().find(type, ` ${field} = ? `, [
+            this.beanMeta.ownListList[type] = await this.R().find(type, ` ?? = ? `, [
+                field,
                 this._id
             ]);
         }
@@ -409,7 +410,6 @@ class BeanMeta {
 
         // Limit english, number, _ and - only
         // Because Unicode table name is not tested and should be hard to test
-        // Another reason is, the type will be used in sql such as 'type_id'. Due to I cannot find a proper way to escape the field name, limiting the following characters can prevents sql injection. If some developers actually let their users input the 'type' from browser. (not encouraged!)
         if (value.match(/^[a-zA-Z0-9_-]+$/) == null) {
             throw `type name '${value}' is not allowed`
         }
