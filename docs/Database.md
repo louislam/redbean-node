@@ -10,10 +10,10 @@ let fields = await R.inspect('book');
 
 ## Multiple databases
 
-**R** is a **RedBeanNode** object exported from the module. You can create another RedBeanNode object for another connection:
+**R** is just a **RedBeanNode** object exported from the module. You can create another RedBeanNode object for another connection:
 
 ```javascript
-let R2 = new RedBeanNode();
+const R2 = new RedBeanNode();
 R2.setup();
 // do anything query on R2
 ```

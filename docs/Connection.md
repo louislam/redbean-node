@@ -47,9 +47,31 @@ This will close the database connection.
 
 ## Connection Pool
 
-By default, RedBeanNode is using pool approach.
+By default, RedBeanNode is using pool approach. You can pass your the connection pool setting object. 
 
-(TODO)
+Checkout the [tarn.js](https://github.com/vincit/tarn.js) library for more information.
+
+Default value: 
+```javascript
+let pool = {
+    min: 2,
+    max: 10,
+    idleTimeoutMillis: 30000,
+}
+```
+
+Setup with pool setting object
+
+```javascript
+R.setup('mysql', {
+    host: 'localhost',
+    user: 'user',
+    password: 'password',
+    database: 'mydatabase'
+}, pool);
+```
+
+
 
 
 ## Advance Setup

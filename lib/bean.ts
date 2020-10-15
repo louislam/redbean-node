@@ -34,7 +34,7 @@ export class Bean {
             let key = Bean.internalName(name);
             this[key] = value;
 
-            // If this is relation field, sync the relation bean too!
+            // If this is a relation field, sync the relation bean too!
             if (Bean.isRelationField(key)) {
                 let type = Bean.getTypeFromRelationField(key);
                 delete this.beanMeta.typeBeanList[type];
@@ -85,7 +85,7 @@ export class Bean {
             return this.getRelationBean(alias, type, this.beanMeta.noCache);
         }
 
-        // If own???List, here
+        // If own(???)List, here
         else if (Bean.isOwnListProperty(name)) {
             this.devLog("ownList Property detected");
 
@@ -98,6 +98,13 @@ export class Bean {
             }
 
             return this.ownList(type, alias, this.beanMeta.noCache);
+        }
+
+        // If shared(???)List, here
+        else if (Bean.isSharedListProperty(name)) {
+            this.devLog("sharedList Property detected");
+            let type = Bean.getTypeFromSharedListProperty(name);
+            return this.sharedList(type, this.beanMeta.noCache);
         }
 
         else {
@@ -175,8 +182,6 @@ export class Bean {
      * @param force
      */
     protected async ownList(type : string, alias : string, force = false) {
-
-
         if (! this.beanMeta.ownListList[type] || force) {
             this.devLog("load", type, "list from db");
 
@@ -189,6 +194,44 @@ export class Bean {
         }
 
         return this.beanMeta.ownListList[type];
+    }
+
+    protected async sharedList(type : string, force = false) {
+        let via;
+
+        if (this.beanMeta.via) {
+            via = this.beanMeta.via;
+        } else {
+            let typeList = [this.beanMeta.type, type].sort(function (a, b) {
+                return ('' + a).localeCompare(b);
+            });
+
+            via = typeList[0] + "_" + typeList[1];
+
+            // Check product_tag and tag_product tables
+            if (! await this.R().hasTable(via)) {
+                via = typeList[1] + "_" + typeList[0];
+
+                if (! await this.R().hasTable(via)) {
+                    return [];
+                }
+            }
+        }
+
+        if (! this.beanMeta.sharedListList[via] || force) {
+            let id1 = type + ".id";     // tag.id
+            let id2 =  via + "." + type + "_id";    // product_tag.tag_id
+
+            let queryPromise = this.R().knex.table(type).select(type + ".*")
+                .join(via, id1, "=", id2)
+                //.whereRaw(clause, data);
+            this.R().queryLog(queryPromise);
+
+            let list = await queryPromise;
+            this.beanMeta.sharedListList[via] = this.convertToBeans(type, list);
+        }
+
+        return this.beanMeta.sharedListList[via];
     }
 
     /**
@@ -310,6 +353,19 @@ export class Bean {
         }
     }
 
+    static isSharedListProperty(name : string) {
+        return name.startsWith("shared") && name.endsWith("List");
+    }
+
+    static getTypeFromSharedListProperty(name : string) {
+        if (this.isSharedListProperty(name)) {
+            // slice 6(shared) and 4(List)
+            return name.slice(6, name.length - 4).toLowerCase();
+        } else {
+            throw name + " is not an shared list property!";
+        }
+    }
+
     static isRelationField(name : string) {
         return name.endsWith("Id");
     }
@@ -363,15 +419,39 @@ export class Bean {
  * All true private variables are here, haha
  */
 class BeanMeta {
-
     #_R! : RedBeanNode;
     #_type! : string;
-    #_typeBeanList : any = {};
 
     /**
      * For chain operation
      */
     #_chainParentBean! : Bean;
+
+
+    /**
+     * ownList / shareList etc will be cache by default
+     */
+    noCache = false;
+
+    /* Variables for Chaining function */
+
+    /**
+     * For chain fetchAs() / fetchAs()
+     */
+    fetchAs = "";
+    alias = "";
+    via = "";
+
+    /*
+    * These variables are for cache
+    * Should be cleared if refresh() is called.
+    */
+
+    /**
+     *
+     * @private
+     */
+    #_typeBeanList : any = {};
 
     /**
      * Contains a list of own list
@@ -380,15 +460,11 @@ class BeanMeta {
     #_ownListList : any = {};
 
     /**
-     * ownList / shareList etc will be cache by default
+     * Key is via table name
+     * @private
      */
-    noCache = false;
+    #_sharedListList : any = {};
 
-    /**
-     * For chain fetchAs() / fetchAs()
-     */
-    fetchAs = "";
-    alias = "";
 
     get R(): RedBeanNode {
         return this.#_R;
@@ -421,6 +497,10 @@ class BeanMeta {
         return this.#_ownListList;
     }
 
+    get sharedListList(): any {
+        return this.#_sharedListList;
+    }
+
     set chainParentBean(value: Bean) {
         this.#_chainParentBean = value;
     }
@@ -436,6 +516,7 @@ class BeanMeta {
     refresh() {
         this.#_typeBeanList = {};
         this.#_ownListList = {};
+        this.#_sharedListList = {};
     }
 
 

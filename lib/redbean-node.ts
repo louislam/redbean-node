@@ -1,6 +1,7 @@
-import knex, {RawBinding, StaticConnectionConfig, ValueDict} from "knex";
+import knex, {PoolConfig, RawBinding, StaticConnectionConfig, ValueDict} from "knex";
 import {Bean} from "./bean";
 import {isEmptyObject} from "./helper/helper";
+// import PromisePool from 'es6-promise-pool';
 
 export class RedBeanNode {
 
@@ -22,9 +23,17 @@ export class RedBeanNode {
         return this._knex;
     }
 
-    setup(dbType : string | knex = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }) {
-        if (typeof dbType === "string") {
+    setup(dbType : string | knex = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }, pool : PoolConfig = { max: 10 }) {
 
+        if (! pool.min) {
+            pool.min = 2;
+        }
+
+        if (! pool.idleTimeoutMillis) {
+            pool.idleTimeoutMillis = 30000;
+        }
+
+        if (typeof dbType === "string") {
             if (dbType == "mariadb") {
                 dbType = "mysql";
             }
@@ -37,11 +46,7 @@ export class RedBeanNode {
                 client: dbType,
                 connection,
                 useNullAsDefault,
-                pool: {
-                    min: 2,
-                    max: 10,
-                    idleTimeoutMillis: 30000,
-                }
+                pool
             });
         } else {
             this._knex = dbType;
@@ -63,6 +68,20 @@ export class RedBeanNode {
 
     debug(v : boolean) {
         this._debug = v;
+    }
+
+    concurrent(promiseList : Promise<any>[]) {
+        return Promise.all(promiseList);
+    }
+
+    storeAll(beans: Bean[]) {
+        let promiseList : Promise<any>[] = [];
+
+        for (let bean of beans) {
+            promiseList.push(this.store(bean));
+        }
+
+        return this.concurrent(promiseList);
     }
 
     async store(bean: Bean) {
@@ -318,7 +337,7 @@ export class RedBeanNode {
     convertToBean(type : string, obj) : Bean {
         this.devLog("convertToBean", type, obj);
 
-        let bean = R.dispense(type);
+        let bean = this.dispense(type);
         bean.import(obj);
         return bean;
     }
@@ -437,6 +456,11 @@ export class RedBeanNode {
         return this.knex.table(type).columnInfo();
     }
 
+    /**
+     * TODO: transaction is globally, this should be buggy in async environment!
+     * @deprecated
+     * @param callback
+     */
     async begin() {
         if (! this._freeze) {
             console.warn("Warning: Transaction is not working in non-freeze mode.");
@@ -452,6 +476,11 @@ export class RedBeanNode {
         return this._transaction;
     }
 
+    /**
+     * TODO: transaction is globally, this should be buggy in async environment!
+     * @deprecated
+     * @param callback
+     */
     async commit() {
         if (this._transaction) {
             await this._transaction.commit();
@@ -459,6 +488,11 @@ export class RedBeanNode {
         }
     }
 
+    /**
+     * TODO: transaction is globally, this should be buggy in async environment!
+     * @deprecated
+     * @param callback
+     */
     async rollback() {
         if (this._transaction) {
             await this._transaction.rollback();
@@ -466,6 +500,11 @@ export class RedBeanNode {
         }
     }
 
+    /**
+     * TODO: transaction is globally, this should be buggy in async environment!
+     * @deprecated
+     * @param callback
+     */
     async transaction(callback: () => void) {
         try {
             await this.begin();
@@ -482,7 +521,7 @@ export class RedBeanNode {
         }
     }
 
-    protected queryLog(queryPromise : string | Promise<any>) {
+    public queryLog(queryPromise : string | Promise<any>) {
         if (this._debug) {
             let sql;
 
@@ -502,7 +541,7 @@ export class RedBeanNode {
      * @param deepCopy
      */
     duplicate(targetBean : Bean, deepCopy = true) {
-        let bean = R.dispense(targetBean.beanMeta.type);
+        let bean = this.dispense(targetBean.beanMeta.type);
 
         bean.import(targetBean.export());
         bean.id = undefined;
@@ -513,6 +552,13 @@ export class RedBeanNode {
 
         throw "Error: deep copy not implemented yet";
     }
+
+    async hasTable(tableName : string) {
+        let has = await this.knex.schema.hasTable(tableName);
+        this.devLog("Has table?", tableName, has);
+        return has;
+    }
+
 }
 
 export const R = new RedBeanNode();

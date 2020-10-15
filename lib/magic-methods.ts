@@ -23,6 +23,7 @@ export function magicMethods (clazz) {
     // Catches "instance.property"
     const get = Object.getOwnPropertyDescriptor(clazz.prototype, '__get')
     if (get) {
+
       instanceHandler.get = (target, name, receiver) => {
         // We need to turn off the __isset() trap for the moment to establish compatibility with PHP behaviour
         // PHP's __get() method doesn't care about its own __isset() method, so neither should we
