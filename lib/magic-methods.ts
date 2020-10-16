@@ -3,6 +3,7 @@
  * @param clazz
  */
 import {RedBeanNode} from "./redbean-node";
+import defineProperty = Reflect.defineProperty;
 
 export function magicMethods (clazz) {
   // A toggle switch for the __isset method
@@ -58,6 +59,21 @@ export function magicMethods (clazz) {
         }
       }
     }
+
+      // __defineProperty()
+      // Catches "instance.property = ..."
+      const defineProperty = Object.getOwnPropertyDescriptor(clazz.prototype, '__defineProperty')
+      if (defineProperty) {
+          instanceHandler.defineProperty = (target, name, desc) => {
+              if (name in target) {
+                  Reflect.defineProperty(target, name, desc)
+              } else {
+                  target.__set.call(target, name, desc)
+              }
+
+              return target;
+          }
+      }
 
     // __isset()
     // Catches "'property' in instance"

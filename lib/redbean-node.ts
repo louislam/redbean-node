@@ -263,14 +263,21 @@ export class RedBeanNode {
         }
     }
 
-    protected checkAllowedError(error) {
+    /**
+     * For internal use
+     * @param error
+     */
+    public checkAllowedError(error) {
+        this.devLog("Check Error");
 
         if (this.dbType == "sqlite") {
             if (error.errno == 1) {     // No such table
+                this.devLog("Allowed SQLite error", error.errno);
                 return;
             }
         } else if (this.dbType == "mysql") {
-            if (! error.startsWith("ER_NO_SUCH_TABLE")) {
+            if (error.code.startsWith("ER_NO_SUCH_TABLE")) {
+                this.devLog("Allowed MySQL error", error.code);
                 return;
             }
         }

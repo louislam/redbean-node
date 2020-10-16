@@ -1,6 +1,8 @@
 import {RedBeanNode} from "./redbean-node";
 import {magicMethods} from "./magic-methods";
 import {camelCaseToUnderscore, underscoreToCamelCase} from "./helper/string-helper";
+import {LazyLoadArray} from "./lazy-load-array";
+import {SharedList} from "./shared-list";
 
 @magicMethods
 export class Bean {
@@ -169,7 +171,7 @@ export class Bean {
                 return null;
             }
 
-            this.beanMeta.typeBeanList[type] = await this.R().load(type, id);
+            this.beanMeta.typeBeanList[type] = await this.R.load(type, id);
         }
 
         return this.beanMeta.typeBeanList[type];
@@ -187,7 +189,7 @@ export class Bean {
 
             let field = Bean.dbFieldName(Bean.getRelationFieldName(alias));
 
-            this.beanMeta.ownListList[type] = await this.R().find(type, ` ?? = ? `, [
+            this.beanMeta.ownListList[type] = await this.R.find(type, ` ?? = ? `, [
                 field,
                 this._id
             ]);
@@ -196,7 +198,8 @@ export class Bean {
         return this.beanMeta.ownListList[type];
     }
 
-    protected async sharedList(type : string, force = false) {
+
+    protected sharedList(type : string, force = false) {
         let via;
 
         if (this.beanMeta.via) {
@@ -207,28 +210,10 @@ export class Bean {
             });
 
             via = typeList[0] + "_" + typeList[1];
-
-            // Check product_tag and tag_product tables
-            if (! await this.R().hasTable(via)) {
-                via = typeList[1] + "_" + typeList[0];
-
-                if (! await this.R().hasTable(via)) {
-                    return [];
-                }
-            }
         }
 
-        if (! this.beanMeta.sharedListList[via] || force) {
-            let id1 = type + ".id";     // tag.id
-            let id2 =  via + "." + type + "_id";    // product_tag.tag_id
-
-            let queryPromise = this.R().knex.table(type).select(type + ".*")
-                .join(via, id1, "=", id2)
-                //.whereRaw(clause, data);
-            this.R().queryLog(queryPromise);
-
-            let list = await queryPromise;
-            this.beanMeta.sharedListList[via] = this.convertToBeans(type, list);
+        if (! this.beanMeta.sharedListList[via]) {
+            this.beanMeta.sharedListList[via] = new SharedList(this, type, via);
         }
 
         return this.beanMeta.sharedListList[via];
@@ -244,14 +229,14 @@ export class Bean {
         for (let type in this.beanMeta.typeBeanList) {
             let bean = this.beanMeta.typeBeanList[type];
             if (! bean.id) {
-                await this.R().store(bean);
+                await this.R.store(bean);
             }
             this[Bean.getRelationFieldName(type)] = bean.id;
         }
     }
 
     async refresh() {
-        let updatedBean = await this.R().load(this.beanMeta.type, this.id);
+        let updatedBean = await this.R.load(this.beanMeta.type, this.id);
 
         if (updatedBean != null) {
             this.beanMeta.refresh();
@@ -323,7 +308,7 @@ export class Bean {
             return this;
         } else {
             this.devLog("Create a chain bean");
-            let chainBean = this.R().duplicate(this, false);
+            let chainBean = this.R.duplicate(this, false);
             chainBean.id = this.id;
             chainBean.beanMeta.chainParentBean = this;
             chainBean.beanMeta.noCache = true;
@@ -336,7 +321,7 @@ export class Bean {
         return this.beanMeta.type;
     }
 
-    R() {
+    get R() {
         return this.beanMeta.R;
     }
 
@@ -409,7 +394,7 @@ export class Bean {
     }
 
     protected devLog(...params : any[]) {
-        if (this.R().devDebug) {
+        if (this.R.devDebug) {
             console.log("[" + this.beanMeta.type, this._id + "]", ...params);
         }
     }
