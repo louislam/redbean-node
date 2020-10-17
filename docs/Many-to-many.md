@@ -30,7 +30,7 @@ The default link table name is always sorted in ascending, which means it is alw
 "bean.share**Type**List" is a magic property when you can get a shared-list of **Type** by the property name:
 
 ```javascript
-let tagList = await vase.sharedTagList.load();
+let tagList = await vase.sharedTagList.toArray();
 ```
 
 The list will be cached. In case you need to refresh:
@@ -48,7 +48,7 @@ await R.store(vase);
 
 > If you pushed an unsaved bean into the share-list, the bean will be also stored together. It is because RedBeanNode need the id to store the relation. On the other hand, 
 
-## Remove Bean to Shared List
+## Remove Bean from Shared List
 
 ```javascript
 vase.sharedTagList.remove(tag);
@@ -72,7 +72,7 @@ await R.store(participant);
 
 let employees = await project
     .via('participant')
-    .sharedEmployeeList.load();
+    .sharedEmployeeList.toArray();
 console.log(employees);
 ```
 

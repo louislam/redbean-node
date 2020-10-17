@@ -13,5 +13,16 @@ To add products to the shop, add beans to the ownProductList property, like this
 let vase = R.dispense('product');
 vase.price = 25;
 shop.ownProductList.push(vase);
+await R.store(shop);
+```
+
+## Load own-list
+
+```javascript
+let list = await shop.ownProductList.toArray();
+```
+
+## Remove
+shop.ownProductList.remove(vase);
 R.store(shop);
 ```

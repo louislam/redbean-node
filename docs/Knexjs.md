@@ -14,5 +14,4 @@ let result = await R.knex.select('name').from('user')
     .orWhereIn('id', [4, 5, 6])
 ```
 
-
 For more powerful features, please read the documentation: https://knexjs.org

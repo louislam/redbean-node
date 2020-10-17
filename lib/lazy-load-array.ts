@@ -26,7 +26,7 @@ export abstract class LazyLoadArray {
         this.type = type;
     }
 
-    abstract async load(force : boolean);
+    abstract async toArray(force : boolean);
     abstract async store();
 
     push(...items : (Bean)[]): number {
@@ -50,7 +50,7 @@ export abstract class LazyLoadArray {
     protected removeItem(arr : Bean[], value : Bean) {
         var i = 0;
         while (i < arr.length) {
-            if (arr[i] === value || arr[i].id === value.id) {
+            if (arr[i] === value || (value.id && arr[i].id === value.id)) {
                 arr.splice(i, 1);
             } else {
                 ++i;
@@ -60,7 +60,7 @@ export abstract class LazyLoadArray {
     }
 
     refresh() {
-        return this.load(true);
+        return this.toArray(true);
     }
 
     get R() : RedBeanNode {

@@ -10,7 +10,7 @@ export class SharedList extends LazyLoadArray {
         this.via = via;
     }
 
-    async load(force: boolean = false) : Promise<Bean[]> {
+    async toArray(force: boolean = false) : Promise<Bean[]> {
 
         // Not yet save, must empty
         if (! this.parentBean._id) {

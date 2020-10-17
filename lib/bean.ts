@@ -3,6 +3,7 @@ import {magicMethods} from "./magic-methods";
 import {camelCaseToUnderscore, underscoreToCamelCase} from "./helper/string-helper";
 import {LazyLoadArray} from "./lazy-load-array";
 import {SharedList} from "./shared-list";
+import {OwnList} from "./own-list";
 
 @magicMethods
 export class Bean {
@@ -183,19 +184,14 @@ export class Bean {
      * @param type
      * @param force
      */
-    protected async ownList(type : string, alias : string, force = false) {
-        if (! this.beanMeta.ownListList[type] || force) {
-            this.devLog("load", type, "list from db");
+    protected ownList(type : string, alias : string, force = false) {
+        let key = type + "_" + alias;
 
-            let field = Bean.dbFieldName(Bean.getRelationFieldName(alias));
-
-            this.beanMeta.ownListList[type] = await this.R.find(type, ` ?? = ? `, [
-                field,
-                this._id
-            ]);
+        if (! this.beanMeta.ownListList[key] || force) {
+            this.beanMeta.ownListList[key] = new OwnList(this, type, alias);
         }
 
-        return this.beanMeta.ownListList[type];
+        return this.beanMeta.ownListList[key];
     }
 
 
@@ -250,6 +246,24 @@ export class Bean {
 
             if (sharedList instanceof SharedList) {
                 promiseList.push(sharedList.store());
+            }
+        }
+
+        await this.R.concurrent(promiseList);
+    }
+
+    /**
+     * Store all own list
+     * All beans without id will be stored.
+     */
+    async storeOwnList() {
+        let promiseList : Promise<any>[] = [];
+
+        for (let key in this.beanMeta.ownListList) {
+            let ownList = this.beanMeta.ownListList[key];
+
+            if (ownList instanceof OwnList) {
+                promiseList.push(ownList.store());
             }
         }
 
@@ -388,7 +402,7 @@ export class Bean {
         return Bean.prefixUnderscore(Bean.getRelationFieldName(type));
     }
 
-    protected static getRelationFieldName(type : string) {
+    public static getRelationFieldName(type : string) {
         return type + "Id";
     }
 

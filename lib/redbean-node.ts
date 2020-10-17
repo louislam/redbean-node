@@ -113,6 +113,7 @@ export class RedBeanNode {
         // Store Shared List
         // Must be here, because the bean id is needed
         await bean.storeSharedList();
+        await bean.storeOwnList();
 
         return bean.id;
     }
