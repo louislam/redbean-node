@@ -24,10 +24,18 @@ export class OwnList extends LazyLoadArray {
 
             let field = Bean.dbFieldName(Bean.getRelationFieldName(this.alias));
 
-            this._list = await this.R.find(this.type, ` ?? = ? `, [
+            let condition = " ?? = ? ";
+            let data = [
                 field,
                 this.parentBean._id
-            ]);
+            ];
+
+            if (this.withCondition) {
+                condition += " AND " + this.withCondition;
+                data.push(...this.withConditionData);
+            }
+
+            this._list = await this.R.find(this.type, condition, data);
 
         }
         return this.list;

@@ -189,6 +189,11 @@ export class Bean {
 
         if (! this.beanMeta.ownListList[key] || force) {
             this.beanMeta.ownListList[key] = new OwnList(this, type, alias);
+
+            if (this.beanMeta.withCondition) {
+                this.beanMeta.ownListList[key].withCondition = this.beanMeta.withCondition;
+                this.beanMeta.ownListList[key].withConditionData = this.beanMeta.withConditionData;
+            }
         }
 
         return this.beanMeta.ownListList[key];
@@ -210,6 +215,12 @@ export class Bean {
 
         if (! this.beanMeta.sharedListList[via]) {
             this.beanMeta.sharedListList[via] = new SharedList(this, type, via);
+
+            if (this.beanMeta.withCondition) {
+                this.beanMeta.sharedListList[via].withCondition = this.beanMeta.withCondition;
+                this.beanMeta.sharedListList[via].withConditionData = this.beanMeta.withConditionData;
+            }
+
         }
 
         return this.beanMeta.sharedListList[via];
@@ -340,7 +351,18 @@ export class Bean {
         return chainBean;
     }
 
-    /**
+    withCondition(condition : string, data : any[] = []) : Bean {
+        let chainBean = this.createChainBean();
+        chainBean.beanMeta.withCondition = condition;
+        chainBean.beanMeta.withConditionData = data;
+        return chainBean;
+    }
+
+    with(value : string, data = []) {
+        return this.withCondition(" 1=1 " + value, data);
+    }
+
+/**
      * If it is a chain bean already, it will return this. Otherwise it will return a new chain bean.
      * @private
      */
@@ -469,6 +491,8 @@ class BeanMeta {
     fetchAs = "";
     alias = "";
     via = "";
+    withCondition = "";
+    withConditionData : any[] = [];
 
     /*
     * These variables are for cache

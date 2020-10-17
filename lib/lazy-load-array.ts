@@ -21,6 +21,9 @@ export abstract class LazyLoadArray {
     protected _pendingRemoveList : Bean[] = [];
     protected _list : Bean[] = [];
 
+    public withCondition = "";
+    public withConditionData = [];
+
     protected constructor(parentBean: Bean, type : string) {
         this.parentBean = parentBean;
         this.type = type;

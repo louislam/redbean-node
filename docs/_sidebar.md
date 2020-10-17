@@ -14,8 +14,9 @@
 * **Relations**     
     * [Many-to-one](Many-to-one.md)
     * [One-to-many](One-to-many.md)
-    * [Many-to-many](Many-to-many.md)
     * [Aliases](Aliases.md)
+    * [Many-to-many](Many-to-many.md)
+    * [Using SQL Snippets](Using-SQL-Snippets.md)
     * [Counting](Counting.md)
 
 * **Advanced**

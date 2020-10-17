@@ -29,7 +29,10 @@ export class SharedList extends LazyLoadArray {
             let queryPromise = this.R.knex.table(this.type).select(this.type + ".*")
                 .join(this.via, id1, "=", id2)
                 .where(parentBeanFieldName, this.parentBean._id);
-               // .whereRaw("1=1")
+
+            if (this.withCondition) {
+                queryPromise.whereRaw(this.withCondition, this.withConditionData)
+            }
 
             this.R.queryLog(queryPromise);
 
