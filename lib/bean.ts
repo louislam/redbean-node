@@ -221,9 +221,9 @@ export class Bean {
 
     /**
      * Store all relation beans
-     * @param noIDOnly
+     * All beans without id will be stored.
      */
-    async storeTypeBeanList(noIDOnly = true) {
+    async storeTypeBeanList() {
         this.devLog("storeTypeBeanList");
 
         // Own List
@@ -235,6 +235,13 @@ export class Bean {
             this[Bean.getRelationFieldName(type)] = bean.id;
         }
 
+    }
+
+    /**
+     * Store all shared list
+     * All beans without id will be stored.
+     */
+    async storeSharedList() {
         let promiseList : Promise<any>[] = [];
 
         // Shared List
@@ -248,7 +255,6 @@ export class Bean {
 
         await this.R.concurrent(promiseList);
     }
-
 
 
     async refresh() {
@@ -309,6 +315,13 @@ export class Bean {
 
         let chainBean = this.createChainBean();
         chainBean.beanMeta.alias = alias;
+
+        return chainBean;
+    }
+
+    via(via : string) : Bean {
+        let chainBean = this.createChainBean();
+        chainBean.beanMeta.via = via;
 
         return chainBean;
     }

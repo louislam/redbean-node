@@ -36,5 +36,5 @@ let result = await Promise.all([
 console.log(result);
 ```
 
-By default, the max concurrent is limited by the pooling config. Default value is **10**. Read more in [Connection](Connection.md) section.
+By default, the max concurrent is limited by the pooling config. Default value is **10**. Read more in [Connection](Connection.md#connection-pool) section.
 

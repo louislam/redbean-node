@@ -13,7 +13,7 @@ export class RedBeanNode {
 
     protected _freeze = false;
     protected _transaction;
-    protected _knex;
+    protected _knex! : knex;
     protected dbType;
 
     get knex() {
@@ -109,6 +109,10 @@ export class RedBeanNode {
             let result = await queryPromise;
             bean.id = result[0];
         }
+
+        // Store Shared List
+        // Must be here, because the bean id is needed
+        await bean.storeSharedList();
 
         return bean.id;
     }
@@ -370,7 +374,7 @@ export class RedBeanNode {
         return this.normalizeRaw(sql, data);
     }
 
-    async getRow(sql: string, data: string[] = [], autoLimit = true) {
+    async getRow(sql: string, data: (string | knex.Value)[] = [], autoLimit = true) {
 
         if (autoLimit) {
             let limitTemplate = this.knex.limit(1).toSQL().toNative();
