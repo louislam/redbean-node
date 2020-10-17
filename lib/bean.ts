@@ -226,6 +226,7 @@ export class Bean {
     async storeTypeBeanList(noIDOnly = true) {
         this.devLog("storeTypeBeanList");
 
+        // Own List
         for (let type in this.beanMeta.typeBeanList) {
             let bean = this.beanMeta.typeBeanList[type];
             if (! bean.id) {
@@ -233,7 +234,22 @@ export class Bean {
             }
             this[Bean.getRelationFieldName(type)] = bean.id;
         }
+
+        let promiseList : Promise<any>[] = [];
+
+        // Shared List
+        for (let key in this.beanMeta.sharedListList) {
+            let sharedList = this.beanMeta.sharedListList[key];
+
+            if (sharedList instanceof SharedList) {
+                promiseList.push(sharedList.store());
+            }
+        }
+
+        await this.R.concurrent(promiseList);
     }
+
+
 
     async refresh() {
         let updatedBean = await this.R.load(this.beanMeta.type, this.id);
@@ -482,7 +498,7 @@ class BeanMeta {
         return this.#_ownListList;
     }
 
-    get sharedListList(): any {
+    get sharedListList() {
         return this.#_sharedListList;
     }
 

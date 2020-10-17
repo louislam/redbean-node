@@ -17,9 +17,10 @@ export class RedBeanNode {
     protected dbType;
 
     get knex() {
+        /*
         if (this._transaction) {
             return this._transaction;
-        }
+        }*/
         return this._knex;
     }
 
@@ -566,6 +567,9 @@ export class RedBeanNode {
         return has;
     }
 
+    isFrozen() {
+        return this._freeze;
+    }
 }
 
 export const R = new RedBeanNode();

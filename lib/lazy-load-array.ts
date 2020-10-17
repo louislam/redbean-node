@@ -2,7 +2,7 @@ import {magicMethods} from "./magic-methods";
 import {Bean} from "./bean";
 import {RedBeanNode} from "./redbean-node";
 
-export abstract class LazyLoadArray extends Array<Bean> {
+export abstract class LazyLoadArray {
 
     /**
      * This is a normal bean without proxy!
@@ -17,31 +17,34 @@ export abstract class LazyLoadArray extends Array<Bean> {
      * Accept Bean or id (int)
      * @private
      */
-    #pendingAddList : (number | Bean)[]= [];
-    #pendingRemoveList : Bean[] = [];
+    protected _pendingAddList : Bean[]= [];
+    protected _pendingRemoveList : Bean[] = [];
+    protected _list : Bean[] = [];
 
     protected constructor(parentBean: Bean, type : string) {
-        super(0);
         this.parentBean = parentBean;
         this.type = type;
     }
 
     abstract async load(force : boolean);
+    abstract async store();
 
     push(...items : (Bean)[]): number {
         for (let item of items) {
-            this.removeItem(this.#pendingRemoveList, item);
+            this.removeItem(this._pendingRemoveList, item);
         }
 
-        return this.#pendingAddList.push(...items);
+        return this._pendingAddList.push(...items);
     }
 
     remove(...items : Bean[]) {
+        this.devLog("Remove item from LazyLoadArray");
+
         for (let item of items) {
-            this.removeItem(this.#pendingRemoveList, item);
+            this.removeItem(this._pendingAddList, item);
         }
 
-        this.#pendingRemoveList.push(...items);
+        this._pendingRemoveList.push(...items);
     }
 
     protected removeItem(arr : Bean[], value : Bean) {
@@ -56,11 +59,7 @@ export abstract class LazyLoadArray extends Array<Bean> {
         return arr;
     }
 
-    store() {
-
-    }
-
-    reload() {
+    refresh() {
         return this.load(true);
     }
 
@@ -73,4 +72,17 @@ export abstract class LazyLoadArray extends Array<Bean> {
             console.log("[SharedList]", ...params);
         }
     }
+
+    get list(): Bean[] {
+        return this._list;
+    }
+
+    get pendingRemoveList(): Bean[] {
+        return this._pendingRemoveList;
+    }
+
+    get pendingAddList(): (number | Bean)[] {
+        return this._pendingAddList;
+    }
+
 }
