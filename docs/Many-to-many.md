@@ -78,4 +78,4 @@ console.log(employees);
 
 Remember that, removing bean from shared-list causes the link beans (participant bean) to be removed! However, you can always nullify the relations manually of course.
 
-> Due to JavaScript's limitation, this page's api is a bit different to RedBeanPHP.
+> Due to JavaScript's limitation, this page's api is a bit different to RedBeanNode.

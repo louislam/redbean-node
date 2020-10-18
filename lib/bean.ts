@@ -477,7 +477,6 @@ class BeanMeta {
      */
     #_chainParentBean! : Bean;
 
-
     /**
      * ownList / shareList etc will be cache by default
      */

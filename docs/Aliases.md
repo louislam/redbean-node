@@ -21,7 +21,7 @@ if (sameCourse) {
 }
 ```
 
-fetchAs tells RedBeanPHP the **ID** has to be associated with a different type (in this case 'person' instead of 'teacher' or 'student'). This also works the other way:
+fetchAs tells RedBeanNode the **ID** has to be associated with a different type (in this case 'person' instead of 'teacher' or 'student'). This also works the other way:
 
 ```javascript
 // returns all courses for this person

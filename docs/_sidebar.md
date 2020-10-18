@@ -5,11 +5,16 @@
     * [Connection](Connection.md)
     
 * **Basic**
-    * [CRUD](CRUD.md)
-    * [Finding](Finding.md)
-    * [Raw Query](Query.md)
-    * [Fluid and Frozen](Fluid-and-Frozen.md)
+    * [Create/Update a Bean](Create-Update-Bean.md)
+    * [Load a Bean](Load-Bean.md)
+    * [Delete a Bean](Delete-Bean.md)
+    * [Date Types](Date-Types.md)
+    * [Freeze](Fluid-and-Frozen.md)
     * [Debugging](Debugging.md)
+    
+* **Finding**
+    * [Finding Beans](Finding.md)
+    * [Raw Query](Query.md)
 
 * **Relations**     
     * [Many-to-one](Many-to-one.md)

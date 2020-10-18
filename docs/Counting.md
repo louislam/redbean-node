@@ -1,5 +1,5 @@
 # Counting
-Counting records is very easy with RedBeanPHP. For instance, to count all beans of type book use:
+Counting records is very easy with RedBeanNode. For instance, to count all beans of type book use:
 
 ```javascript
 let numOfBooks = R.count('book');

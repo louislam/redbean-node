@@ -56,5 +56,5 @@ No verbose XML files, no annoying annotations, no YAML or INI. Zero Config. Just
 
 ## Fluid Schema
 
-During development, RedBeanPHP will adapt the database schema to fit your needs, giving you the **NoSQL** experience. When deploying to production servers, you can freeze the schema and benefit from performance gains and referential integrity.
+During development, RedBeanNode will adapt the database schema to fit your needs, giving you the **NoSQL** experience. When deploying to production servers, you can freeze the schema and benefit from performance gains and referential integrity.
 RedBeanNode offers the best of both worlds!

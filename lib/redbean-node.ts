@@ -148,6 +148,7 @@ export class RedBeanNode {
                 let addField = false;
                 let alterField = false;
                 let valueType = this.getDataType(value);
+                this.devLog("Best column type =", valueType);
 
 
                 // Check if the field exists in current database
@@ -169,6 +170,10 @@ export class RedBeanNode {
                         console.log("Create field (Int): " + fieldName);
                         col = table.integer(fieldName);
 
+                    } else if (valueType == "bigInteger") {
+                        console.log("Create field (bigInteger): " + fieldName);
+                        col = table.bigInteger(fieldName);
+
                     } else if (valueType == "float") {
                         console.log("Create field (Float): " + fieldName);
                         col = table.float(fieldName);
@@ -176,7 +181,6 @@ export class RedBeanNode {
                     } else if (valueType == "boolean") {
                         console.log("Create field (Boolean): " + fieldName);
                         col = table.boolean(fieldName);
-
 
                     } else if (valueType == "text") {
                         console.log("Create field (Text): " + fieldName);
@@ -198,9 +202,18 @@ export class RedBeanNode {
 
     getDataType(value) {
         let type = typeof value;
+
+        this.devLog("Date Type of", value, "=", type);
+
         if (type == "number") {
             if (Number.isInteger(value)) {
-                return "integer";
+
+                if (value > 2147483647) {
+                    return "bigInteger";
+                } else {
+                    return "integer";
+                }
+
             } else {
                 return "float";
             }
@@ -216,23 +229,36 @@ export class RedBeanNode {
     }
 
     isValidType(columnType, valueType) {
+        this.devLog("isValidType", columnType, valueType);
+
+        // Boolean
         if (columnType == "boolean") {
-            if (valueType == "integer" || valueType == "float" || valueType == "varchar" || valueType == "text") {
+            if (valueType == "integer" || valueType == "float" || valueType == "varchar" || valueType == "text" || valueType == "bigInteger") {
                 return false;
             }
         }
 
-        if (columnType == "integer") {
+        // Int
+        if (columnType == "integer" || columnType == "int") {
+            if (valueType == "float" || valueType == "varchar" || valueType == "text" || valueType == "bigInteger") {
+                return false;
+            }
+        }
+
+        // Big Int
+        if (columnType == "bigInteger" || columnType == "bigint") {
             if (valueType == "float" || valueType == "varchar" || valueType == "text") {
                 return false;
             }
         }
 
+        // Float
         if (columnType == "float") {
             if (valueType == "varchar" || valueType == "text") {
                 return false;
             }
         }
+
 
         if (columnType == "varchar") {
             if (valueType == "text") {
