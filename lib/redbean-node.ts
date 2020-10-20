@@ -1,6 +1,7 @@
 import knex, {PoolConfig, RawBinding, StaticConnectionConfig, ValueDict} from "knex";
 import {Bean} from "./bean";
 import {isEmptyObject} from "./helper/helper";
+import dayjs from "dayjs";
 // import PromisePool from 'es6-promise-pool';
 
 export class RedBeanNode {
@@ -186,6 +187,18 @@ export class RedBeanNode {
                         console.log("Create field (Text): " + fieldName);
                         col = table.text(fieldName, "longtext");
 
+                    } else if (valueType == "datetime") {
+                        console.log("Create field (Datetime): " + fieldName);
+                        col = table.dateTime(fieldName);
+
+                    } else if (valueType == "date") {
+                        console.log("Create field (Date): " + fieldName);
+                        col = table.date(fieldName);
+
+                    } else if (valueType == "time") {
+                        console.log("Create field (Time): " + fieldName);
+                        col = table.time(fieldName);
+
                     } else {
                         console.log("Create field (String): " + fieldName);
                         col = table.string(fieldName);
@@ -205,11 +218,16 @@ export class RedBeanNode {
 
         this.devLog("Date Type of", value, "=", type);
 
-        if (type == "number") {
+        if (type == "boolean") {
+            return "boolean";
+
+        } else if (type == "number") {
             if (Number.isInteger(value)) {
 
                 if (value > 2147483647) {
                     return "bigInteger";
+                } else if (value == 1 || value == 0) {
+                    return "boolean";   // Tinyint
                 } else {
                     return "integer";
                 }
@@ -221,6 +239,15 @@ export class RedBeanNode {
             if (value.length > 230) {
                 return "text";
             } else {
+
+                if (this.isDateTime(value)) {
+                    return "datetime";
+                } else if (this.isDate(value)) {
+                    return "date";
+                }  else if (this.isTime(value)) {
+                    return "time";
+                }
+
                 return "varchar";
             }
         } else {
@@ -232,34 +259,77 @@ export class RedBeanNode {
         this.devLog("isValidType", columnType, valueType);
 
         // Boolean
-        if (columnType == "boolean") {
-            if (valueType == "integer" || valueType == "float" || valueType == "varchar" || valueType == "text" || valueType == "bigInteger") {
+        if (columnType == "boolean" || columnType == "tinyint") {
+            if (
+                valueType == "integer" || valueType == "float" || valueType == "varchar" ||
+                valueType == "text" || valueType == "bigInteger" ||
+                valueType == "datetime" || valueType == "date" || valueType =="time"
+            ) {
                 return false;
             }
         }
 
         // Int
         if (columnType == "integer" || columnType == "int") {
-            if (valueType == "float" || valueType == "varchar" || valueType == "text" || valueType == "bigInteger") {
+            if (
+                valueType == "float" || valueType == "varchar" || valueType == "text" || valueType == "bigInteger" ||
+                valueType == "datetime" || valueType == "date" || valueType =="time"
+            ) {
                 return false;
             }
         }
 
         // Big Int
         if (columnType == "bigInteger" || columnType == "bigint") {
-            if (valueType == "float" || valueType == "varchar" || valueType == "text") {
+            if (
+                valueType == "float" || valueType == "varchar" || valueType == "text" ||
+                valueType == "datetime" || valueType == "date" || valueType =="time"
+            ) {
                 return false;
             }
         }
 
         // Float
         if (columnType == "float") {
-            if (valueType == "varchar" || valueType == "text") {
+            if (
+                valueType == "varchar" || valueType == "text" ||
+                valueType == "datetime" || valueType == "date" || valueType =="time"
+            ) {
                 return false;
             }
         }
 
+        // Time
+        if (columnType == "time") {
+            if (
+                valueType == "varchar" || valueType == "text" ||
+                valueType == "datetime" || valueType == "date"
+            ) {
+                return false;
+            }
+        }
 
+        // Date
+        if (columnType == "date") {
+            if (
+                valueType == "varchar" || valueType == "text" ||
+                valueType == "datetime"
+            ) {
+                return false;
+            }
+        }
+
+        // DateTime
+        if (columnType == "datetime") {
+            if (
+                valueType == "varchar" || valueType == "text"
+            ) {
+                return false;
+            }
+        }
+
+        // Varchar
+        // Varchar cannot store text only
         if (columnType == "varchar") {
             if (valueType == "text") {
                 return false;
@@ -268,6 +338,8 @@ export class RedBeanNode {
 
         return true;
     }
+
+
 
     async close() {
         await this.knex.destroy();
@@ -600,6 +672,63 @@ export class RedBeanNode {
 
     isFrozen() {
         return this._freeze;
+    }
+
+    isoDateTime(dateTime : dayjs.Dayjs | Date | undefined = undefined) {
+        let dayjsObject;
+
+        if (dateTime instanceof dayjs) {
+            dayjsObject = dateTime;
+        } else {
+            dayjsObject =  dayjs(dateTime);
+        }
+
+        return dayjsObject.format('YYYY-MM-DD HH:mm:ss');
+    }
+
+    isoDate(date : dayjs.Dayjs | Date | undefined = undefined) {
+        let dayjsObject;
+
+        if (date instanceof dayjs) {
+            dayjsObject = date;
+        } else {
+            dayjsObject =  dayjs(date);
+        }
+
+        return dayjsObject.format('YYYY-MM-DD');
+    }
+
+    /**
+     * HH:mm:ss
+     * @param date
+     */
+    isoTime(date : dayjs.Dayjs | Date | undefined = undefined) {
+        let dayjsObject;
+
+        if (date instanceof dayjs) {
+            dayjsObject = date;
+        } else {
+            dayjsObject =  dayjs(date);
+        }
+
+        return dayjsObject.format('HH:mm:ss');
+    }
+
+    isDate(value : string) {
+        let format = "YYYY-MM-DD";
+        return dayjs(value, format).format(format) === value;
+    }
+
+    isDateTime(value : string) {
+        let format = "YYYY-MM-DD HH:mm:ss";
+        return dayjs(value, format).format(format) === value;
+    }
+
+    isTime(value : string) {
+        // Since dayjs is not supporting time only format, so prefix a fake date to parse
+        value = "2020-10-20 " + value;
+        let format = "YYYY-MM-DD HH:mm:ss";
+        return dayjs(value, format).format(format) === value;
     }
 }
 
