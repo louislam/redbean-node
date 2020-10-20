@@ -2,7 +2,7 @@
 
 The column data type is automatically decided by RedBeanNode.
 
-You can use **R::isoDate()** and **R::isoDateTime()** to generate the current date(time) or parse your date.
+You can use **R.isoDate()** and **R.isoDateTime()** to generate the current date(time) or parse your date.
 
 ## DateTime
 

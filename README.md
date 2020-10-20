@@ -10,7 +10,7 @@ RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by Red
 * No configuration, just fire and forget
 * Ported RedBeanPHP's main features and api design
 * Build on top of knex.js
-* Supports **JavaScript** & **TypeScript**
+* Supports **JavaScript (ES6)** & **TypeScript**
 * **async/await** or **promise** friendly
 
 ## Supported Databases
