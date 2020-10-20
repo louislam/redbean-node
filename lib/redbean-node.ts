@@ -11,17 +11,19 @@ export class RedBeanNode {
      */
     public devDebug = false;
     protected _debug = false;
-
     protected _freeze = false;
+
     protected _transaction;
     protected _knex! : knex;
     protected dbType;
 
+    /**
+     * If use this on transaction
+     */
     get knex() {
-        /*
         if (this._transaction) {
             return this._transaction;
-        }*/
+        }
         return this._knex;
     }
 
@@ -50,8 +52,10 @@ export class RedBeanNode {
                 useNullAsDefault,
                 pool
             });
+
         } else {
             this._knex = dbType;
+            this.dbType = this._knex.client.config.client;
         }
     }
 
@@ -568,28 +572,28 @@ export class RedBeanNode {
     }
 
     /**
-     * TODO: transaction is globally, this should be buggy in async environment!
-     * @deprecated
      * @param callback
      */
-    async begin() {
+    async begin() : Promise<RedBeanNode> {
         if (! this._freeze) {
             console.warn("Warning: Transaction is not working in non-freeze mode.");
-            return;
+            return this;
         }
 
         if (this._transaction) {
             throw "Previous transaction is not committed";
         }
 
-        this._transaction = await this.knex.transaction();
+        let redBeanNode = new RedBeanNode();
+        redBeanNode.setup(this._knex);
+        redBeanNode._debug = this._debug;
+        redBeanNode._freeze = this._freeze;
+        redBeanNode._transaction = await this.knex.transaction();
 
-        return this._transaction;
+        return redBeanNode;
     }
 
     /**
-     * TODO: transaction is globally, this should be buggy in async environment!
-     * @deprecated
      * @param callback
      */
     async commit() {
@@ -600,8 +604,6 @@ export class RedBeanNode {
     }
 
     /**
-     * TODO: transaction is globally, this should be buggy in async environment!
-     * @deprecated
      * @param callback
      */
     async rollback() {
@@ -612,18 +614,18 @@ export class RedBeanNode {
     }
 
     /**
-     * TODO: transaction is globally, this should be buggy in async environment!
-     * @deprecated
      * @param callback
      */
-    async transaction(callback: () => void) {
+    async transaction(callback: (trx : RedBeanNode) => void) {
+        let trx = await this.begin();
+
         try {
-            await this.begin();
-            await callback();
-            await this.commit();
+            await callback(trx);
+            await trx.commit();
         } catch (error) {
-            await this.rollback();
+            await trx.rollback();
         }
+
     }
 
     protected devLog(...params : any[]) {
@@ -672,6 +674,10 @@ export class RedBeanNode {
 
     isFrozen() {
         return this._freeze;
+    }
+
+    isDebug() {
+        return this._debug;
     }
 
     isoDateTime(dateTime : dayjs.Dayjs | Date | undefined = undefined) {
