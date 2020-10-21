@@ -4,4 +4,4 @@ node_modules
 dbfile.db
 /dev_*.ts
 /dev_*.js
-/lib/model/
+lib/model/user.ts
