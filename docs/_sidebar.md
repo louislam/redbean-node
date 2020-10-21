@@ -27,6 +27,7 @@
 * **Advanced**
     * [Transaction](Transaction.md)
     * [Concurrent](Concurrent.md)
+    * [Models](Models.md)
     * [Database](Database.md)
     * [Knex.js](Knexjs.md)
     

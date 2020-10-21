@@ -5,6 +5,7 @@ import dayjs from "dayjs";
 // import PromisePool from 'es6-promise-pool';
 import glob from "glob";
 import path from "path";
+import {BeanModel} from "./bean-model";
 
 export class RedBeanNode {
 
@@ -69,8 +70,21 @@ export class RedBeanNode {
      * @param type
      */
     dispense(type : string) : Bean {
+        return this.createBean(type);
+    }
+
+    protected createBean(type : string, isDispense = true) {
         if (type in this.modelList) {
-            return new this.modelList[type](type, this);
+             let bean : BeanModel = new this.modelList[type](type, this);
+
+            if (isDispense) {
+                bean.onDispense();
+            } else {
+                bean.onOpen();
+            }
+
+            return bean;
+
         } else {
             return new Bean(type, this);
         }
@@ -110,12 +124,18 @@ export class RedBeanNode {
         let obj = bean.export(false);
         delete obj.id;
 
+        if (bean instanceof BeanModel) {
+            bean.onUpdate();
+        }
+
         // Update
         // else insert
         if (bean.id && !isEmptyObject(obj)) {
+
             let queryPromise = this.knex(bean.getType()).where({ id: bean.id }).update(obj);
             this.queryLog(queryPromise);
             await queryPromise;
+
         } else {
             let queryPromise = this.knex(bean.getType()).insert(obj);
             this.queryLog(queryPromise);
@@ -123,10 +143,16 @@ export class RedBeanNode {
             bean.id = result[0];
         }
 
+
+
         // Store Shared List
         // Must be here, because the bean id is needed
         await bean.storeSharedList();
         await bean.storeOwnList();
+
+        if (bean instanceof BeanModel) {
+            bean.onAfterUpdate();
+        }
 
         return bean.id;
     }
@@ -411,12 +437,20 @@ export class RedBeanNode {
 
     async trash(bean: Bean) {
         if (bean.id) {
+            if (bean instanceof BeanModel) {
+                bean.onDelete();
+            }
+
             let queryPromise = this.knex.table(bean.getType()).where({ id : bean.id }).delete();
 
             this.queryLog(queryPromise);
 
             await queryPromise;
             bean.id = 0;
+
+            if (bean instanceof BeanModel) {
+                bean.onAfterDelete();
+            }
         }
     }
 
@@ -460,7 +494,15 @@ export class RedBeanNode {
     convertToBean(type : string, obj) : Bean {
         this.devLog("convertToBean", type, obj);
 
-        let bean = this.dispense(type);
+        let isDispense;
+
+        if (obj.id) {
+            isDispense = true;
+        } else {
+            isDispense = false;
+        }
+
+        let bean = this.createBean(type, isDispense);
         bean.import(obj);
         return bean;
     }
