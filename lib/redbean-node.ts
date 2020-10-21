@@ -1,10 +1,13 @@
 import knex, {PoolConfig, RawBinding, StaticConnectionConfig, ValueDict} from "knex";
 import {Bean} from "./bean";
-import {isEmptyObject} from "./helper/helper";
+import {isEmptyObject, LooseObject} from "./helper/helper";
 import dayjs from "dayjs";
 // import PromisePool from 'es6-promise-pool';
+import glob from "glob";
+import path from "path";
 
 export class RedBeanNode {
+
 
     /**
      * For this library dev only
@@ -16,6 +19,8 @@ export class RedBeanNode {
     protected _transaction;
     protected _knex! : knex;
     protected dbType;
+
+    private _modelList : LooseObject = {};
 
     /**
      * If use this on transaction
@@ -62,10 +67,13 @@ export class RedBeanNode {
     /**
      *
      * @param type
-     * @param loadDefaultValue
      */
-    dispense(type) {
-        return new Bean(type, this);
+    dispense(type : string) : Bean {
+        if (type in this.modelList) {
+            return new this.modelList[type](type, this);
+        } else {
+            return new Bean(type, this);
+        }
     }
 
     freeze( v = true) {
@@ -735,6 +743,38 @@ export class RedBeanNode {
         value = "2020-10-20 " + value;
         let format = "YYYY-MM-DD HH:mm:ss";
         return dayjs(value, format).format(format) === value;
+    }
+
+    async addModels(dir: string) {
+        let tsFileList, jsFileList;
+
+        if (this.devDebug && dir == "./model") {
+            tsFileList = glob.sync("./lib/model/*.ts");
+            jsFileList = glob.sync("./lib/model/*.js");
+        } else {
+            tsFileList = glob.sync(dir + "/*.ts");
+            jsFileList = glob.sync(dir + "/*.js");
+        }
+
+        let fileList = [...tsFileList, ...jsFileList];
+
+        for (let file of fileList) {
+            if (file.endsWith(".d.ts")) {
+                continue;
+            }
+
+            if (this.devDebug) {
+                file = file.replace("lib/", "");
+            }
+
+            let info = path.parse(file);
+            this.modelList[info.name] = (await import(file)).default;
+        }
+
+    }
+
+    get modelList(): LooseObject {
+        return this._modelList;
     }
 }
 

@@ -570,5 +570,8 @@ class BeanMeta {
         this.#_sharedListList = {};
     }
 
+     onDispense() {
+
+    }
 
 }
