@@ -12,6 +12,6 @@ export function isEmptyObject(obj) {
     return JSON.stringify(obj) === JSON.stringify({});
 }
 
-export interface LooseObject {
-    [key: string]: any
+export interface LooseObject<T = any> {
+    [key: string]: T
 }

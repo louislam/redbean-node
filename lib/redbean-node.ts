@@ -21,7 +21,7 @@ export class RedBeanNode {
     protected _knex! : knex;
     protected dbType;
 
-    private _modelList : LooseObject = {};
+    private _modelList : LooseObject<{new (type, R): BeanModel}> = {};
 
     /**
      * If use this on transaction
@@ -810,12 +810,23 @@ export class RedBeanNode {
             }
 
             let info = path.parse(file);
-            this.modelList[info.name] = (await import(file)).default;
+            let obj = await import(file);
+
+            console.log(obj);
+            console.log(typeof obj);
+
+            if ("default" in obj) {
+                this.modelList[info.name] = obj.default;
+            } else {
+                console.log("do nothing");
+            }
+
+
         }
 
     }
 
-    get modelList(): LooseObject {
+    get modelList() {
         return this._modelList;
     }
 }
