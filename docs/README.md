@@ -1,5 +1,7 @@
 # RedBeanNode Docs
 
+![Travis (.org)](https://img.shields.io/travis/louislam/redbean-node?style=for-the-badge) ![npm](https://img.shields.io/npm/v/redbean-node?style=for-the-badge)
+
 ## Welcome
 
 RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by RedBeanPHP. 
