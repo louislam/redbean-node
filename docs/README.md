@@ -1,6 +1,6 @@
 # RedBeanNode Docs
 
-![Travis (.org)](https://img.shields.io/travis/louislam/redbean-node?style=for-the-badge) ![npm](https://img.shields.io/npm/v/redbean-node?style=for-the-badge)
+![Travis (.org)](https://img.shields.io/travis/louislam/redbean-node) [![Coverage Status](https://coveralls.io/repos/github/louislam/redbean-node/badge.svg?branch=master)](https://coveralls.io/github/louislam/redbean-node?branch=master) ![npm](https://img.shields.io/npm/v/redbean-node) 
 
 ## Welcome
 

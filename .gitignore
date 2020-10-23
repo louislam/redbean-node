@@ -5,3 +5,6 @@ dbfile.db
 /dev_*.ts
 /dev_*.js
 lib/model/
+/.nyc_output/
+/coverage/
+.coveralls.yml

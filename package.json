@@ -11,8 +11,9 @@
     ],
     "scripts": {
         "build": "tsc",
-        "test": "tsc && mocha",
         "prepublish": "npm build",
+        "test": "tsc && nyc --reporter=html mocha",
+        "coverage": "tsc && nyc report --reporter=text-lcov | coveralls",
         "example": "ts-node dev_example.ts",
         "example2": "ts-node dev_example2.ts"
     },
@@ -53,7 +54,10 @@
     },
     "devDependencies": {
         "chai": "^4.2.0",
+        "coveralls": "^3.1.0",
         "mocha": "^8.2.0",
+        "mocha-lcov-reporter": "^1.3.0",
+        "nyc": "^15.1.0",
         "typescript": "^4.0.3"
     }
 }

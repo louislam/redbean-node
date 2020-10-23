@@ -8,3 +8,4 @@ node_js:
     #  - 15
     #  - node
     #  - lts/*
+after_success: npm run coverage
