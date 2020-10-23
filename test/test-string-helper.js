@@ -12,6 +12,7 @@ describe('test string-helper', () => {
             assert.equal(camelCaseToUnderscore("getLastName"), "get_last_name");
             assert.equal(camelCaseToUnderscore("n"), "n");
             assert.equal(camelCaseToUnderscore("n1"), "n1");
+            assert.equal(camelCaseToUnderscore("123"), "123");
         });
 
     });
@@ -24,7 +25,7 @@ describe('test string-helper', () => {
             assert.equal(underscoreToCamelCase("node"), "node");
             assert.equal(underscoreToCamelCase("get_last_name"), "getLastName");
             assert.equal(underscoreToCamelCase("n"), "n");
-            assert.equal(underscoreToCamelCase("n1"), "n1");
+            assert.equal(underscoreToCamelCase("123"), "123");
         });
 
     });
