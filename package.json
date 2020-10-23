@@ -11,11 +11,10 @@
     ],
     "scripts": {
         "build": "tsc",
-        "test": "",
-        "example": "ts-node dev_example.ts",
-        "example2": "ts-node dev_example2.ts",
+        "test": "tsc && mocha",
         "prepublish": "npm build",
-        "publish-alpha": "npm publish --tag alpha"
+        "example": "ts-node dev_example.ts",
+        "example2": "ts-node dev_example2.ts"
     },
     "author": "Louis Lam",
     "license": "MIT",
@@ -50,6 +49,10 @@
         "redbeannode"
     ],
     "np": {
-        "releaseDraft" : false
+        "releaseDraft": false
+    },
+    "devDependencies": {
+        "chai": "^4.2.0",
+        "mocha": "^8.2.0"
     }
 }

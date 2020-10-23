@@ -3,7 +3,7 @@
  * @param input
  */
 export function splitCamelCase(input : string) {
-    let list = input.match(/[A-Z]?[a-z]+/g);
+    let list = input.match(/^[A-Z]?[^A-Z]*|[A-Z][^A-Z]*/g);
 
     if (list === null) {
         return [];
