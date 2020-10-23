@@ -4,6 +4,7 @@ import {camelCaseToUnderscore, underscoreToCamelCase} from "./helper/string-help
 import {LazyLoadArray} from "./lazy-load-array";
 import {SharedList} from "./shared-list";
 import {OwnList} from "./own-list";
+import {LooseObject} from "./helper/helper";
 
 @magicMethods
 export class Bean {
@@ -35,6 +36,9 @@ export class Bean {
             this.setRelationBean(name, value);
         } else {
             let key = Bean.internalName(name);
+
+            this.beanMeta.old[key] = this[key];
+
             this[key] = value;
 
             // If this is a relation field, sync the relation bean too!
@@ -286,8 +290,8 @@ export class Bean {
         let updatedBean = await this.R.load(this.beanMeta.type, this.id);
 
         if (updatedBean != null) {
-            this.beanMeta.refresh();
             this.import(updatedBean.export());
+            this.beanMeta.refresh();
         } else {
             // Deleted in database?!
             // Do Nothing for now
@@ -454,7 +458,7 @@ export class Bean {
         return Bean.removePrefixUnderscore(camelCaseToUnderscore(name));
     }
 
-    protected static internalName(name : string) {
+    static internalName(name : string) {
         return Bean.prefixUnderscore(underscoreToCamelCase(name));
     }
 
@@ -462,6 +466,11 @@ export class Bean {
         if (this.R.devDebug) {
             console.log("[" + this.beanMeta.type, this._id + "]", ...params);
         }
+    }
+
+
+    isTainted() {
+        return Object.keys(this.beanMeta.old).length > 0;
     }
 }
 
@@ -502,20 +511,21 @@ class BeanMeta {
      *
      * @private
      */
-    #_typeBeanList : any = {};
+    #_typeBeanList : LooseObject<Bean> = {};
 
     /**
      * Contains a list of own list
      * @private
      */
-    #_ownListList : any = {};
+    #_ownListList : LooseObject<OwnList> = {};
 
     /**
      * Key is via table name
      * @private
      */
-    #_sharedListList : any = {};
+    #_sharedListList : LooseObject<SharedList> = {};
 
+    #_old : LooseObject = {};
 
     get R(): RedBeanNode {
         return this.#_R;
@@ -544,7 +554,7 @@ class BeanMeta {
         this.#_type = value;
     }
 
-    get ownListList(): any {
+    get ownListList() {
         return this.#_ownListList;
     }
 
@@ -564,14 +574,27 @@ class BeanMeta {
         return (this.#_chainParentBean) ? true : false;
     }
 
-    refresh() {
+    get old(): LooseObject {
+        return this.#_old;
+    }
+
+    set old(value: LooseObject) {
+        this.#_old = value;
+    }
+
+    clearCache() {
         this.#_typeBeanList = {};
         this.#_ownListList = {};
         this.#_sharedListList = {};
     }
 
-     onDispense() {
+    clearHistory() {
+        this.#_old = {};
+    }
 
+    refresh() {
+        this.clearCache();
+        this.clearHistory();
     }
 
 }

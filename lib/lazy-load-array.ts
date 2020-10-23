@@ -22,7 +22,7 @@ export abstract class LazyLoadArray {
     protected _list : Bean[] = [];
 
     public withCondition = "";
-    public withConditionData = [];
+    public withConditionData : any[] = [];
 
     protected constructor(parentBean: Bean, type : string) {
         this.parentBean = parentBean;

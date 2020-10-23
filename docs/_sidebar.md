@@ -28,6 +28,7 @@
     * [Transaction](Transaction.md)
     * [Concurrent](Concurrent.md)
     * [Models](Models.md)
+    * [Bean Metadata](Bean-Metadata.md)
     * [Database](Database.md)
     * [Knex.js](Knexjs.md)
     

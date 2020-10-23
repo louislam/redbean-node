@@ -102,17 +102,17 @@ export class RedBeanNode {
         return Promise.all(promiseList);
     }
 
-    storeAll(beans: Bean[]) {
+    storeAll(beans: Bean[], changedFieldsOnly = true) {
         let promiseList : Promise<any>[] = [];
 
         for (let bean of beans) {
-            promiseList.push(this.store(bean));
+            promiseList.push(this.store(bean, changedFieldsOnly));
         }
 
         return this.concurrent(promiseList);
     }
 
-    async store(bean: Bean) {
+    async store(bean: Bean, changedFieldsOnly = true) {
         this.devLog("Store", bean.beanMeta.type, bean.id);
 
         await bean.storeTypeBeanList();
@@ -130,11 +130,26 @@ export class RedBeanNode {
 
         // Update
         // else insert
-        if (bean.id && !isEmptyObject(obj)) {
+        if (bean.id) {
 
-            let queryPromise = this.knex(bean.getType()).where({ id: bean.id }).update(obj);
-            this.queryLog(queryPromise);
-            await queryPromise;
+            // Update the changed fields only
+            if (changedFieldsOnly) {
+                for (let key in obj) {
+
+                    if (! (Bean.internalName(key) in bean.beanMeta.old)) {
+                        this.devLog(key + " is not updated");
+                        delete obj[key];
+                    }
+                }
+            }
+
+            if (! isEmptyObject(obj)) {
+                let queryPromise = this.knex(bean.getType()).where({ id: bean.id }).update(obj);
+                this.queryLog(queryPromise);
+                await queryPromise;
+            } else {
+                this.devLog("Empty obj, no need to make query");
+            }
 
         } else {
             let queryPromise = this.knex(bean.getType()).insert(obj);
@@ -149,6 +164,9 @@ export class RedBeanNode {
         // Must be here, because the bean id is needed
         await bean.storeSharedList();
         await bean.storeOwnList();
+
+        // Clear History, tainted to false
+        bean.beanMeta.old = {};
 
         if (bean instanceof BeanModel) {
             bean.onAfterUpdate();
