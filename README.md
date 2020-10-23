@@ -29,6 +29,12 @@ npm install redbean-node --save
 Docs:
 http://redbean-node.whatsticker.online
 
+## Playground
+
+Try RedBeanNode in browser!
+
+https://runkit.com/louislam/5f92a373353799001ae779c7
+
 ## Code Example
 
 This is how you do CRUD in RedBeanNode:

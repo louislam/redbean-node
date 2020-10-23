@@ -16,6 +16,12 @@ RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by Red
 * MySQL / MariaDB
 * SQLite
 
+## Playground
+
+Try RedBeanNode in browser!
+
+https://runkit.com/louislam/5f92a373353799001ae779c7
+
 ## Code Example
 
 This is how you do CRUD in RedBeanNode:
