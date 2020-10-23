@@ -20,7 +20,7 @@ RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by Red
 
 Try RedBeanNode in browser!
 
-https://runkit.com/louislam/5f92a373353799001ae779c7
+https://runkit.com/louislam/redbeannode-playground
 
 ## Code Example
 

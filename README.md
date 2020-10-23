@@ -33,7 +33,7 @@ http://redbean-node.whatsticker.online
 
 Try RedBeanNode in browser!
 
-https://runkit.com/louislam/5f92a373353799001ae779c7
+https://runkit.com/louislam/redbeannode-playground
 
 ## Code Example
 
