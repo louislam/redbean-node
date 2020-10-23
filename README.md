@@ -1,5 +1,9 @@
 # RedBeanNode
 
+![Travis (.org)](https://img.shields.io/travis/louislam/redbean-node?style=for-the-badge) ![npm](https://img.shields.io/npm/v/redbean-node?style=for-the-badge)
+
+
+
 > Caution: Not Production Ready
 
 Status: Early Development / No Unit Testing yet / API will be changed
