@@ -3,10 +3,7 @@
 ![Travis (.org)](https://img.shields.io/travis/louislam/redbean-node) [![Coverage Status](https://coveralls.io/repos/github/louislam/redbean-node/badge.svg?branch=master)](https://coveralls.io/github/louislam/redbean-node?branch=master) ![npm](https://img.shields.io/npm/v/redbean-node) 
 
 
-
-> Caution: Not Production Ready
-
-Status: Early Development / No Unit Testing yet / API will be changed
+(Early Development)
 
 RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by RedBeanPHP. 
 
