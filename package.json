@@ -48,5 +48,8 @@
         "redbean",
         "redbean-node",
         "redbeannode"
-    ]
+    ],
+    "np": {
+        "releaseDraft" : false
+    }
 }
