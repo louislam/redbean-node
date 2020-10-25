@@ -18,6 +18,11 @@ variables:
     MYSQL_DATABASE: test
     MYSQL_ROOT_PASSWORD: PYHjnKBBDl
 
+test_connect_mysql:
+    image: mariadb
+    script:
+        - echo "SELECT 'OK';" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+
 test:node_latest:
     image: node:latest
     script:
