@@ -1,20 +1,25 @@
-console.log("gitlab-ci env");
-console.log(process.env);
-
 const {R} = require("../dist/redbean-node");
 const assert = require('assert');
 const knex = require("knex");
 
 let dbName = "test" + Date.now();
+let host;
+if (process.env.MYSQL_DATABASE === "test") {
+    host = "localhost";
+} else {
+    host = "192.168.0.12";
+}
 
 describe("Prepare MySQL database", async () => {
     R.freeze(false);
     R.debug(false);
 
+
+
     let k = knex({
         client: "mysql",
         connection: {
-            host: "192.168.0.12",
+            host: host,
             user: "root",
             password: "PYHjnKBBDl",
         }
@@ -27,7 +32,7 @@ describe("MySQL", () => {
     it("#R.setup()", async () => {
 
         R.setup("mysql", {
-            host: "192.168.0.12",
+            host: host,
             user: "root",
             password: "PYHjnKBBDl",
             database: dbName
@@ -38,7 +43,7 @@ describe("MySQL", () => {
 
     it("#R.setup() with mariadb", () => {
         R.setup("mariadb", {
-            host: "192.168.0.12",
+            host: host,
             user: "root",
             password: "PYHjnKBBDl",
             database: dbName
