@@ -6,7 +6,7 @@
 # Only needed when using a docker container to run your tests in.
 # Check out: http://docs.gitlab.com/ee/ci/docker/using_docker_images.html#what-is-a-service
 services:
-    - mariadb:latest
+    - mysql:latest
 
 # This folder is cached between builds
 # http://docs.gitlab.com/ee/ci/yaml/README.html#cache
@@ -19,7 +19,7 @@ variables:
     MYSQL_ROOT_PASSWORD: PYHjnKBBDl
 
 test_connect_mysql:
-    image: mariadb
+    image: mysql
     script:
         - echo "SELECT 'OK';" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
 
