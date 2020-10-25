@@ -6,8 +6,10 @@ let dbName = "test" + Date.now();
 let host;
 if (process.env.MYSQL_DATABASE === "test") {
     host = "localhost";
+    password = "";
 } else {
     host = "192.168.0.12";
+    password = "PYHjnKBBDl";
 }
 
 describe("Prepare MySQL database", async () => {
@@ -21,7 +23,7 @@ describe("Prepare MySQL database", async () => {
         connection: {
             host: host,
             user: "root",
-            password: "PYHjnKBBDl",
+            password: password,
         }
     });
     await k.raw('CREATE DATABASE ??', [dbName]);
@@ -34,7 +36,7 @@ describe("MySQL", () => {
         R.setup("mysql", {
             host: host,
             user: "root",
-            password: "PYHjnKBBDl",
+            password: password,
             database: dbName
         });
 
@@ -45,7 +47,7 @@ describe("MySQL", () => {
         R.setup("mariadb", {
             host: host,
             user: "root",
-            password: "PYHjnKBBDl",
+            password: password,
             database: dbName
         });
         assert.equal(R.dbType, "mysql");
