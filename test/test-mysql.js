@@ -5,6 +5,7 @@ const knex = require("knex");
 let dbName = "test" + Date.now();
 let host;
 if (process.env.MYSQL_DATABASE === "test") {
+    console.log("Using MySQL config from env")
     host = process.env.MYSQL_HOST;
     user = process.env.MYSQL_USER;
     password = process.env.MYSQL_PASSWORD;
@@ -18,7 +19,7 @@ describe("Prepare MySQL database", () => {
     R.freeze(false);
     R.debug(false);
 
-    it("create test", async () => {
+    it("create database", async () => {
         let k = knex({
             client: "mysql",
             connection: {
