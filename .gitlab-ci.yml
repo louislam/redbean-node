@@ -29,3 +29,21 @@ test:node_10:
     script:
         - npm install
         - npm run test
+
+test:node_11:
+    image: node:11
+    script:
+        - npm install
+        - npm run test
+        -
+test:node_12:
+    image: node:12
+    script:
+        - npm install
+        - npm run test
+
+test:node_13:
+    image: node:13
+    script:
+        - npm install
+        - npm run test

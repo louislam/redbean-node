@@ -19,7 +19,7 @@ export class RedBeanNode {
 
     protected _transaction;
     protected _knex! : knex;
-    protected dbType;
+    public dbType;
 
     private _modelList : LooseObject<{new (type, R): BeanModel}> = {};
 
