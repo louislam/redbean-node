@@ -23,12 +23,13 @@ describe("Setup MySQL", () => {
         assert.equal(R.dbType, "mysql");
     });
 
+    let commonDir = "common";
+    let normalizedPath = require("path").join(__dirname, commonDir);
+
+    require("fs").readdirSync(normalizedPath).forEach(function(file) {
+        require(`./${commonDir}/` + file)();
+    });
+
+
 });
 
-let commonDir = "common";
-
-let normalizedPath = require("path").join(__dirname, commonDir);
-
-require("fs").readdirSync(normalizedPath).forEach(function(file) {
-    require(`./${commonDir}/` + file)();
-});
