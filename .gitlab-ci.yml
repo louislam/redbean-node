@@ -9,8 +9,7 @@ services:
     - mariadb:latest
 
 variables:
-    MARIADB_DATABASE: test
-    MARIADB_ROOT_PASSWORD: PYHjnKBBDl
+    MYSQL_ROOT_PASSWORD: PYHjnKBBDl
 
 test:node_latest:
     image: node:latest
