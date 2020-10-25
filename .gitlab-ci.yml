@@ -15,8 +15,8 @@ cache:
         - node_modules/
 
 variables:
-    MYSQL_DATABASE: "test"
-    MYSQL_ROOT_PASSWORD: "PYHjnKBBDl"
+    MYSQL_DATABASE: test
+    MYSQL_ROOT_PASSWORD: PYHjnKBBDl
 
 test:node_latest:
     image: node:latest
