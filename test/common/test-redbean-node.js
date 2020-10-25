@@ -3,9 +3,15 @@ const {Bean} = require("../../dist/bean");
 const {expect} = require("chai");
 const {R} = require("../../dist/redbean-node");
 
+
 module.exports = () => {
 
     describe('Test RedBeanNode', () => {
+
+        it("has knex", () => {
+            expect(R.knex).to.be.not.undefined;
+        })
+
         describe('#R.dispense()', () => {
             it('dispenses a bean with type', () => {
                 let product = R.dispense("product");
@@ -41,8 +47,6 @@ module.exports = () => {
 
             });
         });
-
-
 
         describe('#R.store()', () => {
             it('stores a bean to database', async () => {
@@ -121,6 +125,8 @@ module.exports = () => {
                 assert.strictEqual(R._freeze, true)
             });
         });
+
+
     });
 
 }

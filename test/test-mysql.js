@@ -5,32 +5,37 @@ const knex = require("knex");
 let dbName = "test" + Date.now();
 let host;
 if (process.env.MYSQL_DATABASE === "test") {
-    host = "localhost";
-    user = "root"
-    password = "PYHjnKBBDl";
+    host = process.env.MYSQL_HOST;
+    user = process.env.MYSQL_USER;
+    password = process.env.MYSQL_PASSWORD;
 } else {
     host = "192.168.0.12";
     user = "root";
     password = "PYHjnKBBDl";
 }
 
-describe("Prepare MySQL database", async () => {
+describe("Prepare MySQL database", () => {
     R.freeze(false);
     R.debug(false);
 
-    let k = knex({
-        client: "mysql",
-        connection: {
-            host: host,
-            user: user,
-            password: password,
-        }
+    it("create test", async () => {
+        let k = knex({
+            client: "mysql",
+            connection: {
+                host: host,
+                user: user,
+                password: password,
+            }
+        });
+        await k.raw('CREATE DATABASE ??', [dbName]);
+        await k.destroy();
     });
-    await k.raw('CREATE DATABASE ??', [dbName]);
-    await k.destroy();
 })
 
 describe("MySQL", () => {
+
+
+
     it("#R.setup()", async () => {
 
         R.setup("mysql", {
