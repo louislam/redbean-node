@@ -20,7 +20,7 @@ test:node_latest:
     image: node:latest
     script:
         - npm install
-        - echo "$TEST"
+        - echo "$COVERALLS_REPO_TOKEN"
         - npm run coverage
 
 
