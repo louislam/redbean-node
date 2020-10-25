@@ -6,8 +6,8 @@ let dbName = "test" + Date.now();
 let host;
 if (process.env.MYSQL_DATABASE === "test") {
     host = "localhost";
-    user = "test"
-    password = "test";
+    user = "root"
+    password = "PYHjnKBBDl";
 } else {
     host = "192.168.0.12";
     user = "root";

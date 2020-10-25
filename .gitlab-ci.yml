@@ -6,20 +6,11 @@
 # Only needed when using a docker container to run your tests in.
 # Check out: http://docs.gitlab.com/ee/ci/docker/using_docker_images.html#what-is-a-service
 services:
-    - mysql:latest
-
-# This folder is cached between builds
-# http://docs.gitlab.com/ee/ci/yaml/README.html#cache
-cache:
-    paths:
-        - node_modules/
+    - mariadb:latest
 
 variables:
-    MYSQL_DATABASE: test
-    MYSQL_ROOT_PASSWORD: PYHjnKBBDl
-    MYSQL_USER: test
-    MYSQL_PASSWORD: test
-
+    MARIADB_DATABASE: test
+    MARIADB_ROOT_PASSWORD: PYHjnKBBDl
 
 test:node_latest:
     image: node:latest
