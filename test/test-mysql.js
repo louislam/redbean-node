@@ -1,4 +1,5 @@
-
+console.log("gitlab-ci env");
+console.log(process.env);
 
 const {R} = require("../dist/redbean-node");
 const assert = require('assert');
