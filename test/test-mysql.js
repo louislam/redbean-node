@@ -6,9 +6,11 @@ let dbName = "test" + Date.now();
 let host;
 if (process.env.MYSQL_DATABASE === "test") {
     host = "localhost";
-    password = "";
+    user = "test"
+    password = "test";
 } else {
     host = "192.168.0.12";
+    user = "root";
     password = "PYHjnKBBDl";
 }
 
@@ -16,13 +18,11 @@ describe("Prepare MySQL database", async () => {
     R.freeze(false);
     R.debug(false);
 
-
-
     let k = knex({
         client: "mysql",
         connection: {
             host: host,
-            user: "root",
+            user: user,
             password: password,
         }
     });
@@ -35,7 +35,7 @@ describe("MySQL", () => {
 
         R.setup("mysql", {
             host: host,
-            user: "root",
+            user: user,
             password: password,
             database: dbName
         });
@@ -46,7 +46,7 @@ describe("MySQL", () => {
     it("#R.setup() with mariadb", () => {
         R.setup("mariadb", {
             host: host,
-            user: "root",
+            user: user,
             password: password,
             database: dbName
         });

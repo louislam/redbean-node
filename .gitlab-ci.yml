@@ -20,10 +20,6 @@ variables:
     MYSQL_USER: test
     MYSQL_PASSWORD: test
 
-test_connect_mysql:
-    image: mysql
-    script:
-        - echo "SELECT 'OK';" | mysql --user=test --password="test" --host=localhost "test"
 
 test:node_latest:
     image: node:latest
