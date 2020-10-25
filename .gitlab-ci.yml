@@ -17,11 +17,13 @@ cache:
 variables:
     MYSQL_DATABASE: test
     MYSQL_ROOT_PASSWORD: PYHjnKBBDl
+    MYSQL_USER: test
+    MYSQL_PASSWORD: test
 
 test_connect_mysql:
     image: mysql
     script:
-        - echo "SELECT 'OK';" | mysql --user=root --password="$MYSQL_ROOT_PASSWORD" --host=mysql "$MYSQL_DATABASE"
+        - echo "SELECT 'OK';" | mysql --user=test --password="test" --host=mysql "test"
 
 test:node_latest:
     image: node:latest
