@@ -1,15 +1,37 @@
+
+
 const {R} = require("../dist/redbean-node");
 const assert = require('assert');
+const knex = require("knex");
 
-describe("Setup MySQL", () => {
+let dbName = "test" + Date.now();
 
-    it("#R.setup()", () => {
+describe("Prepare MySQL database", async () => {
+    R.freeze(false);
+    R.debug(false);
+
+    let k = knex({
+        client: "mysql",
+        connection: {
+            host: "192.168.0.12",
+            user: "root",
+            password: "PYHjnKBBDl",
+        }
+    });
+    await k.raw('CREATE DATABASE ??', [dbName]);
+    await k.destroy();
+})
+
+describe("MySQL", () => {
+    it("#R.setup()", async () => {
+
         R.setup("mysql", {
             host: "192.168.0.12",
             user: "root",
             password: "PYHjnKBBDl",
-            database: "test"
+            database: dbName
         });
+
         assert.equal(R.dbType, "mysql");
     });
 
@@ -18,7 +40,7 @@ describe("Setup MySQL", () => {
             host: "192.168.0.12",
             user: "root",
             password: "PYHjnKBBDl",
-            database: "test"
+            database: dbName
         });
         assert.equal(R.dbType, "mysql");
     });
@@ -31,5 +53,11 @@ describe("Setup MySQL", () => {
     });
 
 
+});
+
+describe("Close Connection", () => {
+    it("#R.close()", async () => {
+        await R.close();
+    });
 });
 

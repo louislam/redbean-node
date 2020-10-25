@@ -849,4 +849,9 @@ export class RedBeanNode {
     }
 }
 
-export const R = new RedBeanNode();
+export let R = new RedBeanNode();
+
+
+export function resetR() {
+    R = new RedBeanNode();
+}
