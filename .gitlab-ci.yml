@@ -35,7 +35,7 @@ test:node_11:
     script:
         - npm install
         - npm run test
-        -
+
 test:node_12:
     image: node:12
     script:
@@ -44,6 +44,18 @@ test:node_12:
 
 test:node_13:
     image: node:13
+    script:
+        - npm install
+        - npm run test
+
+test:node_14:
+    image: node:14
+    script:
+        - npm install
+        - npm run test
+
+test:node_15:
+    image: node:15
     script:
         - npm install
         - npm run test
