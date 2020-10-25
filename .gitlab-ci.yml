@@ -20,7 +20,7 @@ test:node_latest:
     image: node:latest
     script:
         - npm install
-        - ls
+        - echo "$TEST"
         - npm run coverage
 
 
@@ -28,5 +28,4 @@ test:node_10:
     image: node:10
     script:
         - npm install
-        - ls
         - npm run test
