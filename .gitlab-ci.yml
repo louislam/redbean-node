@@ -23,7 +23,7 @@ variables:
 test_connect_mysql:
     image: mysql
     script:
-        - echo "SELECT 'OK';" | mysql --user=test --password="test" --host=mysql "test"
+        - echo "SELECT 'OK';" | mysql --user=test --password="test" --host=localhost "test"
 
 test:node_latest:
     image: node:latest
