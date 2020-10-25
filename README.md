@@ -1,6 +1,9 @@
 # RedBeanNode
 
-[![pipeline status](https://img.shields.io/gitlab/pipeline/louislam/redbean-node/master?label=build)](https://gitlab.com/louislam/redbean-node/-/commits/master) [![Coverage Status](https://coveralls.io/repos/github/louislam/redbean-node/badge.svg?branch=master)](https://coveralls.io/github/louislam/redbean-node?branch=master) [![npm](https://img.shields.io/npm/v/redbean-node)](https://www.npmjs.com/package/redbean-node) 
+[![npm](https://img.shields.io/npm/dt/redbean-node)](https://www.npmjs.com/package/redbean-node)
+[![pipeline status](https://img.shields.io/gitlab/pipeline/louislam/redbean-node/master?label=build)](https://gitlab.com/louislam/redbean-node/-/commits/master) 
+[![Coverage Status](https://img.shields.io/coveralls/github/louislam/redbean-node)](https://coveralls.io/github/louislam/redbean-node?branch=master) 
+[![npm](https://img.shields.io/npm/v/redbean-node)](https://www.npmjs.com/package/redbean-node) 
 
 
 (Early Development)
