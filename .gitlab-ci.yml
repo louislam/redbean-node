@@ -14,14 +14,14 @@ cache:
     paths:
         - node_modules/
 
-test_node_latest:
+test:node_latest:
     image: node:latest
     script:
         - npm install
         - npm run coverage
 
-test_node_10:
-    image: node:latest
+test:node_10:
+    image: node:10
     script:
         - npm install
         - npm run coverage
