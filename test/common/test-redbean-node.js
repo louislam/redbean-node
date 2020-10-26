@@ -2,7 +2,7 @@ const assert = require('assert');
 const {Bean} = require("../../dist/bean");
 const {expect} = require("chai");
 const {R} = require("../../dist/redbean-node");
-
+const dayjs = require('dayjs');
 
 module.exports = () => {
 
@@ -107,22 +107,111 @@ module.exports = () => {
            })
         })
 
-        describe("#R.getCell()", () => {
-            it('SELECT 1', async () => {
-                let result = await R.getCell("SELECT 1");
-                assert.strictEqual(result, 1);
+        describe("R.find()", () => {
+            it("find without binding", async () => {
+                let bean = R.dispense("test_find");
+                bean.active = true;
+                await R.store(bean);
+                bean = R.dispense("test_find");
+                bean.active = true;
+                await R.store(bean);
+
+                let list  = await R.find('test_find', ' active = 1 ');
+
+                expect(list.length).gt(0);
+            })
+
+            it("find with binding", async () => {
+                let bean = R.dispense("test_find");
+                bean.active = true;
+                await R.store(bean);
+                bean = R.dispense("test_find");
+                bean.active = true;
+                await R.store(bean);
+
+                let list  = await R.find('test_find', ' active = ? ', [
+                    true
+                ]);
+
+                expect(list.length).gt(0);
+            })
+        })
+
+        describe("Raw Query", () => {
+            describe("#R.getCell()", () => {
+                it('SELECT 1', async () => {
+                    let result = await R.getCell("SELECT 1");
+                    assert.strictEqual(result, 1);
+                });
+
+                it("SELECT 'abc'", async () => {
+                    let result = await R.getCell("SELECT 'abc'");
+                    assert.strictEqual(result, "abc");
+                });
+            })
+
+            it("R.exec", async () => {
+
+                let bean = R.dispense("page");
+                bean.title = "test R.exec";
+                await R.store(bean);
+
+                await R.exec('UPDATE page SET title = ? WHERE title = ?' , [
+                    "ok!",
+                    "test R.exec"
+                ]);
+
+                await bean.refresh();
+                expect(bean.title).to.equal("ok!");
+
+                // without binding
+                await R.exec('UPDATE page SET title = \'ok!ok!\' WHERE title = \'ok!\'');
+
+                await bean.refresh();
+                expect(bean.title).to.equal("ok!ok!");
             });
 
-            it("SELECT 'abc'", async () => {
-                let result = await R.getCell("SELECT 'abc'");
-                assert.strictEqual(result, "abc");
+            it("getAll()", async () => {
+
+                let promiseList = [];
+
+                for (let i = 0; i <= 10; i++) {
+                    let bean = R.dispense("test_getall");
+                    bean.title = "test R.getAll";
+                    promiseList.push(R.store(bean));
+                }
+
+                await Promise.all(promiseList);
+
+                let rows = await R.getAll('SELECT * FROM page WHERE title = ? ', [
+                    "test R.getAll"
+                ]);
+
+                expect(rows.length).to.equal(10);
+
             });
-        })
+        });
 
         describe('#R.freeze()', () => {
             it('set freeze to true', () => {
                 R.freeze(true);
                 assert.strictEqual(R._freeze, true)
+            });
+        });
+
+        describe('#isoDateTime', () => {
+            it('get the correct datetime with new Date()', () => {
+                let d = new Date(2018, 11, 24, 10, 33, 30, 0);
+                expect(R.isoDateTime(d)).to.equal("2018-12-24 10:33:30");
+                expect(R.isoDate(d)).to.equal("2018-12-24");
+                expect(R.isoTime(d)).to.equal("10:33:30");
+            });
+
+            it('get the correct datetime with new Dayjs', () => {
+                let d = dayjs(new Date(2018, 11, 24, 10, 33, 30, 0));
+                expect(R.isoDateTime(d)).to.equal("2018-12-24 10:33:30");
+                expect(R.isoDate(d)).to.equal("2018-12-24");
+                expect(R.isoTime(d)).to.equal("10:33:30");
             });
         });
 

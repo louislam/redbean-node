@@ -182,6 +182,8 @@ export class RedBeanNode {
             throw "Error: Please execute R.setup(.....) first.";
         }
 
+        // TODO: Lock (maybe queue?)
+
         let exists = await this._knex.schema.hasTable(bean.getType());
 
         if (! exists) {
@@ -850,8 +852,3 @@ export class RedBeanNode {
 }
 
 export let R = new RedBeanNode();
-
-
-export function resetR() {
-    R = new RedBeanNode();
-}
