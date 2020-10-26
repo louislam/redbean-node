@@ -12,7 +12,7 @@
     "scripts": {
         "build": "tsc",
         "prepublish": "npm build",
-        "test": "tsc && nyc --reporter=html mocha",
+        "test": "tsc && nyc --reporter=html mocha --timeout 10000",
         "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
         "launch": "np",
         "example": "ts-node dev_example.ts",
