@@ -33,17 +33,30 @@ export class RedBeanNode {
         return this._knex;
     }
 
-    setup(dbType : string | knex = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }, pool : PoolConfig = { max: 10 }) {
-
-        if (! pool.min) {
-            pool.min = 2;
-        }
-
-        if (! pool.idleTimeoutMillis) {
-            pool.idleTimeoutMillis = 30000;
-        }
+    setup(dbType : string | knex = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }, pool : PoolConfig = {  }) {
 
         if (typeof dbType === "string") {
+
+            if (! pool.min) {
+                if (dbType == "sqlite") {
+                    pool.min = 1;
+                } else {
+                    pool.min = 2;
+                }
+            }
+
+            if (! pool.max) {
+                if (dbType == "sqlite") {
+                    pool.min = 1;
+                } else {
+                    pool.min = 10;
+                }
+            }
+
+            if (! pool.idleTimeoutMillis) {
+                pool.idleTimeoutMillis = 30000;
+            }
+
             if (dbType == "mariadb") {
                 dbType = "mysql";
             }
@@ -182,93 +195,105 @@ export class RedBeanNode {
             throw "Error: Please execute R.setup(.....) first.";
         }
 
-        // TODO: Lock (maybe queue?)
-
-        let exists = await this._knex.schema.hasTable(bean.getType());
+        let exists = await this.hasTable(bean.getType());
 
         if (! exists) {
             console.log("Create table: " + bean.getType());
 
-            await this._knex.schema.createTable(bean.getType(), function (table) {
-                table.increments().primary();
-            });
+            try {
+                let queryPromise = this._knex.schema.createTable(bean.getType(), function (table) {
+                    table.increments().primary();
+                });
+                this.queryLog(queryPromise);
+                await queryPromise;
+            } catch (error) {
+                this.checkAllowedSchemaError(error);
+            }
+
         }
 
         // Don't put it inside callback, causes problem than cannot add columns!
         let columnInfo = await this.inspect(bean.getType());
         //console.devLog(columnInfo);
 
-        await this._knex.schema.table(bean.getType(), async (table) => {
+        try {
+            let queryPromise = this._knex.schema.table(bean.getType(), async (table) => {
 
-            let obj = bean.export(false);
+                let obj = bean.export(false);
 
-            for (let fieldName in obj) {
-                let value = obj[fieldName];
-                let addField = false;
-                let alterField = false;
-                let valueType = this.getDataType(value);
-                this.devLog("Best column type =", valueType);
+                for (let fieldName in obj) {
+                    let value = obj[fieldName];
+                    let addField = false;
+                    let alterField = false;
+                    let valueType = this.getDataType(value);
+                    this.devLog("Best column type =", valueType);
 
 
-                // Check if the field exists in current database
-                if (! columnInfo.hasOwnProperty(fieldName)) {
-                    addField = true;
-                }
-
-                // If exists in current database, but the type is not good for the data
-                 else if (! this.isValidType(columnInfo[fieldName].type, valueType)) {
-                     console.log(`Alter column is needed: ${fieldName} (dbType: ${columnInfo[fieldName].type}) (valueType: ${valueType})`);
-                    addField = true;
-                    alterField = true;
-                }
-
-                if (addField) {
-                    let col;
-
-                    if (valueType == "integer") {
-                        console.log("Create field (Int): " + fieldName);
-                        col = table.integer(fieldName);
-
-                    } else if (valueType == "bigInteger") {
-                        console.log("Create field (bigInteger): " + fieldName);
-                        col = table.bigInteger(fieldName);
-
-                    } else if (valueType == "float") {
-                        console.log("Create field (Float): " + fieldName);
-                        col = table.float(fieldName);
-
-                    } else if (valueType == "boolean") {
-                        console.log("Create field (Boolean): " + fieldName);
-                        col = table.boolean(fieldName);
-
-                    } else if (valueType == "text") {
-                        console.log("Create field (Text): " + fieldName);
-                        col = table.text(fieldName, "longtext");
-
-                    } else if (valueType == "datetime") {
-                        console.log("Create field (Datetime): " + fieldName);
-                        col = table.dateTime(fieldName);
-
-                    } else if (valueType == "date") {
-                        console.log("Create field (Date): " + fieldName);
-                        col = table.date(fieldName);
-
-                    } else if (valueType == "time") {
-                        console.log("Create field (Time): " + fieldName);
-                        col = table.time(fieldName);
-
-                    } else {
-                        console.log("Create field (String): " + fieldName);
-                        col = table.string(fieldName);
+                    // Check if the field exists in current database
+                    if (! columnInfo.hasOwnProperty(fieldName)) {
+                        addField = true;
                     }
 
-                    if (alterField) {
-                        console.log("This is modify column");
-                        col.alter();
+                    // If exists in current database, but the type is not good for the data
+                    else if (! this.isValidType(columnInfo[fieldName].type, valueType)) {
+                        console.log(`Alter column is needed: ${fieldName} (dbType: ${columnInfo[fieldName].type}) (valueType: ${valueType})`);
+                        addField = true;
+                        alterField = true;
+                    }
+
+                    if (addField) {
+                        let col;
+
+                        if (valueType == "integer") {
+                            console.log("Create field (Int): " + fieldName);
+                            col = table.integer(fieldName);
+
+                        } else if (valueType == "bigInteger") {
+                            console.log("Create field (bigInteger): " + fieldName);
+                            col = table.bigInteger(fieldName);
+
+                        } else if (valueType == "float") {
+                            console.log("Create field (Float): " + fieldName);
+                            col = table.float(fieldName);
+
+                        } else if (valueType == "boolean") {
+                            console.log("Create field (Boolean): " + fieldName);
+                            col = table.boolean(fieldName);
+
+                        } else if (valueType == "text") {
+                            console.log("Create field (Text): " + fieldName);
+                            col = table.text(fieldName, "longtext");
+
+                        } else if (valueType == "datetime") {
+                            console.log("Create field (Datetime): " + fieldName);
+                            col = table.dateTime(fieldName);
+
+                        } else if (valueType == "date") {
+                            console.log("Create field (Date): " + fieldName);
+                            col = table.date(fieldName);
+
+                        } else if (valueType == "time") {
+                            console.log("Create field (Time): " + fieldName);
+                            col = table.time(fieldName);
+
+                        } else {
+                            console.log("Create field (String): " + fieldName);
+                            col = table.string(fieldName);
+                        }
+
+                        if (alterField) {
+                            console.log("This is modify column");
+                            col.alter();
+                        }
                     }
                 }
-            }
-        });
+            });
+            this.queryLog(queryPromise);
+            await queryPromise;
+        } catch (error) {
+            this.checkAllowedSchemaError(error);
+        }
+
     }
 
     getDataType(value) {
@@ -425,26 +450,75 @@ export class RedBeanNode {
         }
     }
 
-    /**
-     * For internal use
-     * @param error
-     */
-    public checkAllowedError(error) {
-        this.devLog("Check Error");
-
+    protected normalizeErrorMsg(error) {
         if (this.dbType == "sqlite") {
-            if (error.errno == 1) {     // No such table
-                this.devLog("Allowed SQLite error", error.errno);
-                return;
-            }
+            return error.message;
+
         } else if (this.dbType == "mysql") {
-            if (error.code.startsWith("ER_NO_SUCH_TABLE")) {
-                this.devLog("Allowed MySQL error", error.code);
+            return error.code;
+        }
+    }
+
+    protected checkError(error, allowedErrorList : (string | string[])[]) {
+        this.devLog(error);
+
+        let msg = this.normalizeErrorMsg(error);
+
+        for (let allowedError of allowedErrorList) {
+
+            if (Array.isArray(allowedError)) {
+                let allMatch = true;
+
+                for (let s of allowedError) {
+                    if (! msg.includes(s)) {
+                        allMatch = false;
+                        break;
+                    }
+                }
+
+                if (allMatch) {
+                    return;
+                }
+
+            } else if (msg.includes(allowedError)) {
                 return;
             }
         }
 
         throw error;
+    }
+
+    /**
+     * For internal use
+     * @param error
+     */
+    public checkAllowedError(error) {
+        this.devLog("Check Allowed Error for bean query");
+        this.checkError(error, [
+            // SQLITE
+            "SQLITE_ERROR: no such table:",
+
+            // MYSQL
+            "ER_NO_SUCH_TABLE",
+        ]);
+    }
+
+    /**
+     * Schema maybe modified by other promises, instance or applications at the same
+     * @param error
+     */
+    public checkAllowedSchemaError(error) {
+        this.devLog("Check Schema Error");
+
+        this.checkError(error, [
+            // SQLITE
+            ["SQLITE_ERROR: table ", "already exists"],
+            "SQLITE_ERROR: duplicate column name:",
+
+            // MYSQL
+            "ER_TABLE_EXISTS_ERROR",
+            "ER_DUP_FIELDNAME"
+        ]);
     }
 
     /**
@@ -638,7 +712,9 @@ export class RedBeanNode {
     }
 
     inspect(type) {
-        return this.knex.table(type).columnInfo();
+        let queryPromise = this.knex.table(type).columnInfo();
+        this.queryLog(queryPromise);
+        return queryPromise;
     }
 
     /**
@@ -736,10 +812,10 @@ export class RedBeanNode {
         throw "Error: deep copy not implemented yet";
     }
 
-    async hasTable(tableName : string) {
-        let has = await this.knex.schema.hasTable(tableName);
-        this.devLog("Has table?", tableName, has);
-        return has;
+    hasTable(tableName : string) {
+        let queryPromise = this.knex.schema.hasTable(tableName);
+        this.queryLog(queryPromise);
+        return queryPromise;
     }
 
     isFrozen() {

@@ -175,7 +175,7 @@ module.exports = () => {
 
                 let promiseList = [];
 
-                for (let i = 0; i <= 10; i++) {
+                for (let i = 1; i <= 10; i++) {
                     let bean = R.dispense("test_getall");
                     bean.title = "test R.getAll";
                     promiseList.push(R.store(bean));
@@ -183,7 +183,7 @@ module.exports = () => {
 
                 await Promise.all(promiseList);
 
-                let rows = await R.getAll('SELECT * FROM page WHERE title = ? ', [
+                let rows = await R.getAll('SELECT * FROM `test_getall` WHERE title = ? ', [
                     "test R.getAll"
                 ]);
 

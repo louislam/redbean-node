@@ -51,7 +51,7 @@ By default, RedBeanNode is using pool approach. You can pass your the connection
 
 Checkout the [tarn.js](https://github.com/vincit/tarn.js) library for more information.
 
-Default value: 
+Default value for MySQL: 
 ```javascript
 let pool = {
     min: 2,
@@ -59,6 +59,17 @@ let pool = {
     idleTimeoutMillis: 30000,
 }
 ```
+
+Default value for SQLite: 
+```javascript
+let pool = {
+    min: 1,
+    max: 1,
+    idleTimeoutMillis: 30000,
+}
+```
+
+> Using **ONE** connection is suggested for SQLite. Otherwise, you may face query errors like "SQLITE_BUSY: database is locked".
 
 Setup with pool setting object
 
