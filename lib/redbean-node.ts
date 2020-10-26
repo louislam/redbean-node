@@ -621,7 +621,7 @@ export class RedBeanNode {
         return this.normalizeRaw(sql, data);
     }
 
-    async getRow(sql: string, data: (string | knex.Value)[] = [], autoLimit = true) {
+    async getRow(sql: string, data: (string | knex.Value)[] = [], autoLimit = false) {
 
         if (autoLimit) {
             let limitTemplate = this.knex.limit(1).toSQL().toNative();
