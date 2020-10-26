@@ -640,7 +640,7 @@ export class RedBeanNode {
         }
     }
 
-    async normalizeRaw(sql, data) {
+    async normalizeRaw(sql, data) : Promise<LooseObject[]> {
         let result = await this.knex.raw(sql, data);
 
         this.queryLog(sql);
@@ -652,11 +652,12 @@ export class RedBeanNode {
         return result;
     }
 
-    async getCol(sql: string, data: string[] = []) {
+    async getCol(sql: string, data: string[] = []) : Promise<any[]> {
         let list = await this.getAll(sql, data);
         let key : string;
 
         return list.map((obj) => {
+            // Use first column as key
             if (! key) {
                 for (let k in obj) {
                     key = k;
@@ -925,6 +926,7 @@ export class RedBeanNode {
     get modelList() {
         return this._modelList;
     }
+
 }
 
 export let R = new RedBeanNode();

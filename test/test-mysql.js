@@ -18,6 +18,7 @@ if (process.env.MYSQL_HOST !== undefined) {
 describe("Prepare MySQL database", () => {
     R.freeze(false);
     R.debug(false);
+    R._modelList  = {}
 
     it("create database", async () => {
         let k = knex({

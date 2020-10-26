@@ -181,6 +181,10 @@ module.exports = () => {
                     promiseList.push(R.store(bean));
                 }
 
+                let bean = R.dispense("test_getall");
+                bean.title = "other name";
+                promiseList.push(R.store(bean));
+
                 await Promise.all(promiseList);
 
                 let rows = await R.getAll('SELECT * FROM `test_getall` WHERE title = ? ', [
@@ -190,13 +194,105 @@ module.exports = () => {
                 expect(rows.length).to.equal(10);
 
             });
+
+            it("getCol()", async () => {
+
+                let promiseList = [];
+
+                for (let i = 1; i <= 10; i++) {
+                    let bean = R.dispense("test_getcol");
+                    bean.title = "test R.getCol";
+                    promiseList.push(R.store(bean));
+                }
+
+                let bean = R.dispense("test_getcol");
+                bean.title = "other name";
+                promiseList.push(R.store(bean));
+
+                await Promise.all(promiseList);
+
+                let cols = await R.getCol('SELECT title FROM `test_getcol` WHERE title = ? ', [
+                    "test R.getCol"
+                ]);
+
+                expect(Array.isArray(cols)).to.be.true;
+                expect(cols.length).to.equal(10);
+                expect(cols[0]).to.equal("test R.getCol");
+            });
+
+            it("getRow()", async () => {
+
+                let promiseList = [];
+
+                for (let i = 1; i <= 2; i++) {
+                    let bean = R.dispense("test_getrow");
+                    bean.title = "get a row";
+                    promiseList.push(R.store(bean));
+                }
+
+                let bean = R.dispense("test_getrow");
+                bean.title = "other name";
+                promiseList.push(R.store(bean));
+
+                await Promise.all(promiseList);
+
+                let row = await R.getRow('SELECT * FROM test_getrow WHERE title LIKE ? LIMIT 1', [
+                    '%row%',
+                ]);
+
+                expect(row.title).includes("row");
+
+                row = await R.getRow('SELECT * FROM test_getrow WHERE title LIKE ? LIMIT 1', [
+                    '%123%',
+                ]);
+
+                expect(row).to.be.not.ok
+
+            });
+
+            it("getAssoc()", async () => {
+
+                let promiseList = [];
+
+                for (let i = 1; i <= 5; i++) {
+                    let bean = R.dispense("get_assoc");
+                    bean.title = "get_assoc";
+                    promiseList.push(R.store(bean));
+                }
+
+                let bean = R.dispense("get_assoc");
+                bean.title = "other name";
+                promiseList.push(R.store(bean));
+
+                await Promise.all(promiseList);
+
+                let keyValueObject = await R.getAssoc('SELECT id, title FROM get_assoc');
+                expect(Object.keys(keyValueObject).length).to.equal(6);
+
+                keyValueObject = await R.getAssoc('SELECT id, title FROM get_assoc WHERE title = ?', [
+                    "get_assoc"
+                ]);
+                expect(Object.keys(keyValueObject).length).to.equal(5);
+
+            });
         });
 
-        describe('#R.freeze()', () => {
-            it('set freeze to true', () => {
-                R.freeze(true);
-                assert.strictEqual(R._freeze, true)
-            });
+        it("convertToBean", async () => {
+            let bean = R.dispense("convert");
+            bean.title = "convert"
+            await R.store(bean);
+
+            bean = R.dispense("convert");
+            bean.title = "convert"
+            await R.store(bean);
+
+            let rows = await R.getAll('SELECT * FROM `convert` WHERE title = ?', [ 'convert' ]);
+            let convertBeanList = R.convertToBeans("convert", rows);
+
+            expect(convertBeanList.length).to.equal(2);
+            expect(convertBeanList[0].beanMeta.type).to.equal("convert");
+            expect(convertBeanList[0].id).gt(0);
+            expect(convertBeanList[0].title).to.equal("convert")
         });
 
         describe('#isoDateTime', () => {
@@ -218,6 +314,22 @@ module.exports = () => {
 
     });
 
+    // Always test it at the end
+    describe('#R.freeze()', () => {
+        it('set freeze to true', (done) => {
+            R.freeze(true);
+            assert.strictEqual(R._freeze, true)
+
+            let bean = R.dispense("no_this_table");
+            bean.date = R.isoDateTime();
+
+            R.store(bean).then(() => {
+                done(new Error('Expected method to reject.'))
+            }).catch((err) => {
+                done();
+            })
+        });
+    });
 }
 
 
