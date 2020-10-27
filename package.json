@@ -10,9 +10,9 @@
         ".gitignore"
     ],
     "scripts": {
-        "build": "tsc",
-        "prepublish": "npm build",
-        "test": "tsc && nyc --reporter=html mocha --timeout 60000",
+        "build": "tsc && node build.js",
+        "prepublish": "npm run build",
+        "test": "npm run build && nyc --reporter=html mocha --timeout 60000",
         "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
         "launch": "np",
         "example": "ts-node dev_example.ts",
