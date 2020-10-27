@@ -10,7 +10,7 @@
         ".gitignore"
     ],
     "scripts": {
-        "build": "tsc && node build.js",
+        "build": "tsc",
         "test": "npm run build && nyc --reporter=html mocha --timeout 60000",
         "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
         "launch": "np",
@@ -50,8 +50,7 @@
         "redbeannode"
     ],
     "np": {
-        "releaseDraft": false,
-        "contents": "dist"
+        "releaseDraft": false
     },
     "devDependencies": {
         "chai": "^4.2.0",
