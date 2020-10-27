@@ -119,6 +119,9 @@ module.exports = () => {
                 let list  = await R.find('test_find', ' active = 1 ');
 
                 expect(list.length).gt(0);
+
+                list  = await R.findAll('test_find', ' LIMIT 1 ');
+                expect(list.length).to.equal(1);
             })
 
             it("find with binding", async () => {
@@ -312,6 +315,108 @@ module.exports = () => {
         });
 
 
+    });
+
+
+    describe('Data Type', () => {
+        it('test', () => {
+            expect(R.getDataType(true)).to.equal("boolean");
+            expect(R.getDataType(false)).to.equal("boolean");
+            expect(R.getDataType(0)).to.equal("boolean");
+            expect(R.getDataType(1)).to.equal("boolean");
+            expect(R.getDataType(2)).to.equal("integer");
+            expect(R.getDataType(2147483647)).to.equal("integer");
+            expect(R.getDataType(2147483648)).to.equal("bigInteger");
+            expect(R.getDataType(12147483648)).to.equal("bigInteger");
+            expect(R.getDataType(0.1)).to.equal("float");
+            expect(R.getDataType(0.11)).to.equal("float");
+            expect(R.getDataType(0.111)).to.equal("float");
+            expect(R.getDataType(0.01)).to.equal("float");
+            expect(R.getDataType(1.01)).to.equal("float");
+            expect(R.getDataType(2.01)).to.equal("float");
+            expect(R.getDataType(2147483647.1)).to.equal("float");
+            expect(R.getDataType(2147483648.1)).to.equal("float");
+            expect(R.getDataType("")).to.equal("varchar");
+            expect(R.getDataType("1")).to.equal("varchar");
+            expect(R.getDataType("🐷🐷🐷")).to.equal("varchar");
+            expect(R.getDataType("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890")).to.equal("varchar");
+            expect(R.getDataType("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901")).to.equal("text");
+
+            expect(R.getDataType(R.isoDateTime())).to.equal("datetime");
+            expect(R.getDataType(R.isoDate())).to.equal("date");
+            expect(R.getDataType(R.isoTime())).to.equal("time");
+        });
+
+        it('isValidType', () => {
+            expect(R.isValidType("boolean", "integer")).to.be.false;
+            expect(R.isValidType("tinyint", "integer")).to.be.false;
+        });
+
+        it('check created column type', async () => {
+            let bean = R.dispense("test_field");
+            await R.store(bean);
+
+            let info = await R.inspect("test_field");
+
+            expect(["integer", "int"]).to.include(info["id"].type);
+
+            bean.big = 2147483648;
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["bigint"]).to.include(info["big"].type);
+
+            bean.string = "123";
+            bean.value = "abc";
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["varchar"]).to.include(info["string"].type);
+            expect(["varchar"]).to.include(info["value"].type);
+
+            bean.float = 1.1;
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["float"]).to.include(info["float"].type);
+
+            bean.bool = 1;
+            bean.bool2 = false;
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["boolean", "tinyint"]).to.include(info["bool"].type);
+            expect(["boolean", "tinyint"]).to.include(info["bool2"].type);
+
+            bean.text = "RedBeanNode works with beans. Most interactions with the database are accomplished using beans. Beans are used to carry data from and to the database. Every bean has a type and an ID. The type of a bean tells you which table in the database is used to store the bean. Every type maps to a corresponding table. The ID of a bean is the primary key of the corresponding record. You can create a new bean by dispensing one.";
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["text", "longtext"]).to.include(info["text"].type);
+
+            bean.dateTime = R.isoDateTime();
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["datetime"]).to.include(info["date_time"].type);
+
+            bean.date = R.isoDate();
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["date"]).to.include(info["date"].type);
+
+            bean.time = R.isoTime();
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["time"]).to.include(info["time"].type);
+
+            bean.bool = 2
+
+            try {
+                await R.store(bean);
+                info = await R.inspect("test_field");
+                expect(["int"]).to.include(info["bool"].type);
+            } catch (e) {
+                if (R.dbType != "sqlite") {
+                    throw e;
+                }
+            }
+
+        });
     });
 
     // Always test it at the end

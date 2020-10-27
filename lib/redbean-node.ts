@@ -19,7 +19,7 @@ export class RedBeanNode {
 
     protected _transaction;
     protected _knex! : knex;
-    public dbType;
+    public dbType : string = "";
 
     private _modelList : LooseObject<{new (type, R): BeanModel}> = {};
 
@@ -519,14 +519,6 @@ export class RedBeanNode {
             "ER_TABLE_EXISTS_ERROR",
             "ER_DUP_FIELDNAME"
         ]);
-    }
-
-    /**
-     * TODO: only update the fields which are changed to database
-     * @protected
-     */
-    protected watchBean() {
-
     }
 
     async trash(bean: Bean) {

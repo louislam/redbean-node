@@ -76,3 +76,17 @@ describe("Close Connection", () => {
     });
 });
 
+describe("Cleanup MySQL database", () => {
+    it("drop database", async () => {
+        let k = knex({
+            client: "mysql",
+            connection: {
+                host: host,
+                user: user,
+                password: password,
+            }
+        });
+        await k.raw('DROP DATABASE ??', [dbName]);
+        await k.destroy();
+    });
+})
