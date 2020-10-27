@@ -6,6 +6,7 @@ import dayjs from "dayjs";
 import glob from "glob";
 import path from "path";
 import {BeanModel} from "./bean-model";
+import BeanConverterStream from "./bean-converter-stream";
 
 export class RedBeanNode {
 
@@ -550,22 +551,38 @@ export class RedBeanNode {
         }
     }
 
-    async find(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+    protected findCore(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
         let queryPromise = this.knex.table(type).whereRaw(clause, data);
         this.queryLog(queryPromise);
+        return queryPromise;
+    }
 
-        let list = await queryPromise;
+    async find(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+        let list = await this.findCore(type, clause, data);
         return this.convertToBeans(type, list);
     }
 
-    findAll(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
-        return this.find(type, " 1=1 " + clause, data);
+    findStream(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+        return BeanConverterStream.createStream(type, this, this.findCore(type, clause, data));
     }
+
+    protected findAllCore(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+        return this.findCore(type, " 1=1 " + clause, data);
+    }
+
+    async findAll(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+        let list = await this.findAllCore(type, clause, data);
+        return this.convertToBeans(type, list)
+    }
+
+    findAllStream(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+        return BeanConverterStream.createStream(type, this, this.findAllCore(type, clause, data));
+    }
+
 
     async findOne(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
         let queryPromise = this.knex.table(type).whereRaw(clause, data).first();
         this.queryLog(queryPromise);
-
         let obj = await queryPromise;
 
         if (! obj) {
@@ -573,7 +590,6 @@ export class RedBeanNode {
         }
 
         let bean = this.convertToBean(type, obj);
-
         return bean;
     }
 
