@@ -1,4 +1,4 @@
-import knex, {PoolConfig, RawBinding, StaticConnectionConfig, ValueDict} from "knex";
+import knex, {PoolConfig, QueryBuilder, RawBinding, StaticConnectionConfig, ValueDict} from "knex";
 import {Bean} from "./bean";
 import {isEmptyObject, LooseObject} from "./helper/helper";
 import dayjs from "dayjs";
@@ -7,6 +7,7 @@ import glob from "glob";
 import path from "path";
 import {BeanModel} from "./bean-model";
 import BeanConverterStream from "./bean-converter-stream";
+import {PassThrough} from "stream";
 
 export class RedBeanNode {
 
@@ -551,7 +552,7 @@ export class RedBeanNode {
         }
     }
 
-    protected findCore(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+    protected findCore(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) : QueryBuilder {
         let queryPromise = this.knex.table(type).whereRaw(clause, data);
         this.queryLog(queryPromise);
         return queryPromise;
@@ -562,7 +563,7 @@ export class RedBeanNode {
         return this.convertToBeans(type, list);
     }
 
-    findStream(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+    findStream(type: string, clause: string = "", data : readonly RawBinding[] | ValueDict | RawBinding = []) {
         return BeanConverterStream.createStream(type, this, this.findCore(type, clause, data));
     }
 
@@ -629,6 +630,10 @@ export class RedBeanNode {
         return this.normalizeRaw(sql, data);
     }
 
+    getAllStream(sql: string, data: string[] = []) {
+        return this.normalizeRawCore(sql, data).stream();
+    }
+
     async getRow(sql: string, data: (string | knex.Value)[] = [], autoLimit = false) {
 
         if (autoLimit) {
@@ -648,9 +653,14 @@ export class RedBeanNode {
         }
     }
 
-    async normalizeRaw(sql, data) : Promise<LooseObject[]> {
-        let result = await this.knex.raw(sql, data);
+    protected normalizeRawCore(sql, data) {
+        let queryPromise = this.knex.raw(sql, data);
+        this.queryLog(queryPromise);
+        return queryPromise;
+    }
 
+    async normalizeRaw(sql, data) : Promise<LooseObject[]> {
+        let result = await this.normalizeRawCore(sql, data);
         this.queryLog(sql);
 
         if (this.dbType == "mysql") {
