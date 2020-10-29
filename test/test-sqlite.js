@@ -6,6 +6,7 @@ describe("Setup SQLite", () => {
 
     it("#R.setup()", () => {
         R.freeze(false);
+        R.devDebug = false;
         R.debug(false);
 
         if (fs.existsSync("dbfile.db"))

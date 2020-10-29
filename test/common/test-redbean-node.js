@@ -105,6 +105,9 @@ module.exports = () => {
                ]);
 
                expect(book2.id).to.equal(book3.id);
+
+               let book4 = await R.findOne('book', ' id = 0 ', );
+               expect(book4).to.be.null
            })
         })
 
@@ -299,6 +302,22 @@ module.exports = () => {
             expect(convertBeanList[0].title).to.equal("convert")
         });
 
+        it("R.storeAll", async () => {
+            let bean = R.dispense("store_all");
+            let bean2 = R.dispense("store_all");
+            let bean3 = R.dispense("store_all");
+
+            await R.storeAll([
+                bean,
+                bean2,
+                bean3
+            ]);
+
+            expect(bean.id).gt(0);
+            expect(bean2.id).gt(0);
+            expect(bean3.id).gt(0);
+        });
+
         describe('#isoDateTime', () => {
             it('get the correct datetime with new Date()', () => {
                 let d = new Date(2018, 11, 24, 10, 33, 30, 0);
@@ -429,8 +448,8 @@ module.exports = () => {
     describe("Relations", () => {
 
         it("Many-to-one", async () => {
-            R.devDebug = true;
-            R.debug(true);
+            //R.devDebug = true;
+            //R.debug(true);
             let product1 = R.dispense("product");
             let product2 = R.dispense("product");
 
@@ -490,6 +509,16 @@ module.exports = () => {
             product1FromDB = await R.load("product", product1.id);
             expect(product1FromDB.shopId).to.not.be.ok;
 
+            let shop3 = R.dispense("shop")
+            product1FromDB.shop3 = shop3;
+            await R.store(product1FromDB);
+
+            // Alias
+            product1FromDB = await R.load("product", product1.id);
+            expect(product1FromDB.shop3Id).to.equal(shop3.id);
+
+            let shop3FromDB = await product1FromDB.fetchAs("shop").shop3;
+            expect(shop3FromDB.id).to.equal(shop3.id);
         })
 
         it("One-to-many", async () => {
@@ -507,12 +536,48 @@ module.exports = () => {
             expect(shop2FromDB.ownProduct2List).instanceof(OwnList);
             let list = await shop2FromDB.ownProduct2List.toArray();
 
-            expect(list.length).gt(0);
+            expect(list.length).to.equal(1);
             expect(list[0].id).to.equal(vase.id)
 
             let vase2 = R.dispense('product2');
             shop2.ownProduct2List.push(vase2);
             await R.store(shop2);
+
+            await shop2FromDB.refresh();
+            list = await shop2FromDB.ownProduct2List.toArray();
+            expect(list.length).to.equal(2);
+
+            // Remove
+            shop2FromDB.ownProduct2List.remove(vase)
+            await R.store(shop2FromDB);
+            list = await shop2FromDB.ownProduct2List.toArray();
+            expect(list.length).to.equal(1);
+
+            // Alias
+            let t = R.dispense('person');
+            let course = R.dispense('course');
+            course.teacher = t;
+
+            let course2 = R.dispense('course');
+            course2.teacher = t;
+
+            await R.storeAll([
+                course,
+                course2
+            ])
+
+            expect(t.id).gt(0);
+
+            let person = await R.load("person", t.id);
+            expect(person.id).gt(0);
+            R.debug(true);
+            let courseList = await person.alias('teacher').ownCourseList.toArray();
+            expect(courseList.length).to.equal(2)
+            console.log(courseList);
+        });
+
+        it("Many-to-many", async () => {
+
         });
     });
 

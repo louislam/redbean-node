@@ -17,6 +17,7 @@ if (process.env.MYSQL_HOST !== undefined) {
 
 describe("Prepare MySQL database", () => {
     R.freeze(false);
+    R.devDebug = false;
     R.debug(false);
     R._modelList  = {}
 

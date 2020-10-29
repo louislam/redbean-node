@@ -2,15 +2,14 @@ import knex, {PoolConfig, QueryBuilder, RawBinding, StaticConnectionConfig, Valu
 import {Bean} from "./bean";
 import {isEmptyObject, LooseObject} from "./helper/helper";
 import dayjs from "dayjs";
-// import PromisePool from 'es6-promise-pool';
 import glob from "glob";
 import path from "path";
 import {BeanModel} from "./bean-model";
 import BeanConverterStream from "./bean-converter-stream";
-import {PassThrough} from "stream";
+import AwaitLock from "await-lock";
+// import PromisePool from 'es6-promise-pool';
 
 export class RedBeanNode {
-
 
     /**
      * For this library dev only
@@ -24,6 +23,8 @@ export class RedBeanNode {
     public dbType : string = "";
 
     private _modelList : LooseObject<{new (type, R): BeanModel}> = {};
+
+    protected schemaLock = new AwaitLock();
 
     /**
      * If use this on transaction
@@ -203,7 +204,17 @@ export class RedBeanNode {
         return bean.id;
     }
 
-    protected async updateTableSchema(bean : Bean) {
+    protected async updateTableSchema(bean: Bean, changedFieldsOnly = true) {
+        await this.schemaLock.acquireAsync();
+
+        try {
+            await this.updateTableSchemaCore(bean);
+        } finally {
+            this.schemaLock.release();
+        }
+    }
+
+    protected async updateTableSchemaCore(bean : Bean) {
         this.devLog("Check Update Table Schema");
 
         if (! this._knex) {
