@@ -31,6 +31,7 @@
     * [Bean Metadata](Bean-Metadata.md)
     * [Database](Database.md)
     * [Knex.js](Knexjs.md)
+    * [Migration](Migration.md)
     
 * **More Examples**
     * [Work with Express](Express.md)

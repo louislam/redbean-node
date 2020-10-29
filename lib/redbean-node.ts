@@ -200,7 +200,7 @@ export class RedBeanNode {
         let exists = await this.hasTable(bean.getType());
 
         if (! exists) {
-            console.log("Create table: " + bean.getType());
+            this.debugLog("Create table: " + bean.getType());
 
             try {
                 let queryPromise = this._knex.schema.createTable(bean.getType(), function (table) {
@@ -247,44 +247,44 @@ export class RedBeanNode {
                         let col;
 
                         if (valueType == "integer") {
-                            console.log("Create field (Int): " + fieldName);
+                            this.debugLog("Create field (Int): " + fieldName);
                             col = table.integer(fieldName);
 
                         } else if (valueType == "bigInteger") {
-                            console.log("Create field (bigInteger): " + fieldName);
+                            this.debugLog("Create field (bigInteger): " + fieldName);
                             col = table.bigInteger(fieldName);
 
                         } else if (valueType == "float") {
-                            console.log("Create field (Float): " + fieldName);
+                            this.debugLog("Create field (Float): " + fieldName);
                             col = table.float(fieldName);
 
                         } else if (valueType == "boolean") {
-                            console.log("Create field (Boolean): " + fieldName);
+                            this.debugLog("Create field (Boolean): " + fieldName);
                             col = table.boolean(fieldName);
 
                         } else if (valueType == "text") {
-                            console.log("Create field (Text): " + fieldName);
+                            this.debugLog("Create field (Text): " + fieldName);
                             col = table.text(fieldName, "longtext");
 
                         } else if (valueType == "datetime") {
-                            console.log("Create field (Datetime): " + fieldName);
+                            this.debugLog("Create field (Datetime): " + fieldName);
                             col = table.dateTime(fieldName);
 
                         } else if (valueType == "date") {
-                            console.log("Create field (Date): " + fieldName);
+                            this.debugLog("Create field (Date): " + fieldName);
                             col = table.date(fieldName);
 
                         } else if (valueType == "time") {
-                            console.log("Create field (Time): " + fieldName);
+                            this.debugLog("Create field (Time): " + fieldName);
                             col = table.time(fieldName);
 
                         } else {
-                            console.log("Create field (String): " + fieldName);
+                            this.debugLog("Create field (String): " + fieldName);
                             col = table.string(fieldName);
                         }
 
                         if (alterField) {
-                            console.log("This is modify column");
+                            this.debugLog("This is modify column");
                             col.alter();
                         }
                     }
@@ -795,6 +795,12 @@ export class RedBeanNode {
 
     protected devLog(...params : any[]) {
         if (this.devDebug) {
+            console.log("[R]", ...params);
+        }
+    }
+
+    protected debugLog(...params : any[]) {
+        if (this.isDebug()) {
             console.log("[R]", ...params);
         }
     }
