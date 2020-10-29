@@ -30,7 +30,7 @@ export class Bean {
             throw "invalid property name: starts with underscore is not allowed";
         }
 
-        let hasRelationField = (this[Bean.getRelationFieldName(name)] !== undefined);
+        let hasRelationField = (this[Bean.getInternalRelationFieldName(name)] !== undefined);
 
         if (value instanceof Bean || hasRelationField) {
             this.setRelationBean(name, value);
@@ -43,6 +43,7 @@ export class Bean {
 
             // If this is a relation field, sync the relation bean too!
             if (Bean.isRelationField(key)) {
+                this.devLog("It is a relation field");
                 let type = Bean.getTypeFromRelationField(key);
                 delete this.beanMeta.typeBeanList[type];
             }
@@ -173,6 +174,7 @@ export class Bean {
             let id = this[fieldName];
 
             if (! id) {
+                this.devLog("Return null, id = ", id);
                 return null;
             }
 

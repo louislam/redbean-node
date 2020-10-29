@@ -23,6 +23,8 @@ let list = await shop.ownProductList.toArray();
 ```
 
 ## Remove
+
+```javascript
 shop.ownProductList.remove(vase);
 R.store(shop);
 ```

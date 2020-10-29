@@ -158,6 +158,9 @@ export class RedBeanNode {
                 }
             }
 
+            this.devLog("values to be updated:");
+            this.devLog(obj);
+
             if (! isEmptyObject(obj)) {
                 let queryPromise = this.knex(bean.getType()).where({ id: bean.id }).update(obj);
                 this.queryLog(queryPromise);
@@ -304,7 +307,7 @@ export class RedBeanNode {
         this.devLog("Date Type of", value, "=", type);
 
         // Relation field as integer
-        if (Bean.isRelationField(fieldName)) {
+        if (fieldName.endsWith("_id")) {
             return "integer";
         }
 

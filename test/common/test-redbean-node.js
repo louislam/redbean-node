@@ -3,6 +3,7 @@ const {Bean} = require("../../dist/bean");
 const {expect} = require("chai");
 const {R} = require("../../dist/redbean-node");
 const dayjs = require('dayjs');
+const {OwnList} = require("../../dist/own-list");
 
 module.exports = () => {
 
@@ -345,6 +346,12 @@ module.exports = () => {
             expect(R.getDataType(R.isoDateTime())).to.equal("datetime");
             expect(R.getDataType(R.isoDate())).to.equal("date");
             expect(R.getDataType(R.isoTime())).to.equal("time");
+
+
+            expect(R.getDataType(0, "shop_id")).to.equal("integer");
+            expect(R.getDataType(1, "shop_id")).to.equal("integer");
+            expect(R.getDataType(2, "shop_id")).to.equal("integer");
+            expect(R.getDataType(-1, "shop_id")).to.equal("integer");
         });
 
         it('isValidType', () => {
@@ -416,6 +423,96 @@ module.exports = () => {
                 }
             }
 
+        });
+    });
+
+    describe("Relations", () => {
+
+        it("Many-to-one", async () => {
+            R.devDebug = true;
+            R.debug(true);
+            let product1 = R.dispense("product");
+            let product2 = R.dispense("product");
+
+            let shop1 = R.dispense("shop");
+            let shop2 = R.dispense("shop");
+
+            expect(product1.shop).to.be.undefined
+            product1.shop = shop1;
+            await R.store(product1);
+
+            expect(product1.id).gt(0);
+            expect(shop1.id).gt(0);
+
+            let product1FromDB = await R.load("product", product1.id);
+            expect(product1FromDB.id).to.equal(product1.id)
+            expect(product1FromDB.shopId).to.equal(shop1.id)
+            expect(product1FromDB.shop_id).to.equal(shop1.id)
+
+            let shop1FromDB = await product1FromDB.shop;
+            expect(shop1FromDB).to.not.be.undefined;
+            expect(shop1FromDB.id).to.equal(shop1.id)
+
+            // Change shop
+            await R.store(shop2);
+            product1.shopId = shop2.id
+            await R.store(product1)
+
+            product1FromDB = await R.load("product", product1.id);
+            expect(product1FromDB.shopId).to.equal(shop2.id)
+
+            product1.shop_id = shop1.id
+
+            expect((await product1.shop).id).to.equal(shop1.id)
+            await R.store(product1)
+
+            product1FromDB = await R.load("product", product1.id);
+            expect(product1FromDB.shopId).to.equal(shop1.id)
+
+            // Remove shop
+            expect(await product1.shop).to.be.not.undefined;
+            product1.shop_id = null;
+            expect(await product1.shop).to.not.be.ok;
+            await R.store(product1);
+
+            product1FromDB = await R.load("product", product1.id);
+            expect(product1FromDB.shopId).to.not.be.ok;
+
+            product1.shopId = shop2.id;
+            await R.store(product1);
+
+            product1FromDB = await R.load("product", product1.id);
+            expect(product1FromDB.shopId).to.equal(shop2.id)
+
+            product1FromDB.shop = null;
+            await R.store(product1FromDB);
+
+            product1FromDB = await R.load("product", product1.id);
+            expect(product1FromDB.shopId).to.not.be.ok;
+
+        })
+
+        it("One-to-many", async () => {
+            let shop2 = R.dispense('shop2');
+            shop2.name = 'Antiques';
+
+            let vase = R.dispense('product2');
+            vase.price = 25;
+            expect(shop2.ownProduct2List).instanceof(OwnList);
+            shop2.ownProduct2List.push(vase);
+            await R.store(shop2);
+
+            let shop2FromDB = await R.load("shop2", shop2.id);
+            expect(shop2FromDB.id).to.equal(shop2.id)
+            expect(shop2FromDB.ownProduct2List).instanceof(OwnList);
+            let list = await shop2FromDB.ownProduct2List.toArray();
+
+            expect(list.length).gt(0);
+            expect(list[0].id).to.equal(vase.id)
+
+            let vase2 = R.dispense('product2');
+            shop2.ownProduct2List.push(vase2);
+            await R.store(shop2);
         });
     });
 
