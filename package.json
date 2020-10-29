@@ -1,6 +1,6 @@
 {
     "name": "redbean-node",
-    "version": "0.0.13",
+    "version": "0.0.14",
     "description": "RedBeanNode is an easy to use ORM tool for Node.js, strongly inspired by RedBeanPHP. It automatically generates the tables and columns on-the-fly",
     "main": "dist/redbean-node.js",
     "types": "dist/redbean-node.d.ts",
