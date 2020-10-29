@@ -227,7 +227,7 @@ export class RedBeanNode {
                     let value = obj[fieldName];
                     let addField = false;
                     let alterField = false;
-                    let valueType = this.getDataType(value);
+                    let valueType = this.getDataType(value, fieldName);
                     this.devLog("Best column type =", valueType);
 
 
@@ -298,10 +298,15 @@ export class RedBeanNode {
 
     }
 
-    getDataType(value) {
+    getDataType(value, fieldName : string = "") {
         let type = typeof value;
 
         this.devLog("Date Type of", value, "=", type);
+
+        // Relation field as integer
+        if (Bean.isRelationField(fieldName)) {
+            return "integer";
+        }
 
         if (type == "boolean") {
             return "boolean";
