@@ -65,8 +65,8 @@ export class Bean {
         this.devLog("Get Property:", name);
 
         // Check if relation field
-        // converting product to this["product_id"] for example
-        let relationFieldName = Bean.getRelationFieldName(name);
+        // converting "product" to this["_productId"] for example
+        let relationFieldName = Bean.getInternalRelationFieldName(name);
 
         this.devLog("Convert to relation field name, see is there any relation id:", relationFieldName)
 
