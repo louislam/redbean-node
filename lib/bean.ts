@@ -5,6 +5,7 @@ import {LazyLoadArray} from "./lazy-load-array";
 import {SharedList} from "./shared-list";
 import {OwnList} from "./own-list";
 import {LooseObject} from "./helper/helper";
+import AwaitLock from 'await-lock';
 
 @magicMethods
 export class Bean {
@@ -482,6 +483,7 @@ export class Bean {
 class BeanMeta {
     #_R! : RedBeanNode;
     #_type! : string;
+    #_lock : AwaitLock = new AwaitLock();
 
     /**
      * For chain operation
@@ -597,6 +599,10 @@ class BeanMeta {
     refresh() {
         this.clearCache();
         this.clearHistory();
+    }
+
+    get lock(): AwaitLock {
+        return this.#_lock;
     }
 
 }

@@ -128,6 +128,16 @@ export class RedBeanNode {
     }
 
     async store(bean: Bean, changedFieldsOnly = true) {
+        await bean.beanMeta.lock.acquireAsync();
+
+        try {
+            return await this.storeCore(bean, changedFieldsOnly);
+        } finally {
+            bean.beanMeta.lock.release();
+        }
+    }
+
+    protected async storeCore(bean: Bean, changedFieldsOnly = true) {
         this.devLog("Store", bean.beanMeta.type, bean.id);
 
         await bean.storeTypeBeanList();
