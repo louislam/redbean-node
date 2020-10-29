@@ -26,5 +26,5 @@ fetchAs tells RedBeanNode the **ID** has to be associated with a different type 
 ```javascript
 // returns all courses for this person
 // where he/she is the teacher.
-let courseList = await person.alias('teacher').ownCourseList;
+let courseList = await person.alias('teacher').ownCourseList.toArray();
 ```

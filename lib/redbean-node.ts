@@ -241,7 +241,7 @@ export class RedBeanNode {
 
                     // If exists in current database, but the type is not good for the data
                     else if (! this.isValidType(columnInfo[fieldName].type, valueType)) {
-                        console.log(`Alter column is needed: ${fieldName} (dbType: ${columnInfo[fieldName].type}) (valueType: ${valueType})`);
+                        this.debugLog(`Alter column is needed: ${fieldName} (dbType: ${columnInfo[fieldName].type}) (valueType: ${valueType})`);
                         addField = true;
                         alterField = true;
                     }

@@ -70,6 +70,9 @@ export class OwnList extends LazyLoadArray {
             promiseList.push(this.R.store(bean));
         }
 
+        // Refresh the list from db next time
+        this.loaded = false;
+
         await this.R.concurrent(promiseList);
     }
 
