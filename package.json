@@ -51,7 +51,8 @@
         "redbeannode"
     ],
     "np": {
-        "releaseDraft": false
+        "releaseDraft": false,
+        "cleanup": false
     },
     "devDependencies": {
         "chai": "^4.2.0",
