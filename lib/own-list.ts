@@ -35,7 +35,18 @@ export class OwnList extends LazyLoadArray {
                 data.push(...this.withConditionData);
             }
 
-            this._list = await this.R.find(this.type, condition, data);
+            try  {
+                this._list = await this.R.find(this.type, condition, data);
+            } catch (error) {
+
+                try {
+                    this.R.checkAllowedError(error);
+                } catch (e) {
+                    this.loaded = false;
+                    throw e;
+                }
+
+            }
 
         }
         return this.list;

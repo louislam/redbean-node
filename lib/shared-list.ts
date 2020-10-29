@@ -70,8 +70,14 @@ export class SharedList extends LazyLoadArray {
                 }
 
             } catch (error) {
-                this.R.checkAllowedError(error);
-                this.loaded = false;
+
+                try {
+                    this.R.checkAllowedError(error);
+                } catch (e) {
+                    this.loaded = false;
+                    throw e;
+                }
+
             }
 
         }

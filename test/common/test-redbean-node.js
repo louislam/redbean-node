@@ -574,6 +574,10 @@ module.exports = () => {
             let courseList = await person.alias('teacher').ownCourseList.toArray();
             expect(courseList.length).to.equal(2)
             console.log(courseList);
+
+            // Non existing table
+            list = await shop2FromDB.ownNoThisTableList.toArray();
+            expect(list.length).to.equal(0)
         });
 
         it("Many-to-many", async () => {
