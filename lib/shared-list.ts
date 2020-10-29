@@ -10,6 +10,28 @@ export class SharedList extends LazyLoadArray {
         this.via = via;
     }
 
+
+    push(...items): number {
+        for (let item of items) {
+            if (this.type != item.beanMeta.type) {
+                throw new Error("The bean type does not match the shared list type");
+            }
+        }
+
+        return super.push(...items);
+    }
+
+
+    remove(...items) {
+        for (let item of items) {
+            if (this.type != item.beanMeta.type) {
+                throw new Error("The bean type does not match the shared list type");
+            }
+        }
+
+        super.remove(...items);
+    }
+
     async toArray(force: boolean = false) : Promise<Bean[]> {
 
         // Not yet save, must empty

@@ -570,14 +570,89 @@ module.exports = () => {
 
             let person = await R.load("person", t.id);
             expect(person.id).gt(0);
-            R.debug(true);
+
             let courseList = await person.alias('teacher').ownCourseList.toArray();
             expect(courseList.length).to.equal(2)
             console.log(courseList);
         });
 
         it("Many-to-many", async () => {
+            let aaa1 = R.dispense("aaa");
+            let aaa2 = R.dispense("aaa");
 
+            let bbb1 = R.dispense("bbb");
+            let bbb2 = R.dispense("bbb");
+            let bbb3 = R.dispense("bbb");
+            let bbb4 = R.dispense("bbb");
+
+            aaa1.sharedBbbList.push(bbb1);
+            aaa1.sharedBbbList.push(bbb2);
+
+            aaa2.sharedBbbList.push(bbb1);
+            aaa2.sharedBbbList.push(bbb2);
+            aaa2.sharedBbbList.push(bbb3);
+            aaa2.sharedBbbList.push(bbb4);
+
+            expect(() => aaa2.sharedCccList.push(bbb4)).to.throw();
+
+            await R.storeAll([
+                aaa1,
+                aaa2
+            ]);
+
+            let aaa1FromDB = await R.load("aaa", aaa1.id);
+            let aaa2FromDB = await R.load("aaa", aaa2.id);
+
+            expect(aaa1FromDB.id).to.equal(aaa1.id)
+            expect(aaa2FromDB.id).to.equal(aaa2.id)
+
+            let bbbList = await aaa1FromDB.sharedBbbList.toArray();
+            expect(bbbList.length).to.equal(2);
+
+            let bbb2List = await aaa2FromDB.sharedBbbList.toArray();
+            expect(bbb2List.length).to.equal(4);
+
+            let bbb1FromDB = await R.load("bbb", bbb2.id);
+            let bbb4FromDB = await R.load("bbb", bbb4.id);
+
+            let aaa1List = await bbb1FromDB.sharedAaaList.toArray();
+            expect(aaa1List.length).to.equal(2);
+
+            let aaa2List = await bbb4FromDB.sharedAaaList.toArray();
+            expect(aaa2List.length).to.equal(1);
+
+            let bbb5 = R.dispense("bbb");
+            let aaa3List = await bbb5.sharedAaaList.toArray();
+            expect(aaa3List.length).to.equal(0);
+            await R.store(bbb5)
+
+            let bbb5FromDB = await R.load("bbb", bbb5.id)
+            aaa3List = await bbb5FromDB.sharedAaaList.toArray();
+            expect(aaa3List.length).to.equal(0);
+
+            // Remove
+            expect(aaa2List[0].id).to.equal(aaa2.id)
+            bbb4FromDB.sharedAaaList.remove(aaa2);
+            await R.store(bbb4FromDB);
+            bbb4FromDB = await R.load("bbb", bbb4.id);
+            aaa2List = await bbb4FromDB.sharedAaaList.toArray();
+            expect(aaa2List.length).to.equal(0);
+
+            // Remove again (do nothing)
+            bbb4FromDB.sharedAaaList.remove(aaa2);
+            await R.store(bbb4FromDB);
+            bbb4FromDB = await R.load("bbb", bbb4.id);
+            aaa2List = await bbb4FromDB.sharedAaaList.toArray();
+            expect(aaa2List.length).to.equal(0);
+
+            // Type not match
+            let ccc = R.dispense("ccc");
+            await R.store(ccc);
+            expect(() => bbb4FromDB.sharedAaaList.remove(ccc)).to.throw();
+
+            // Non existing table
+            let dddList = await bbb4FromDB.sharedDddList.toArray();
+            expect(dddList.length).to.equal(0);
         });
     });
 
