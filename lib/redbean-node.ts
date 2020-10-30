@@ -313,6 +313,12 @@ export class RedBeanNode {
                             this.debugLog("This is modify column");
                             col.alter();
                         }
+
+                        // Add index key for relation fields
+                        // TODO: foreign key too
+                        if (fieldName.endsWith("_id")) {
+                            table.index(fieldName)
+                        }
                     }
                 }
             });
