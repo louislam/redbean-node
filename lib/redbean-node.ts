@@ -463,26 +463,10 @@ export class RedBeanNode {
         await this.knex.destroy();
     }
 
-    async load(type: string, id: number) {
-        this.devLog("Load Bean", type, id);
-
-        try {
-             let queryPromise = this.knex.select().table(type).whereRaw("id = ?", [
-                id
-            ]).limit(1);
-
-             this.queryLog(queryPromise);
-
-            let result = await queryPromise;
-
-            if (result.length > 0) {
-                return this.convertToBean(type, result[0]);
-            } else {
-                return null;
-            }
-        } catch (error) {
-            this.checkAllowedError(error);
-        }
+    load(type: string, id: number) {
+        return this.findOne(type, " id = ?", [
+            id
+        ]);
     }
 
     protected normalizeErrorMsg(error) {
@@ -633,9 +617,9 @@ export class RedBeanNode {
         let isDispense;
 
         if (obj.id) {
-            isDispense = true;
-        } else {
             isDispense = false;
+        } else {
+            isDispense = true;
         }
 
         let bean = this.createBean(type, isDispense);
