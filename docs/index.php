@@ -18,9 +18,12 @@
         logo: undefined,
         auto2top: true,
         search: 'auto',
+        routerMode: 'history',
     }
 </script>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docsify/4.11.6/docsify.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docsify/4.11.6/plugins/search.min.js"></script>
+<script src=" https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-typescript.min.js"></script>
 </body>
 </html>
