@@ -6,6 +6,7 @@ import {SharedList} from "./shared-list";
 import {OwnList} from "./own-list";
 import {LooseObject} from "./helper/helper";
 import AwaitLock from 'await-lock';
+import {RawBinding} from "knex";
 
 @magicMethods
 export class Bean {
@@ -358,14 +359,14 @@ export class Bean {
         return chainBean;
     }
 
-    withCondition(condition : string, data : any[] = []) : Bean {
+    withCondition(condition : string, data : RawBinding[] = []) : Bean {
         let chainBean = this.createChainBean();
         chainBean.beanMeta.withCondition = condition;
         chainBean.beanMeta.withConditionData = data;
         return chainBean;
     }
 
-    with(value : string, data = []) {
+    with(value : string, data : RawBinding[] = []) {
         return this.withCondition(" 1=1 " + value, data);
     }
 
@@ -504,7 +505,7 @@ class BeanMeta {
     alias = "";
     via = "";
     withCondition = "";
-    withConditionData : any[] = [];
+    withConditionData : RawBinding[] = [];
 
     /*
     * These variables are for cache

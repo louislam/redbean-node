@@ -657,6 +657,64 @@ module.exports = () => {
             // Non existing table
             let dddList = await bbb4FromDB.sharedDddList.toArray();
             expect(dddList.length).to.equal(0);
+
+            // Via
+            let project = R.dispense("project");
+            let lisa = R.dispense("employee");
+            let participant = R.dispense("participant");
+            participant.project = project;
+            participant.employee = lisa;
+            participant.role = 'developer';
+            await R.store(participant);
+
+            project = await R.load("project", project.id);
+
+            let employees = await project
+                .via('participant')
+                .sharedEmployeeList.toArray();
+
+            expect(employees.length).to.equal(1);
+            expect(employees[0].id).to.equal(lisa.id);
+
+            // with
+            // self one-to-many
+            let withBean = R.dispense("with");
+            let withBean2 = R.dispense("with");
+            let withBean3 = R.dispense("with");
+
+            withBean.ownWithList.push(withBean2, withBean3);
+            await R.store(withBean);
+
+            await withBean.refresh();
+
+            let list = await withBean.with(" ORDER BY id DESC").ownWithList.toArray();
+            expect(list.length).to.equal(2);
+            expect(list[0].id).gt(list[1].id)
+
+            list = await withBean.with(" ORDER BY id").ownWithList.toArray();
+            expect(list.length).to.equal(2);
+            expect(list[1].id).gt(list[0].id)
+
+            list = await withBean.withCondition(" id = ? ", [ withBean2.id ]).ownWithList.toArray();
+            expect(list.length).to.equal(1);
+            expect(list[0].id).equals(withBean2.id)
+
+
+        });
+    });
+
+    describe('#Counting', () => {
+        it('R.count', async () => {
+
+            let num = await R.count('count');
+            expect(num).to.equal(0);
+
+            let bean = R.dispense("count");
+            await R.store(bean);
+
+            num = await R.count('count');
+            expect(num).to.equal(1);
+
         });
     });
 

@@ -1,5 +1,6 @@
 import {LazyLoadArray} from "./lazy-load-array";
 import {Bean} from "./bean";
+import {RawBinding} from "knex";
 
 export class OwnList extends LazyLoadArray {
 
@@ -25,7 +26,7 @@ export class OwnList extends LazyLoadArray {
             let field = Bean.dbFieldName(Bean.getRelationFieldName(this.alias));
 
             let condition = " ?? = ? ";
-            let data = [
+            let data : any[] = [
                 field,
                 this.parentBean._id
             ];

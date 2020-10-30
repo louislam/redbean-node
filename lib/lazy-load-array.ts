@@ -1,6 +1,7 @@
 import {magicMethods} from "./magic-methods";
 import {Bean} from "./bean";
 import {RedBeanNode} from "./redbean-node";
+import {RawBinding} from "knex";
 
 export abstract class LazyLoadArray {
 
@@ -22,7 +23,7 @@ export abstract class LazyLoadArray {
     protected _list : Bean[] = [];
 
     public withCondition = "";
-    public withConditionData : any[] = [];
+    public withConditionData : RawBinding[] = [];
 
     protected constructor(parentBean: Bean, type : string) {
         this.parentBean = parentBean;

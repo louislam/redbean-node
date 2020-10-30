@@ -1,4 +1,4 @@
-import knex, {PoolConfig, QueryBuilder, RawBinding, StaticConnectionConfig, ValueDict} from "knex";
+import knex, {PoolConfig, QueryBuilder, RawBinding, StaticConnectionConfig} from "knex";
 import {Bean} from "./bean";
 import {isEmptyObject, LooseObject} from "./helper/helper";
 import dayjs from "dayjs";
@@ -138,7 +138,7 @@ export class RedBeanNode {
         }
     }
 
-    protected async storeCore(bean: Bean, changedFieldsOnly = true) {
+    protected async storeCore(bean: Bean, changedFieldsOnly = true) : Promise<number> {
         this.devLog("Store", bean.beanMeta.type, bean.id);
 
         await bean.storeTypeBeanList();
@@ -581,36 +581,36 @@ export class RedBeanNode {
         }
     }
 
-    protected findCore(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) : QueryBuilder {
+    protected findCore(type: string, clause: string, data : readonly RawBinding[] = []) : QueryBuilder {
         let queryPromise = this.knex.table(type).whereRaw(clause, data);
         this.queryLog(queryPromise);
         return queryPromise;
     }
 
-    async find(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+    async find(type: string, clause: string, data : readonly RawBinding[] = []) {
         let list = await this.findCore(type, clause, data);
         return this.convertToBeans(type, list);
     }
 
-    findStream(type: string, clause: string = "", data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+    findStream(type: string, clause: string = "", data : readonly RawBinding[] = []) {
         return BeanConverterStream.createStream(type, this, this.findCore(type, clause, data));
     }
 
-    protected findAllCore(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+    protected findAllCore(type: string, clause: string, data : readonly RawBinding[] = []) {
         return this.findCore(type, " 1=1 " + clause, data);
     }
 
-    async findAll(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+    async findAll(type: string, clause: string, data : readonly RawBinding[] = []) {
         let list = await this.findAllCore(type, clause, data);
         return this.convertToBeans(type, list)
     }
 
-    findAllStream(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+    findAllStream(type: string, clause: string, data : readonly RawBinding[] = []) {
         return BeanConverterStream.createStream(type, this, this.findAllCore(type, clause, data));
     }
 
 
-    async findOne(type: string, clause: string, data : readonly RawBinding[] | ValueDict | RawBinding = []) {
+    async findOne(type: string, clause: string, data : readonly RawBinding[] = []) {
         let queryPromise = this.knex.table(type).whereRaw(clause, data).first();
         this.queryLog(queryPromise);
         let obj = await queryPromise;
@@ -655,7 +655,7 @@ export class RedBeanNode {
         await this.normalizeRaw(sql, data);
     }
 
-    getAll(sql: string, data: string[] = []) {
+    getAll(sql: string, data: readonly RawBinding[] = []) {
         return this.normalizeRaw(sql, data);
     }
 
@@ -663,7 +663,7 @@ export class RedBeanNode {
         return this.normalizeRawCore(sql, data).stream();
     }
 
-    async getRow(sql: string, data: (string | knex.Value)[] = [], autoLimit = false) {
+    async getRow(sql: string, data: RawBinding[] = [], autoLimit = false) {
 
         if (autoLimit) {
             let limitTemplate = this.knex.limit(1).toSQL().toNative();
@@ -699,7 +699,7 @@ export class RedBeanNode {
         return result;
     }
 
-    async getCol(sql: string, data: string[] = []) : Promise<any[]> {
+    async getCol(sql: string, data: readonly RawBinding[] = []) : Promise<any[]> {
         let list = await this.getAll(sql, data);
         let key : string;
 
@@ -715,7 +715,7 @@ export class RedBeanNode {
         });
     }
 
-    async getCell(sql: string, data: string[] = [], autoLimit = true) {
+    async getCell(sql: string, data: RawBinding[] = [], autoLimit = true) {
         let row = await this.getRow(sql, data, autoLimit);
 
         if (row) {
@@ -746,17 +746,22 @@ export class RedBeanNode {
         return obj;
     }
 
-    count(type : string, clause : string = "", data : any[] = [], autoLimit = true) {
+    async count(type : string, clause : string = "", data : RawBinding[] = [], autoLimit = true) {
         let where = "";
 
         if (clause) {
             where = "WHERE " + clause;
         }
 
-        return this.getCell(`SELECT COUNT(*) FROM ?? ${where}`, [
-            type,
-            ...data,
-        ], autoLimit);
+        try {
+            return await this.getCell(`SELECT COUNT(*) FROM ?? ${where}`, [
+                type,
+                ...data,
+            ], autoLimit)
+        } catch (error) {
+            this.checkAllowedError(error);
+            return 0;
+        }
     }
 
     inspect(type) {
