@@ -36,6 +36,10 @@ export class RedBeanNode {
         return this._knex;
     }
 
+    isTransaction() {
+        return !! this._transaction;
+    }
+
     setup(dbType : string | knex = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }, pool : PoolConfig = {  }) {
 
         if (typeof dbType === "string") {
@@ -143,16 +147,16 @@ export class RedBeanNode {
 
         await bean.storeTypeBeanList();
 
+        if (bean instanceof BeanModel) {
+            bean.onUpdate();
+        }
+
         if (! this._freeze) {
             await this.updateTableSchema(bean);
         }
 
         let obj = bean.export(false);
         delete obj.id;
-
-        if (bean instanceof BeanModel) {
-            bean.onUpdate();
-        }
 
         // Update
         // else insert
@@ -787,6 +791,7 @@ export class RedBeanNode {
         redBeanNode.setup(this._knex);
         redBeanNode._debug = this._debug;
         redBeanNode._freeze = this._freeze;
+        redBeanNode.devDebug = this.devDebug;
         redBeanNode._transaction = await this.knex.transaction();
 
         return redBeanNode;

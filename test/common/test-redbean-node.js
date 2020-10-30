@@ -1,3 +1,4 @@
+const {BeanModel} = require("../../dist/bean-model");
 const assert = require('assert');
 const {Bean} = require("../../dist/bean");
 const {expect} = require("chai");
@@ -676,6 +677,37 @@ module.exports = () => {
             expect(employees.length).to.equal(1);
             expect(employees[0].id).to.equal(lisa.id);
 
+            employees = await project
+                .via('participant')
+                .withCondition(" employee.id = ? ", [ lisa.id ])
+                .sharedEmployeeList.toArray();
+
+            expect(employees.length).to.equal(1);
+            expect(employees[0].id).to.equal(lisa.id);
+
+            employees = await project
+                .withCondition(" employee.id = ? ", [ lisa.id ])
+                .via('participant')
+                .sharedEmployeeList.toArray();
+
+            expect(employees.length).to.equal(1);
+            expect(employees[0].id).to.equal(lisa.id);
+
+            employees = await project
+                .withCondition(" employee.id = ? ", [ 9999 ])
+                .via('participant')
+                .sharedEmployeeList.toArray();
+
+            expect(employees.length).to.equal(0);
+
+            employees = await project
+                .with(" ORDER BY employee.id " )
+                .via('participant')
+                .sharedEmployeeList.toArray();
+
+            expect(employees.length).to.equal(1);
+            expect(employees[0].id).to.equal(lisa.id);
+
             // with
             // self one-to-many
             let withBean = R.dispense("with");
@@ -718,6 +750,60 @@ module.exports = () => {
         });
     });
 
+    describe('Model', () => {
+        it('events', async () => {
+
+            class Model extends BeanModel {
+                onDispense() {
+                    this.callOnDispense = true;
+                }
+
+                onOpen() {
+                    console.log("onOpen");
+                }
+
+                onUpdate() {
+                    this.callOnUpdate = true;
+                }
+
+                onAfterUpdate() {
+                    this.callOnAfterUpdate = true;
+                }
+
+                onDelete() {
+                    console.log("onDelete");
+                }
+
+                onAfterDelete() {
+                    console.log("onAfterDelete")
+                }
+
+                get test() {
+                    return this.a + this.b;
+                }
+            }
+
+            R.modelList["model"] = Model;
+
+            let modelBean = R.dispense("model");
+            expect(modelBean.constructor.name).equals("Model");
+            expect(modelBean.callOnDispense).equals(true);
+
+            modelBean.a = "A";
+            modelBean.b = "B";
+            expect(modelBean.test).equals("AB");
+
+            await R.store(modelBean);
+            expect(modelBean.callOnUpdate).equals(true);
+            expect(modelBean.callOnAfterUpdate).equals(true);
+
+            // Only OnUpdate insert into DB, no OnAfterUpdate
+            let modelBeanFromDB = await R.load("model", modelBean.id)
+            expect(modelBeanFromDB.callOnUpdate).to.be.ok;
+            expect(modelBeanFromDB.callOnAfterUpdate).to.be.undefined;
+        });
+    });
+
     // Always test it at the end
     describe('#R.freeze()', () => {
         it('set freeze to true', (done) => {
@@ -732,6 +818,49 @@ module.exports = () => {
             }).catch((err) => {
                 done();
             })
+        });
+    });
+
+    // After freeze
+    describe('Transaction', () => {
+        it('basic', async () => {
+
+            // Rollback
+            let trx = await R.begin();
+            let bean = await trx.dispense('count');
+            let id = await trx.store(bean);
+            await trx.rollback();
+
+            let beanFromDB = await R.load("count", id);
+            expect(beanFromDB).to.be.not.ok;
+
+            // Commit
+            trx = await R.begin();
+            bean = await trx.dispense('count');
+            id = await trx.store(bean);
+            await trx.commit();
+
+            beanFromDB = await R.load("count", id);
+            expect(beanFromDB).to.be.ok;
+
+            // Closure
+            await R.transaction(async (trx) => {
+                bean = await trx.dispense('count');
+                id = await trx.store(bean);
+                throw "this is an error"
+            });
+
+            beanFromDB = await R.load("count", id);
+            expect(beanFromDB).to.be.not.ok;
+
+            await R.transaction(async (trx) => {
+                bean = await trx.dispense('count');
+                id = await trx.store(bean);
+            });
+
+            beanFromDB = await R.load("count", id);
+            expect(beanFromDB).to.be.ok;
+
         });
     });
 }
