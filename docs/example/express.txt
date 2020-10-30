@@ -1,0 +1,45 @@
+const {R} = require('redbean-node');
+const express = require('express');
+const bodyParser = require('body-parser');
+
+// Express things
+const app = express();
+app.use(bodyParser.urlencoded({ extended: false }));
+
+// Setup Connection
+R.setup();
+
+// Main Route for Simple Task List
+app.get('/', async (req, res) => {
+    res.write(`<h1>Simple Task List</h1>`);
+    res.write(`<form method="post"><input name="task"><input type="submit"></form>`);
+
+    // Query all tasks from database
+    let taskList = await R.findAll("task", " ORDER BY created_date DESC ");
+
+    // Print the list to the browser
+    if (taskList.length > 0) {
+        let html = "";
+        for (const task of taskList) {
+            html += `<li>${task.name}</li>`;
+        }
+        res.write(`<ul>${html}</ul>`);
+    } else {
+        res.write("No Task!");
+    }
+
+    res.end();
+});
+
+// Route for adding a task
+app.post('/', async (req, res) => {
+    let task = R.dispense("task");
+    task.name = req.body.task;
+    task.created_date = R.isoDateTime();
+    await R.store(task);
+    res.redirect('back');
+});
+
+// Good to go!!
+app.listen(3000);
+"Go to this URL: " + process.env.RUNKIT_ENDPOINT_URL

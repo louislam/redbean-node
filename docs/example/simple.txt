@@ -1,0 +1,26 @@
+const {R} = require("redbean-node");
+
+// Setup connection
+R.setup();
+
+(async () => {
+    let post = R.dispense('post');
+    post.text = 'Hello World';
+
+    // create or update
+    let id = await R.store(post);
+
+    // retrieve from database
+    post = await R.load('post', id);
+
+    console.log("Post ID: " + post.id);
+    console.log("Post Text: " + post.text);
+
+    // delete
+    await R.trash(post);
+
+    // close connection
+    await R.close();
+})();
+
+"== Code Example =="

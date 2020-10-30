@@ -21,12 +21,6 @@ RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by Red
 * MySQL / MariaDB
 * SQLite
 
-## Playground
-
-Try RedBeanNode in browser!
-
-https://runkit.com/louislam/redbeannode-playground
-
 ## Code Example
 
 This is how you do CRUD in RedBeanNode:
@@ -44,10 +38,11 @@ R.setup();
     // create or update
     let id = await R.store(post);
 
-    // retrieve
+    // retrieve from database
     post = await R.load('post', id);
 
-    console.log(post);
+    console.log("Post ID is " + post.id);
+    console.log("Post text is " + post.text);
 
     // delete
     await R.trash(post);
@@ -55,8 +50,26 @@ R.setup();
     // close connection
     await R.close();
 })();
-
 ```
+
+<div id="my-element"></div>
+
+<script>
+fetch("/example/simple.txt")
+    .then((res) => res.text())
+    .then((src) => { 
+        let notebook = RunKit.createNotebook({
+            element: document.querySelector("#my-element"),
+            source: src,
+            //mode: 'endpoint',
+            onLoad: (arg) => {
+                    document.querySelector("pre[data-lang=\"javascript\"]").remove();
+                    notebook.evaluate();
+            }
+        });
+        console.log("Loaded Source Code");
+    })
+</script>
 
 This **automatically generates** the tables and columns... on-the-fly. It infers relations based on naming conventions.
 
