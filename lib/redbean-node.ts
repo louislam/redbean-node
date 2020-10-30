@@ -579,9 +579,14 @@ export class RedBeanNode {
         return queryPromise;
     }
 
-    async find(type: string, clause: string, data : readonly RawBinding[] = []) {
-        let list = await this.findCore(type, clause, data);
-        return this.convertToBeans(type, list);
+    async find(type: string, clause: string = "", data : readonly RawBinding[] = []) {
+        try {
+            let list = await this.findCore(type, clause, data);
+            return this.convertToBeans(type, list);
+        } catch (error) {
+            this.checkAllowedError(error);
+            return [];
+        }
     }
 
     findStream(type: string, clause: string = "", data : readonly RawBinding[] = []) {
@@ -592,9 +597,14 @@ export class RedBeanNode {
         return this.findCore(type, " 1=1 " + clause, data);
     }
 
-    async findAll(type: string, clause: string, data : readonly RawBinding[] = []) {
-        let list = await this.findAllCore(type, clause, data);
-        return this.convertToBeans(type, list)
+    async findAll(type: string, clause: string = "", data : readonly RawBinding[] = []) {
+        try {
+            let list = await this.findAllCore(type, clause, data);
+            return this.convertToBeans(type, list)
+        } catch (error) {
+            this.checkAllowedError(error);
+            return [];
+        }
     }
 
     findAllStream(type: string, clause: string, data : readonly RawBinding[] = []) {
@@ -602,10 +612,16 @@ export class RedBeanNode {
     }
 
 
-    async findOne(type: string, clause: string, data : readonly RawBinding[] = []) {
+    async findOne(type: string, clause: string = "", data : readonly RawBinding[] = []) {
         let queryPromise = this.knex.table(type).whereRaw(clause, data).first();
         this.queryLog(queryPromise);
-        let obj = await queryPromise;
+        let obj;
+
+        try {
+            obj = await queryPromise;
+        } catch (error) {
+            this.checkAllowedError(error);
+        }
 
         if (! obj) {
             return null;

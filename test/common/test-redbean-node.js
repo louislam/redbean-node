@@ -127,6 +127,11 @@ module.exports = () => {
 
                 list  = await R.findAll('test_find', ' LIMIT 1 ');
                 expect(list.length).to.equal(1);
+
+                // Test allowed error
+                expect((await R.find("no_this_table")).length).equals(0);
+                expect((await R.findAll("no_this_table")).length).equals(0);
+                expect(await R.findOne("no_this_table")).to.be.not.ok;
             })
 
             it("find with binding", async () => {
