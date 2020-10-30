@@ -99,8 +99,6 @@ export class RedBeanNode {
 
             if (isDispense) {
                 bean.onDispense();
-            } else {
-                bean.onOpen();
             }
 
             return bean;
@@ -624,6 +622,12 @@ export class RedBeanNode {
 
         let bean = this.createBean(type, isDispense);
         bean.import(obj);
+
+        // Call on after import value
+        if (! isDispense && bean instanceof BeanModel) {
+            bean.onOpen();
+        }
+
         return bean;
     }
 

@@ -759,6 +759,7 @@ module.exports = () => {
                 }
 
                 onOpen() {
+                    this.callOnOpen = true;
                     console.log("onOpen");
                 }
 
@@ -771,11 +772,11 @@ module.exports = () => {
                 }
 
                 onDelete() {
-                    console.log("onDelete");
+                    this.callOnDelete = true;
                 }
 
                 onAfterDelete() {
-                    console.log("onAfterDelete")
+                    this.callOnAfterDelete = true;
                 }
 
                 get test() {
@@ -787,7 +788,9 @@ module.exports = () => {
 
             let modelBean = R.dispense("model");
             expect(modelBean.constructor.name).equals("Model");
+            expect(modelBean).instanceof(Model);
             expect(modelBean.callOnDispense).equals(true);
+            expect(modelBean.callOnOpen).to.be.undefined
 
             modelBean.a = "A";
             modelBean.b = "B";
@@ -799,8 +802,18 @@ module.exports = () => {
 
             // Only OnUpdate insert into DB, no OnAfterUpdate
             let modelBeanFromDB = await R.load("model", modelBean.id)
+            expect(modelBeanFromDB.callOnOpen).to.be.ok;
+
+            // This because saved in db
             expect(modelBeanFromDB.callOnUpdate).to.be.ok;
+
             expect(modelBeanFromDB.callOnAfterUpdate).to.be.undefined;
+            expect(modelBeanFromDB.test).equals("AB");
+
+            await R.trash(modelBeanFromDB);
+            expect(modelBeanFromDB.callOnDelete).to.be.ok;
+            expect(modelBeanFromDB.callOnAfterDelete).to.be.ok;
+
         });
     });
 
