@@ -7,7 +7,6 @@ import path from "path";
 import {BeanModel} from "./bean-model";
 import BeanConverterStream from "./bean-converter-stream";
 import AwaitLock from "await-lock";
-import importCwd from "import-cwd";
 // import PromisePool from 'es6-promise-pool';
 
 export class RedBeanNode {
