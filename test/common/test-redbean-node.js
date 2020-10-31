@@ -1,3 +1,5 @@
+const glob = require("glob");
+
 const {BeanModel} = require("../../dist/bean-model");
 const assert = require('assert');
 const {Bean} = require("../../dist/bean");
@@ -592,7 +594,7 @@ module.exports = () => {
 
             let courseList = await person.alias('teacher').ownCourseList.toArray();
             expect(courseList.length).to.equal(2)
-            console.log(courseList);
+            //console.log(courseList);
 
             // Non existing table
             list = await shop2FromDB.ownNoThisTableList.toArray();
@@ -832,6 +834,20 @@ module.exports = () => {
             expect(modelBeanFromDB.callOnDelete).to.be.ok;
             expect(modelBeanFromDB.callOnAfterDelete).to.be.ok;
 
+        });
+
+        it('autoload', async () => {
+            let fileList = glob.sync("./test/model/*.js");
+            expect(fileList.length).gt(0);
+
+            await R.autoloadModels("./test/model");
+            expect("auto_load_model" in R.modelList).to.be.true;
+            expect("auto_load_model2" in R.modelList).to.be.true;
+            expect("invalid_model" in R.modelList).to.be.false;
+            expect("invalid_model2" in R.modelList).to.be.false;
+            expect("no_this_model" in R.modelList).to.be.false;
+
+            // TODO Test Typescript too
         });
     });
 

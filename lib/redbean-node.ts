@@ -7,6 +7,7 @@ import path from "path";
 import {BeanModel} from "./bean-model";
 import BeanConverterStream from "./bean-converter-stream";
 import AwaitLock from "await-lock";
+import importCwd from "import-cwd";
 // import PromisePool from 'es6-promise-pool';
 
 export class RedBeanNode {
@@ -957,7 +958,7 @@ export class RedBeanNode {
         return dayjs(value, format).format(format) === value;
     }
 
-    async addModels(dir: string) {
+    async autoloadModels(dir: string) {
         let tsFileList, jsFileList;
 
         if (this.devDebug && dir == "./model") {
@@ -969,6 +970,7 @@ export class RedBeanNode {
         }
 
         let fileList = [...tsFileList, ...jsFileList];
+        console.log(fileList, "test");
 
         for (let file of fileList) {
             if (file.endsWith(".d.ts")) {
@@ -980,17 +982,17 @@ export class RedBeanNode {
             }
 
             let info = path.parse(file);
-            let obj = await import(file);
+            let obj = require(path.resolve(file));
 
-            console.log(obj);
-            console.log(typeof obj);
-
-            if ("default" in obj) {
+            if ("default" in obj && obj.default.prototype instanceof BeanModel) {
                 this.modelList[info.name] = obj.default;
-            } else {
-                console.log("do nothing");
-            }
 
+            } else if (obj.prototype instanceof BeanModel)  {
+                this.modelList[info.name] = obj;
+
+            } else {
+                console.log(file, "is not a valid BeanModel, skipped");
+            }
 
         }
 

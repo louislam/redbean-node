@@ -11,7 +11,7 @@ import {RawBinding} from "knex";
 @magicMethods
 export class Bean {
     [key: string]: any;
-    beanMeta = new BeanMeta();
+    public beanMeta = new BeanMeta();
 
     constructor(type : string, R : RedBeanNode) {
         this.beanMeta.R = R;

@@ -2,29 +2,72 @@
 
 A model is a place to put validation and business logic.
 
+For JavaScript, you need to export your class like this:
+
 ```javascript
-// user.js
-export default class User extends BeanModel {
+// ./model/user.js
+const {BeanModel} = require("redbean-node/dist/bean-model");
+
+class User extends BeanModel {
     get fullName() {
+        return this.firstName + " " + this.lastName;
+    }
+}
+
+module.exports = User;
+```
+
+For TypeScript, you could "export default":
+
+```typescript
+// ./model/user.ts
+import {BeanModel} from "redbean-node/dist/bean-model";
+
+export default class User extends BeanModel {
+    get fullName() : string {
         return this.firstName + " " + this.lastName;
     }
 }
 ```
 
-The class should be "export default".
+## Auto Load all Models
+
+You can autoload all models at the beginning of your app. RedBeanNode maps the **filename as the table name**.
 
 ```javascript
+    await R.autoloadModels("./model");
+```
+
+## Using your models
+
+```javascript
+let user = R.dispense("user");  // Return User type rathen Bean type in this case
 user.firstName = "Chris";
 user.lastName = "Wong";
+console.log(user.fullName);     // Print "Chris Wong"
+
+// Finding is working too
+let user2 = await R.findOne("user", " id = ? ", [1]);
 console.log(user.fullName);
 ```
 
-## Auto Load Models
+For TypeScript, adding "as User" at the end could cast the object to the correct type. 
+```typescript
+let user = R.dispense("user") as User;
+```
 
-You can auto load all models at the beginning of your app. RedBeanNode maps the **filename as the bean type**.
+## More Details
+
+The model relations are like this:
 
 ```javascript
-    await R.addModels("./model");
+class Bean {}
+class BeanModel extends Bean {}
+class YourModel extends BeanModel {}
+
+// So YourModel is still instanceof Bean and BeanModel 
+console.log(YourModel instanceof Bean);    // true
+console.log(YourModel instanceof BeanModel);    // true
 ```
 
 ## Custom mapping
@@ -44,7 +87,7 @@ R.modelList["user"] = User;
 ## Event Listener 
 
 ```javascript
-export default class User extends BeanModel {
+class User extends BeanModel {
     
     /**
     * Trigger after the dispense a bean
@@ -88,4 +131,6 @@ export default class User extends BeanModel {
         console.log("onAfterDelete")
     }
 }
+
+module.exports = User;
 ```
