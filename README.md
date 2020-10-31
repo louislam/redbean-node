@@ -71,3 +71,9 @@ R.setup();
 ```
 
 This **automatically generates** the tables and columns... on-the-fly. It infers relations based on naming conventions.
+
+
+
+# Additional 
+
+Icons made by <a href="https://www.flaticon.com/authors/vitaly-gorbachev" title="Vitaly Gorbachev">Vitaly Gorbachev</a> from https://www.flaticon.com

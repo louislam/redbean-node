@@ -7,6 +7,15 @@
     <meta name="description" content="Description">
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsify/4.11.6/themes/vue.min.css">
+    <link rel="icon" type="image/svg+xml" href="beans.svg">
+    <style>
+        .app-name-link img {
+            width: 96px;
+            background-color: #e6a293;
+            border-radius: 32px;
+            padding: 18px;
+        }
+    </style>
 </head>
 <body>
 <div id="app"></div>
@@ -15,11 +24,11 @@
         name: 'RedBeanNode',
         repo: 'https://github.com/louislam/redbean-node',
         loadSidebar: true,
-        logo: undefined,
         auto2top: true,
         search: 'auto',
         routerMode: 'history',
         executeScript: true,
+        logo: 'beans.svg',
     }
 </script>
 

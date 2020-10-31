@@ -5,6 +5,7 @@
 [![Coverage Status](https://img.shields.io/coveralls/github/louislam/redbean-node)](https://coveralls.io/github/louislam/redbean-node?branch=master) 
 [![npm](https://img.shields.io/npm/v/redbean-node)](https://www.npmjs.com/package/redbean-node) 
 
+
 ## Welcome
 
 RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by RedBeanPHP. 
@@ -12,14 +13,9 @@ RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by Red
 * **Automatically** creates **tables** and **columns** as you go
 * No configuration, just fire and forget
 * Ported RedBeanPHP's main features and api design
-* Build on top of knex.js
-* Supports **JavaScript (ES6)** & **TypeScript**
+* Supports **JavaScript** & **TypeScript**
 * **async/await** or **promise** friendly
-
-## Supported Databases
-
-* MySQL / MariaDB
-* SQLite
+* Supports MySQL / MariaDB / SQLite
 
 ## Code Example
 
@@ -73,12 +69,15 @@ fetch("/example/simple.txt")
 
 This **automatically generates** the tables and columns... on-the-fly. It infers relations based on naming conventions.
 
-
 ## Zero Config
 
-No verbose XML files, no annoying annotations, no YAML or INI. Zero Config. Just start coding.
+No pre-defined model, no annoying annotations, no YAML or INI. Zero Config. Just start coding.
 
 ## Fluid Schema
 
-During development, RedBeanNode will adapt the database schema to fit your needs, giving you the **NoSQL** experience. When deploying to production servers, you can freeze the schema and benefit from performance gains and referential integrity.
-RedBeanNode offers the best of both worlds!
+During development, RedBeanNode will adapt the database schema to fit your needs, giving you the **NoSQL** experience. When deploying to production servers, you can freeze the schema and benefit from performance gains. RedBeanNode offers the best of both worlds!
+
+
+## Additional
+- [GitHub - https://github.com/louislam/redbean-node](https://github.com/louislam/redbean-node)
+- Icons made by [Vitaly Gorbachev](https://www.flaticon.com/authors/vitaly-gorbachev) from https://www.flaticon.com
