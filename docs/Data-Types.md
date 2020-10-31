@@ -4,6 +4,7 @@ The column data type is automatically decided by RedBeanNode.
 
 You can use **R.isoDate()** and **R.isoDateTime()** to generate the current date(time) or parse your date.
 
+
 ## DateTime
 
 ```javascript
@@ -96,3 +97,21 @@ book.active = true;
 ```javascript
 book.timestamp = Date.now() // 1603186462926
 ```
+
+
+## Change Column Type
+
+For MySQL, the column can be altered on-the-fly.
+
+```javascript
+book.price = 120
+// Create a Integer column
+await R.store(book);
+
+book.price = 120.5
+// alter to be a Float column
+await R.store(book);
+```
+
+
+!> For SQLite, because there is no alter column, you have to drop the column manually and run your program again.

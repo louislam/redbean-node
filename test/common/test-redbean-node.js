@@ -348,8 +348,15 @@ module.exports = () => {
         it('test', () => {
             expect(R.getDataType(true)).to.equal("boolean");
             expect(R.getDataType(false)).to.equal("boolean");
-            expect(R.getDataType(0)).to.equal("boolean");
-            expect(R.getDataType(1)).to.equal("boolean");
+
+            if (R.dbType == "mysql") {
+                expect(R.getDataType(0)).to.equal("boolean");
+                expect(R.getDataType(1)).to.equal("boolean");
+            } else {
+                expect(R.getDataType(0)).to.equal("integer");
+                expect(R.getDataType(1)).to.equal("integer");
+            }
+
             expect(R.getDataType(2)).to.equal("integer");
             expect(R.getDataType(2147483647)).to.equal("integer");
             expect(R.getDataType(2147483648)).to.equal("bigInteger");
@@ -413,8 +420,14 @@ module.exports = () => {
             bean.bool2 = false;
             await R.store(bean);
             info = await R.inspect("test_field");
-            expect(["boolean", "tinyint"]).to.include(info["bool"].type);
-            expect(["boolean", "tinyint"]).to.include(info["bool2"].type);
+
+            if (R.dbType == "mysql") {
+                expect(["tinyint"]).to.include(info["bool"].type);
+                expect(["tinyint"]).to.include(info["bool2"].type);
+            } else {
+                expect(["integer"]).to.include(info["bool"].type);
+                expect(["boolean"]).to.include(info["bool2"].type);
+            }
 
             bean.text = "RedBeanNode works with beans. Most interactions with the database are accomplished using beans. Beans are used to carry data from and to the database. Every bean has a type and an ID. The type of a bean tells you which table in the database is used to store the bean. Every type maps to a corresponding table. The ID of a bean is the primary key of the corresponding record. You can create a new bean by dispensing one.";
             await R.store(bean);

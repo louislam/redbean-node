@@ -348,8 +348,8 @@ export class RedBeanNode {
 
                 if (value > 2147483647) {
                     return "bigInteger";
-                } else if (value == 1 || value == 0) {
-                    return "boolean";   // Tinyint
+                } else if (this.dbType == "mysql" && (value == 1 || value == 0)) {
+                    return "boolean";   // Tinyint, for mysql only
                 } else {
                     return "integer";
                 }
