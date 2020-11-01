@@ -957,19 +957,23 @@ export class RedBeanNode {
         return dayjs(value, format).format(format) === value;
     }
 
-    async autoloadModels(dir: string) {
+    autoloadModels(dir: string) {
         let tsFileList, jsFileList;
 
-        if (this.devDebug && dir == "./model") {
-            tsFileList = glob.sync("./lib/model/*.ts");
-            jsFileList = glob.sync("./lib/model/*.js");
+        let isTSNode = !! process[Symbol.for("ts-node.register.instance")];
+        let ext, fileList;
+
+        if (isTSNode) {
+            ext = ".ts";
         } else {
-            tsFileList = glob.sync(dir + "/*.ts");
-            jsFileList = glob.sync(dir + "/*.js");
+            ext = ".js";
         }
 
-        let fileList = [...tsFileList, ...jsFileList];
-        console.log(fileList, "test");
+        if (this.devDebug && dir == "./model") {
+            fileList = glob.sync("./lib/model/*" + ext);
+        } else {
+            fileList = glob.sync(dir + "/*" + ext);
+        }
 
         for (let file of fileList) {
             if (file.endsWith(".d.ts")) {

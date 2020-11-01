@@ -13,7 +13,7 @@
         "esModuleInterop": true,
         "noImplicitAny": false,
         "removeComments": true,
-        "experimentalDecorators": true,
+        "experimentalDecorators": true
     },
     "exclude": [
         "node_modules",
