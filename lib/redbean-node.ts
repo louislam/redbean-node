@@ -183,7 +183,12 @@ export class RedBeanNode {
             }
 
         } else {
-            let queryPromise = this.knex(bean.getType()).insert(obj).returning('id');
+            let queryPromise = this.knex(bean.getType()).insert(obj);
+
+            if (this.dbType == "mssql") {
+                queryPromise = queryPromise.returning('id');
+            }
+
             this.queryLog(queryPromise);
             let result = await queryPromise;
             bean.id = result[0];
