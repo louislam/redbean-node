@@ -8,6 +8,7 @@
     <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/docsify/4.11.6/themes/vue.min.css">
     <link rel="icon" type="image/svg+xml" href="beans.svg">
+    <link rel="canonical" href="https://<?=$_SERVER["HTTP_HOST"] . (isset($_SERVER["REDIRECT_URL"]) ? $_SERVER["REDIRECT_URL"] : "") ?>" />
     <style>
         .app-name-link img {
             width: 96px;
@@ -32,9 +33,10 @@
     }
 </script>
 
+<script src="https://embed.runkit.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docsify/4.11.6/docsify.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/docsify/4.11.6/plugins/search.min.js"></script>
 <script src=" https://cdnjs.cloudflare.com/ajax/libs/prism/1.22.0/components/prism-typescript.min.js"></script>
-<script src="https://embed.runkit.com" async defer></script>
+
 </body>
 </html>
