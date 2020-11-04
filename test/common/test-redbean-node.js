@@ -127,8 +127,8 @@ module.exports = () => {
 
                 expect(list.length).gt(0);
 
-                list  = await R.findAll('test_find', ' LIMIT 1 ');
-                expect(list.length).to.equal(1);
+                list  = await R.findAll('test_find');
+                expect(list.length).to.equal(2);
 
                 // Test allowed error
                 expect((await R.find("no_this_table")).length).equals(0);
@@ -202,7 +202,8 @@ module.exports = () => {
 
                 await Promise.all(promiseList);
 
-                let rows = await R.getAll('SELECT * FROM `test_getall` WHERE title = ? ', [
+                let rows = await R.getAll('SELECT * FROM ?? WHERE title = ? ', [
+                    "test_getall",
                     "test R.getAll"
                 ]);
 
@@ -226,7 +227,8 @@ module.exports = () => {
 
                 await Promise.all(promiseList);
 
-                let cols = await R.getCol('SELECT title FROM `test_getcol` WHERE title = ? ', [
+                let cols = await R.getCol('SELECT title FROM ?? WHERE title = ? ', [
+                    "test_getcol",
                     "test R.getCol"
                 ]);
 
@@ -251,15 +253,15 @@ module.exports = () => {
 
                 await Promise.all(promiseList);
 
-                let row = await R.getRow('SELECT * FROM test_getrow WHERE title LIKE ? LIMIT 1', [
+                let row = await R.getRow('SELECT * FROM test_getrow WHERE title LIKE ?', [
                     '%row%',
-                ]);
+                ], true);
 
                 expect(row.title).includes("row");
 
-                row = await R.getRow('SELECT * FROM test_getrow WHERE title LIKE ? LIMIT 1', [
+                row = await R.getRow('SELECT * FROM test_getrow WHERE title LIKE ?', [
                     '%123%',
-                ]);
+                ], true);
 
                 expect(row).to.be.not.ok
 
@@ -301,7 +303,7 @@ module.exports = () => {
             bean.title = "convert"
             await R.store(bean);
 
-            let rows = await R.getAll('SELECT * FROM `convert` WHERE title = ?', [ 'convert' ]);
+            let rows = await R.getAll('SELECT * FROM ?? WHERE title = ?', [ 'convert', 'convert' ]);
             let convertBeanList = R.convertToBeans("convert", rows);
 
             expect(convertBeanList.length).to.equal(2);

@@ -183,7 +183,7 @@ export class RedBeanNode {
             }
 
         } else {
-            let queryPromise = this.knex(bean.getType()).insert(obj);
+            let queryPromise = this.knex(bean.getType()).insert(obj).returning('id');
             this.queryLog(queryPromise);
             let result = await queryPromise;
             bean.id = result[0];
@@ -474,12 +474,19 @@ export class RedBeanNode {
     }
 
     protected normalizeErrorMsg(error) {
+
         if (this.dbType == "sqlite") {
             return error.message;
 
         } else if (this.dbType == "mysql") {
             return error.code;
+
+        } else if (this.dbType == "mssql") {
+            return error.message;
+
         }
+
+        return error;
     }
 
     protected checkError(error, allowedErrorList : (string | string[])[]) {
@@ -523,6 +530,9 @@ export class RedBeanNode {
 
             // MYSQL
             "ER_NO_SUCH_TABLE",
+
+            // MSSQL
+            "Invalid object name",
         ]);
     }
 
@@ -680,9 +690,21 @@ export class RedBeanNode {
     async getRow(sql: string, data: RawBinding[] = [], autoLimit = false) {
 
         if (autoLimit) {
-            let limitTemplate = this.knex.limit(1).toSQL().toNative();
-            sql = sql + limitTemplate.sql.replace("select *", "");
-            data = data.concat(limitTemplate.bindings);
+
+            if (this.dbType == "mssql") {
+                // SELECT TOP 1
+                if (sql.trim().toLowerCase().startsWith("select ")) {
+                    sql = sql.replace(/select/i, '$& TOP 1')
+                }
+
+            } else {
+                let limitTemplate = this.knex.limit(1).toSQL().toNative();
+
+                // LIMIT 1
+                sql = sql + limitTemplate.sql.replace("select *", "");
+                data = data.concat(limitTemplate.bindings);
+            }
+
         }
 
         this.queryLog(sql);
