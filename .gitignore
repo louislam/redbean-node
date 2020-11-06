@@ -8,3 +8,4 @@ lib/model/
 /.nyc_output/
 /coverage/
 .coveralls.yml
+.env

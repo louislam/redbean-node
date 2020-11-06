@@ -1,33 +1,43 @@
-const {R} = require("../../dist/redbean-node");
+
+const lxd = require("./lib/lxd");
+const {R} = require("../dist/redbean-node");
 const assert = require('assert');
 const knex = require("knex");
 
 let dbName = "test" + Date.now();
 let host, user, password;
-if (process.env.MSSQL_HOST !== undefined) {
-    console.log("Using MySQL config from env")
-    host = process.env.MSSQL_HOST;
-    user = process.env.MSSQL_USER;
-    password = process.env.MSSQL_PASSWORD;
-} else {
-    host = "192.168.0.13";
-    user = "sa";
-    password = "XwkxzwURaq_1";
-}
+
+host = process.env.MSSQL_HOST;
+user = process.env.MSSQL_USER;
+password = process.env.MSSQL_PASSWORD;
+port = process.env.MSSQL_PORT;
+
+describe("Start MSSQL2019 Container", function () {
+    this.timeout(60000);
+
+    it("call LXD API", async () => {
+        await lxd.init();
+        // Start the MSSQL container
+      //  await lxd.start("mssql");
+    });
+})
+
 
 describe("Prepare MSSQL database", () => {
+
     R.freeze(false);
     R.devDebug = false;
     R.debug(false);
     R._modelList  = {}
 
     it("create database", async () => {
+
         let k = knex({
             client: "mssql",
             connection: {
                 host: host,
                 options: {
-                    port: 1433
+                    port: port
                 },
                 user: user,
                 password: password,
@@ -45,7 +55,7 @@ describe("MSSQL", () => {
         R.setup("mssql", {
             host: host,
             options: {
-                port: 1433
+                port: port
             },
             user: user,
             password: password,
@@ -78,7 +88,7 @@ describe("Cleanup MySQL database", () => {
             connection: {
                 host: host,
                 options: {
-                    port: 1433
+                    port: port
                 },
                 user: user,
                 password: password,

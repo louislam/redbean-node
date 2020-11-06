@@ -15,7 +15,8 @@
         "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
         "launch": "np",
         "example": "ts-node dev_example.ts",
-        "example2": "node -r ts-node/register --inspect dev_example2.ts"
+        "example2": "node -r ts-node/register --inspect dev_example2.ts",
+        "lxd_server": "ts-node ./test/lib/lxd-server.ts"
     },
     "author": "Louis Lam",
     "license": "MIT",
@@ -56,14 +57,16 @@
         "cleanup": false
     },
     "devDependencies": {
+        "axios": "^0.21.0",
         "chai": "^4.2.0",
         "coveralls": "^3.1.0",
+        "dotenv": "^8.2.0",
         "mocha": "^8.2.0",
         "mocha-lcov-reporter": "^1.3.0",
         "np": "^6.5.0",
         "nyc": "^15.1.0",
-        "typescript": "^4.0.3",
-        "ts-node": "^9.0.0"
+        "ts-node": "^9.0.0",
+        "typescript": "^4.0.3"
     },
     "peerDependencies": {
         "mssql": "^6.2.1"

@@ -353,7 +353,7 @@ module.exports = () => {
             expect(R.getDataType(true)).to.equal("boolean");
             expect(R.getDataType(false)).to.equal("boolean");
 
-            if (R.dbType == "mysql") {
+            if (R.dbType == "mysql" || R.dbType == "mssql") {
                 expect(R.getDataType(0)).to.equal("boolean");
                 expect(R.getDataType(1)).to.equal("boolean");
             } else {
@@ -393,6 +393,11 @@ module.exports = () => {
         it('isValidType', () => {
             expect(R.isValidType("boolean", "integer")).to.be.false;
             expect(R.isValidType("tinyint", "integer")).to.be.false;
+            expect(R.isValidType("bit", "integer")).to.be.false;
+
+            expect(R.isValidType("datetime2", "datetime")).to.be.true;
+            expect(R.isValidType("bit", "boolean")).to.be.true;
+            expect(R.isValidType("nvarchar", "boolean")).to.be.true;
         });
 
         it('check created column type', async () => {

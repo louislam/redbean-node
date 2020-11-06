@@ -353,7 +353,7 @@ export class RedBeanNode {
 
                 if (value > 2147483647) {
                     return "bigInteger";
-                } else if (this.dbType == "mysql" && (value == 1 || value == 0)) {
+                } else if ((this.dbType == "mysql" || this.dbType == "mssql") && (value == 1 || value == 0)) {
                     return "boolean";   // Tinyint, for mysql only
                 } else {
                     return "integer";
@@ -386,7 +386,7 @@ export class RedBeanNode {
         this.devLog("isValidType", columnType, valueType);
 
         // Boolean
-        if (columnType == "boolean" || columnType == "tinyint") {
+        if (columnType == "boolean" || columnType == "tinyint" || columnType == "bit") {
             if (
                 valueType == "integer" || valueType == "float" || valueType == "varchar" ||
                 valueType == "text" || valueType == "bigInteger" ||
@@ -447,7 +447,7 @@ export class RedBeanNode {
         }
 
         // DateTime
-        if (columnType == "datetime") {
+        if (columnType == "datetime" || columnType == "datetime2") {
             if (
                 valueType == "varchar" || valueType == "text"
             ) {
@@ -457,7 +457,7 @@ export class RedBeanNode {
 
         // Varchar
         // Varchar cannot store text only
-        if (columnType == "varchar") {
+        if (columnType == "varchar" || columnType == "nvarchar") {
             if (valueType == "text") {
                 return false;
             }
