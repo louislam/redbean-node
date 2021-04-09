@@ -927,7 +927,7 @@ export class RedBeanNode {
         return this._debug;
     }
 
-    isoDateTime(dateTime : dayjs.Dayjs | Date | undefined = undefined) {
+    isoDateTime(dateTime : dayjs.Dayjs | Date | undefined = undefined) : string {
         let dayjsObject;
 
         if (dateTime instanceof dayjs) {
@@ -939,7 +939,7 @@ export class RedBeanNode {
         return dayjsObject.format('YYYY-MM-DD HH:mm:ss');
     }
 
-    isoDate(date : dayjs.Dayjs | Date | undefined = undefined) {
+    isoDate(date : dayjs.Dayjs | Date | undefined = undefined) : string {
         let dayjsObject;
 
         if (date instanceof dayjs) {

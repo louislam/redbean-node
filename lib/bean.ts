@@ -308,6 +308,16 @@ export class Bean {
 
         for (let key in obj) {
             if (key !== "beanMeta") {
+
+                // Date Object to string
+                if (obj[key] instanceof Date) {
+                    if (obj[key].getHours() == 0 && obj[key].getMinutes() == 0 && obj[key].getSeconds() == 0) {
+                        obj[key] = this.R.isoDate(obj[key]);
+                    } else {
+                        obj[key] = this.R.isoDateTime(obj[key]);
+                    }
+                }
+
                 this[key] = obj[key];
             }
         }

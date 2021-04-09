@@ -10,9 +10,9 @@ if (process.env.MYSQL_HOST !== undefined) {
     user = process.env.MYSQL_USER;
     password = process.env.MYSQL_PASSWORD;
 } else {
-    host = "192.168.0.12";
+    host = "192.168.0.147";
     user = "root";
-    password = "PYHjnKBBDl";
+    password = "PYHjnKBBDl_1";
 }
 
 describe("Prepare MySQL database", () => {

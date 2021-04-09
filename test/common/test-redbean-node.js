@@ -58,6 +58,7 @@ module.exports = () => {
                 book.title = 'Learn to Program';
                 book.rating = 10;
                 book['price'] = 29.99;
+                book.date = "2021-04-09";
                 let id = await R.store(book);
 
                 expect(id).gte(1)
@@ -80,6 +81,7 @@ module.exports = () => {
 
                 expect(bookFromDB.id).to.equal(id)
                 expect(book2FromDB.id).to.equal(id2)
+                expect(bookFromDB.date).to.equal(book.date);
 
                 // Store again
                 book.title = 'Learn to Program 3';
