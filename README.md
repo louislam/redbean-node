@@ -6,7 +6,7 @@
 [![npm](https://img.shields.io/npm/v/redbean-node)](https://www.npmjs.com/package/redbean-node) 
 
 
-(Early Development)
+**(Early Development)**
 
 RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by RedBeanPHP. 
 
@@ -72,6 +72,9 @@ R.setup();
 
 This **automatically generates** the tables and columns... on-the-fly. It infers relations based on naming conventions.
 
+# Unit Test
+
+Please build the project before run the test.
 
 
 # Additional 
