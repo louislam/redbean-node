@@ -14,7 +14,7 @@
         "test": "npm run build && nyc --reporter=html mocha --timeout 60000",
         "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
         "launch": "np",
-        "example": "ts-node dev_example4.ts",
+        "example": "ts-node dev_example_better_sqlite3.ts",
         "example2": "node -r ts-node/register --inspect dev_example2.ts",
         "lxd_server": "ts-node ./test/lib/lxd-server.ts"
     },
@@ -26,7 +26,8 @@
         "better-sqlite3": "^7.4.3",
         "dayjs": "^1.10.6",
         "glob": "^7.1.7",
-        "knex": "^0.21.19"
+        "knex": "^0.95.9",
+        "lodash": "^4.17.21"
     },
     "peerDependenciesMeta": {
         "better-sqlite3": {

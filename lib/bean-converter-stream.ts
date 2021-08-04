@@ -1,5 +1,6 @@
 import {PassThrough, TransformCallback} from "stream";
-import {QueryBuilder} from "knex";
+import {Knex} from "knex";
+import QueryBuilder = Knex.QueryBuilder;
 import {RedBeanNode} from "./redbean-node";
 
 export default class BeanConverterStream extends PassThrough {

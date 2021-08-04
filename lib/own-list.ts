@@ -1,6 +1,7 @@
 import {LazyLoadArray} from "./lazy-load-array";
 import {Bean} from "./bean";
-import {RawBinding} from "knex";
+import {Knex} from "knex";
+import RawBinding = Knex.RawBinding;
 
 export class OwnList extends LazyLoadArray {
 

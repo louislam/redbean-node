@@ -6,8 +6,9 @@ import {SharedList} from "./shared-list";
 import {OwnList} from "./own-list";
 import {LooseObject} from "./helper/helper";
 import AwaitLock from 'await-lock';
-import {RawBinding} from "knex";
+import {Knex} from "knex";
 import * as util from "util";
+import RawBinding = Knex.RawBinding;
 
 @magicMethods
 export class Bean {

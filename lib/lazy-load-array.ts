@@ -1,7 +1,8 @@
 import {magicMethods} from "./magic-methods";
 import {Bean} from "./bean";
 import {RedBeanNode} from "./redbean-node";
-import {RawBinding} from "knex";
+import {Knex} from "knex";
+import RawBinding = Knex.RawBinding;
 
 export abstract class LazyLoadArray {
 
@@ -30,8 +31,8 @@ export abstract class LazyLoadArray {
         this.type = type;
     }
 
-    abstract async toArray(force : boolean);
-    abstract async store();
+    abstract toArray(force : boolean);
+    abstract store();
 
     push(...items : (Bean)[]): number {
         for (let item of items) {

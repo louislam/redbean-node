@@ -1,4 +1,4 @@
-import knex, {PoolConfig, QueryBuilder, RawBinding, StaticConnectionConfig} from "knex";
+import knex, { Knex } from "knex";
 import {Bean} from "./bean";
 import {isEmptyObject, LooseObject} from "./helper/helper";
 import dayjs from "dayjs";
@@ -7,6 +7,11 @@ import path from "path";
 import {BeanModel} from "./bean-model";
 import BeanConverterStream from "./bean-converter-stream";
 import AwaitLock from "await-lock";
+import StaticConnectionConfig = Knex.StaticConnectionConfig;
+import PoolConfig = Knex.PoolConfig;
+import Client = Knex.Client;
+import RawBinding = Knex.RawBinding;
+import QueryBuilder = Knex.QueryBuilder;
 // import PromisePool from 'es6-promise-pool';
 
 export class RedBeanNode {
@@ -19,8 +24,15 @@ export class RedBeanNode {
     protected _freeze = false;
 
     protected _transaction;
-    protected _knex! : knex;
+    protected _knex! : Knex;
     public dbType : string = "";
+    public useBetterSQLite3 = false;
+    public betterSQLite3Options = {
+        readonly: false,
+        fileMustExist: false,
+        timeout: 5000,
+        verbose: null,
+    };
 
     private _modelList : LooseObject<{new (type, R): BeanModel}> = {};
 
@@ -40,7 +52,7 @@ export class RedBeanNode {
         return !! this._transaction;
     }
 
-    setup(dbType : string | knex = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }, pool : PoolConfig = {  }) {
+    setup(dbType : string | Knex = 'sqlite', connection : StaticConnectionConfig = { filename: './dbfile.db' }, pool : PoolConfig = {  }) {
 
         if (typeof dbType === "string") {
 
@@ -73,7 +85,7 @@ export class RedBeanNode {
             let useNullAsDefault = (dbType == "sqlite")
 
             this._knex = knex({
-                client: dbType,
+                client: (! this.useBetterSQLite3) ? dbType : this.getBetterSQLiteDialect(),
                 connection,
                 useNullAsDefault,
                 pool
@@ -91,6 +103,13 @@ export class RedBeanNode {
      */
     dispense(type : string) : Bean {
         return this.createBean(type);
+    }
+
+    public getBetterSQLiteDialect() : typeof Client {
+        const client = require("./dialect/better-sqlite3/index");
+        client.options = this.betterSQLite3Options;
+
+        return client;
     }
 
     protected createBean(type : string, isDispense = true) {
