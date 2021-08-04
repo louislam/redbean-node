@@ -7,6 +7,7 @@ import {OwnList} from "./own-list";
 import {LooseObject} from "./helper/helper";
 import AwaitLock from 'await-lock';
 import {RawBinding} from "knex";
+import * as util from "util";
 
 @magicMethods
 export class Bean {
@@ -145,6 +146,8 @@ export class Bean {
                 }
 
                 this[Bean.getRelationFieldName(alias)] = bean.id;
+            } else {
+                this[Bean.getRelationFieldName(alias)] = null;
             }
 
             this.beanMeta.typeBeanList[alias] = bean;
@@ -247,6 +250,9 @@ export class Bean {
             if (! bean.id) {
                 await this.R.store(bean);
             }
+
+            this.devLog("Is proxy: " + util.types.isProxy(this))
+
             this[Bean.getRelationFieldName(type)] = bean.id;
         }
 

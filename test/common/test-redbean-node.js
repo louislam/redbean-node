@@ -350,12 +350,14 @@ module.exports = () => {
     });
 
 
-    describe('Data Type', () => {
+    describe('Data Type', function () {
+        this.timeout(0)
+
         it('test', () => {
             expect(R.getDataType(true)).to.equal("boolean");
             expect(R.getDataType(false)).to.equal("boolean");
 
-            if (R.dbType == "mysql" || R.dbType == "mssql") {
+            if (R.dbType === "mysql" || R.dbType === "mssql") {
                 expect(R.getDataType(0)).to.equal("boolean");
                 expect(R.getDataType(1)).to.equal("boolean");
             } else {
@@ -403,6 +405,7 @@ module.exports = () => {
         });
 
         it('check created column type', async () => {
+
             let bean = R.dispense("test_field");
             await R.store(bean);
 
@@ -475,13 +478,13 @@ module.exports = () => {
         });
     });
 
-    describe("Relations", () => {
+    describe("Relations", function () {
+        this.timeout(0)
 
         it("Many-to-one", async () => {
-            //R.devDebug = true;
+            R.devDebug = true;
             //R.debug(true);
             let product1 = R.dispense("product");
-            let product2 = R.dispense("product");
 
             let shop1 = R.dispense("shop");
             let shop2 = R.dispense("shop");
@@ -501,6 +504,52 @@ module.exports = () => {
             let shop1FromDB = await product1FromDB.shop;
             expect(shop1FromDB).to.not.be.undefined;
             expect(shop1FromDB.id).to.equal(shop1.id)
+
+            // Test Magic Method bug
+            let shop4 = R.dispense("shop");
+            await R.store(shop4)
+            let product3 = R.dispense("product");
+            product3.shop = shop4;
+            await R.store(product3)
+
+            // Test set underscore
+            let shop5 = R.dispense("shop");
+            shop5.productId = 7;
+            expect(() => {
+                shop5._productId = 4;
+            }).to.throw();
+
+            // Test
+            let p = R.dispense("product");
+            await R.store(p);
+            let shop6 = R.dispense("shop");
+            shop6.productId = 7;
+            shop6.product = p;
+            expect(shop6._productId).to.equal(p.id)
+            expect(shop6.productId).to.equal(p.id)
+
+            // Test
+            let p2 = R.dispense("product");
+            let shop7 = R.dispense("shop");
+            shop7.productId = 7;
+            shop7.product = p;
+            console.log(shop7)
+            expect(shop7.productId).to.be.null();
+            expect(await shop7.product).to.equal(p2)
+
+            // Test
+            let shop8 = R.dispense("shop");
+            shop8.productId = 7;
+            shop8.product = null;
+            expect(shop8.productId).to.be.null();
+            expect(await shop8.product).to.be.null();
+
+            // Test
+            let shop9 = R.dispense("shop");
+            shop9.productId = 7;
+            shop9.productId = null;
+            expect(shop9.productId).to.be.null();
+            expect(await shop9.product).to.be.null();
 
             // Change shop
             await R.store(shop2);

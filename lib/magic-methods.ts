@@ -51,12 +51,8 @@ export function magicMethods (clazz) {
     const set = Object.getOwnPropertyDescriptor(clazz.prototype, '__set')
     if (set) {
       instanceHandler.set = (target, name, value, receiver) => {
-        if (name in target) {
-          Reflect.set(target, name, value, receiver)
-        } else {
           target.__set.call(target, name, value, receiver)
-            return true;
-        }
+          return true;
       }
     }
 
@@ -105,7 +101,7 @@ export function magicMethods (clazz) {
       if (name in target) {
         return target[name]
       } else {
-        return target.__getStatic.call(receiver, name)
+        return undefined;
       }
     }
   }
@@ -114,11 +110,8 @@ export function magicMethods (clazz) {
   // Catches "class.property = ..."
   if (Object.getOwnPropertyDescriptor(clazz, '__setStatic')) {
     classHandler.set = (target, name, value, receiver) => {
-      if (name in target) {
-        return target[name]
-      } else {
-        return target.__setStatic.call(receiver, name, value)
-      }
+        target.__setStatic.call(receiver, name, value)
+        return true;
     }
   }
 
