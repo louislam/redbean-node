@@ -204,10 +204,6 @@ export class RedBeanNode {
         } else {
             let queryPromise = this.knex(bean.getType()).insert(obj);
 
-            if (this.dbType == "mssql") {
-                queryPromise = queryPromise.returning('id');
-            }
-
             this.queryLog(queryPromise);
             let result = await queryPromise;
             bean.id = result[0];
@@ -250,7 +246,7 @@ export class RedBeanNode {
         let exists = await this.hasTable(bean.getType());
 
         if (! exists) {
-            this.debugLog("Create table: " + bean.getType());
+            this.debugLog("Table is not found, create table: " + bean.getType());
 
             try {
                 let queryPromise = this._knex.schema.createTable(bean.getType(), function (table) {
