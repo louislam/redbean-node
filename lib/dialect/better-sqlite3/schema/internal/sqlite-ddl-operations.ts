@@ -2,7 +2,7 @@ const identity = require('lodash/identity');
 const chunk = require('lodash/chunk');
 
 function insertChunked(trx, chunkSize, target, iterator, existingData) {
-  const result = [];
+  const result : any[] = [];
   iterator = iterator || identity;
   const chunked = chunk(existingData, chunkSize);
   for (const batch of chunked) {
@@ -39,7 +39,7 @@ function getTableSql(tableName) {
   return `SELECT type, sql FROM sqlite_master WHERE (type='table' OR (type='index' AND sql IS NOT NULL)) AND tbl_name='${tableName}'`;
 }
 
-module.exports = {
+export {
   copyAllData,
   createNewTable,
   dropOriginal,

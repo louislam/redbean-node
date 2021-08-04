@@ -632,7 +632,7 @@ function signedNumber(ctx) {
   )(ctx);
 }
 
-module.exports = {
+export {
   parseCreateTable,
   parseCreateIndex,
 };

@@ -140,7 +140,7 @@ class Client_SQLite3 extends Client {
             stream.on('end', resolver);
             return client
                 ._query(connection, obj)
-                .then((obj) => obj.response)
+                .then((obj : any) => obj.response)
                 .then((rows) => rows.forEach((row) => stream.write(row)))
                 .catch(function (err) {
                     stream.emit('error', err);

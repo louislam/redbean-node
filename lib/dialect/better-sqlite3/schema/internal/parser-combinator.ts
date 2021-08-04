@@ -2,7 +2,7 @@
 function s(sequence, post = (v) => v) {
   return function ({ index = 0, input }) {
     let position = index;
-    const ast = [];
+    const ast : any[] = [];
 
     for (const parser of sequence) {
       const result = parser({ index: position, input });
@@ -42,9 +42,9 @@ function a(alternative, post = (v) => v) {
 // Many parser combinator
 function m(many, post = (v) => v) {
   return function ({ index = 0, input }) {
-    let result = {};
+    let result : any = {};
     let position = index;
-    const ast = [];
+    const ast : any[] = [];
 
     do {
       result = many({ index: position, input });
@@ -158,4 +158,4 @@ const f = function ({ index = 0, input }) {
   return { success: index === input.length, ast: null, index, input };
 };
 
-module.exports = { s, a, m, o, l, n, t, e, f };
+export { s, a, m, o, l, n, t, e, f };

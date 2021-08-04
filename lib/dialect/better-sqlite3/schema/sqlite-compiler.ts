@@ -55,7 +55,7 @@ class SchemaCompiler_SQLite3 extends SchemaCompiler {
       this[query.method].apply(this, query.args);
     }
 
-    const result = [];
+    const result : any[] = [];
     const commandSources = this.sequence;
     for (const commandSource of commandSources) {
       const command = commandSource.statementsProducer
@@ -73,4 +73,4 @@ class SchemaCompiler_SQLite3 extends SchemaCompiler {
   }
 }
 
-module.exports = SchemaCompiler_SQLite3;
+export default SchemaCompiler_SQLite3;

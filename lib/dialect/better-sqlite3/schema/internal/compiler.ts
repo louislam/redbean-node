@@ -305,7 +305,7 @@ function indexedExpression(ast, wrap) {
   return expression(ast, wrap);
 }
 
-function expression(ast, wrap) {
+function expression(ast, wrap = undefined) {
   return ast.reduce(
     (expr, e) =>
       Array.isArray(e)

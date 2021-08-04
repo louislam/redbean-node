@@ -3,6 +3,7 @@
 // All of the SQLite3 specific DDL helpers for renaming/dropping
 // columns and changing datatypes.
 // -------
+// @ts-nocheck
 
 const find = require('lodash/find');
 const fromPairs = require('lodash/fromPairs');
@@ -29,6 +30,7 @@ const {
 // So altering the schema in SQLite3 is a major pain.
 // We have our own object to deal with the renaming and altering the types
 // for sqlite3 things.
+
 class SQLite3_DDL {
   constructor(client, tableCompiler, pragma, connection) {
     this.client = client;
@@ -553,4 +555,4 @@ class SQLite3_DDL {
   }
 }
 
-module.exports = SQLite3_DDL;
+export default SQLite3_DDL;
