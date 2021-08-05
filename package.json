@@ -25,7 +25,7 @@
         "await-lock": "^2.1.0",
         "dayjs": "^1.10.6",
         "glob": "^7.1.7",
-        "knex": "^0.95.9",
+        "knex": "^0.21.17",
         "lodash": "^4.17.21"
     },
     "homepage": "https://redbean-node.whatsticker.online",

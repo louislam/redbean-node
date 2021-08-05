@@ -30,8 +30,8 @@ export abstract class LazyLoadArray {
         this.type = type;
     }
 
-    abstract async toArray(force : boolean);
-    abstract async store();
+    abstract toArray(force : boolean);
+    abstract store();
 
     push(...items : (Bean)[]): number {
         for (let item of items) {
