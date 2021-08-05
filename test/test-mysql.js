@@ -16,11 +16,6 @@ if (env.MYSQL_HOST) {
     user = env.MYSQL_USER;
     password = env.MYSQL_PASSWORD;
     port = env.MYSQL_PORT;
-} else {
-    host = "192.168.0.147";
-    user = "root";
-    password = "PYHjnKBBDl_1";
-    port = 3306;
 }
 
 describe("Prepare MySQL database", () => {
