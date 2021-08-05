@@ -548,6 +548,9 @@ export class RedBeanNode {
             // SQLITE
             "SQLITE_ERROR: no such table:",
 
+            // BETTER_SQLITE3
+            " - no such table: ",
+
             // MYSQL
             "ER_NO_SUCH_TABLE",
 

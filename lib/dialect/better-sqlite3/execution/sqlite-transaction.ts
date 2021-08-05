@@ -1,6 +1,6 @@
 const Transaction = require('knex/lib/execution/transaction');
 
-export default class Transaction_Sqlite extends Transaction {
+class Transaction_Sqlite extends Transaction {
     begin(conn) {
         // SQLite doesn't really support isolation levels, it is serializable by
         // default and so we override it to ignore isolation level.
@@ -14,3 +14,5 @@ export default class Transaction_Sqlite extends Transaction {
         return this.query(conn, 'BEGIN;');
     }
 }
+
+export = Transaction_Sqlite;

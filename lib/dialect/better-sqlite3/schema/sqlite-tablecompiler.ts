@@ -258,4 +258,4 @@ class TableCompiler_SQLite3 extends TableCompiler {
   }
 }
 
-export default TableCompiler_SQLite3;
+export = TableCompiler_SQLite3;

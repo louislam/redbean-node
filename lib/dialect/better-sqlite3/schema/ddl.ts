@@ -555,4 +555,4 @@ class SQLite3_DDL {
   }
 }
 
-export default SQLite3_DDL;
+export = SQLite3_DDL;

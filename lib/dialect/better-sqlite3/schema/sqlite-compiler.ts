@@ -73,4 +73,4 @@ class SchemaCompiler_SQLite3 extends SchemaCompiler {
   }
 }
 
-export default SchemaCompiler_SQLite3;
+export = SchemaCompiler_SQLite3;

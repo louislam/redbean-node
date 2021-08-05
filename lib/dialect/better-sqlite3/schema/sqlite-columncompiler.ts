@@ -25,4 +25,4 @@ ColumnCompiler_SQLite3.prototype.double = ColumnCompiler_SQLite3.prototype.decim
   'float';
 ColumnCompiler_SQLite3.prototype.timestamp = 'datetime';
 
-export default ColumnCompiler_SQLite3;
+export = ColumnCompiler_SQLite3;

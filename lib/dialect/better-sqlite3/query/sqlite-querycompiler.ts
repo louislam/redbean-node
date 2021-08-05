@@ -13,7 +13,7 @@ const {wrapString} = require('knex/lib/formatter/wrappingFormatter');
 
 const emptyStr = constant('');
 
-export default class QueryCompiler_SQLite3 extends QueryCompiler {
+class QueryCompiler_SQLite3 extends QueryCompiler {
     constructor(client, builder, formatter) {
         super(client, builder, formatter);
 
@@ -251,3 +251,5 @@ export default class QueryCompiler_SQLite3 extends QueryCompiler {
         )}`;
     }
 }
+
+export = QueryCompiler_SQLite3;
