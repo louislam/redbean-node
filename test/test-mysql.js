@@ -91,6 +91,7 @@ describe("Cleanup MySQL database", () => {
                 host: host,
                 user: user,
                 password: password,
+                port: port,
             }
         });
         await k.raw('DROP DATABASE ??', [dbName]);
