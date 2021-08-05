@@ -9,3 +9,4 @@ lib/model/
 /coverage/
 .coveralls.yml
 .env
+.env.json

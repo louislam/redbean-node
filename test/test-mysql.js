@@ -1,16 +1,21 @@
-require('dotenv').config();
+let env = {};
+
+try {
+    env = require('../.env.json');
+} catch (e) {}
+
 const {R} = require("../dist/redbean-node");
 const assert = require('assert');
 const knex = require("knex");
 
 let dbName = "test" + Date.now();
 let host, user, password, port;
-if (process.env.MYSQL_HOST !== undefined) {
+if (env.MYSQL_HOST) {
     console.log("Using MySQL config from env")
-    host = process.env.MYSQL_HOST;
-    user = process.env.MYSQL_USER;
-    password = process.env.MYSQL_PASSWORD;
-    port = process.env.MYSQL_PORT;
+    host = env.MYSQL_HOST;
+    user = env.MYSQL_USER;
+    password = env.MYSQL_PASSWORD;
+    port = env.MYSQL_PORT;
 } else {
     host = "192.168.0.147";
     user = "root";
