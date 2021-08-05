@@ -49,7 +49,8 @@ describe("MySQL", () => {
             host: host,
             user: user,
             password: password,
-            database: dbName
+            database: dbName,
+            port: port,
         });
 
         assert.equal(R.dbType, "mysql");
@@ -60,7 +61,8 @@ describe("MySQL", () => {
             host: host,
             user: user,
             password: password,
-            database: dbName
+            database: dbName,
+            port: port,
         });
         assert.equal(R.dbType, "mysql");
     });
