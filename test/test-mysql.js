@@ -1,9 +1,10 @@
+require('dotenv').config();
 const {R} = require("../dist/redbean-node");
 const assert = require('assert');
 const knex = require("knex");
 
 let dbName = "test" + Date.now();
-let host;
+let host, user, password, port;
 if (process.env.MYSQL_HOST !== undefined) {
     console.log("Using MySQL config from env")
     host = process.env.MYSQL_HOST;
@@ -24,6 +25,7 @@ describe("Prepare MySQL database", () => {
     R._modelList  = {}
 
     it("create database", async () => {
+
         let k = knex({
             client: "mysql",
             connection: {
@@ -39,7 +41,6 @@ describe("Prepare MySQL database", () => {
 })
 
 describe("MySQL", () => {
-
 
 
     it("#R.setup()", async () => {
