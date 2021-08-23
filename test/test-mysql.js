@@ -19,12 +19,11 @@ if (env.MYSQL_HOST) {
 }
 
 describe("Prepare MySQL database", function () {
-    this.timeout(10000);
-    console.log(host)
     R.freeze(false);
     R.devDebug = false;
     R.debug(false);
     R._modelList  = {}
+    R.useBetterSQLite3 = false;
 
     it("create database", async () => {
 
@@ -43,7 +42,6 @@ describe("Prepare MySQL database", function () {
 })
 
 describe("MySQL", () => {
-
 
     it("#R.setup()", async () => {
 

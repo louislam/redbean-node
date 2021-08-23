@@ -84,8 +84,16 @@ export class RedBeanNode {
 
             let useNullAsDefault = (dbType == "sqlite")
 
+            let client;
+
+            if (dbType === "sqlite") {
+                client = (! this.useBetterSQLite3) ? dbType : this.getBetterSQLiteDialect();
+            } else {
+                client = dbType;
+            }
+
             this._knex = knex({
-                client: (! this.useBetterSQLite3) ? dbType : this.getBetterSQLiteDialect(),
+                client: client,
                 connection,
                 useNullAsDefault,
                 pool
@@ -128,6 +136,7 @@ export class RedBeanNode {
     }
 
     freeze( v = true) {
+        this.devLog("Freeze to" + v);
         this._freeze = v;
     }
 

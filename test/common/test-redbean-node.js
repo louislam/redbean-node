@@ -482,7 +482,7 @@ module.exports = () => {
         this.timeout(0)
 
         it("Many-to-one", async () => {
-            R.devDebug = true;
+            //R.devDebug = true;
             //R.debug(true);
             let product1 = R.dispense("product");
 

@@ -5,6 +5,7 @@ const fs = require("fs");
 describe("Setup SQLite", () => {
 
     it("#R.setup()", () => {
+        R.useBetterSQLite3 = false;
         R.freeze(false);
         R.devDebug = false;
         R.debug(false);
