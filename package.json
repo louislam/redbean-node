@@ -5,7 +5,7 @@
     "main": "dist/redbean-node.js",
     "types": "dist/redbean-node.d.ts",
     "files": [
-        "dist",
+        "dist/*",
         "README.md",
         ".gitignore"
     ],
