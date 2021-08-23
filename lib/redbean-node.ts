@@ -66,9 +66,9 @@ export class RedBeanNode {
 
             if (! pool.max) {
                 if (dbType == "sqlite") {
-                    pool.min = 1;
+                    pool.max = 1;
                 } else {
-                    pool.min = 10;
+                    pool.max = 10;
                 }
             }
 
