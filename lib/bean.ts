@@ -37,6 +37,7 @@ export class Bean {
         let hasRelationField = (this[Bean.getInternalRelationFieldName(name)] !== undefined);
 
         if (value instanceof Bean || hasRelationField) {
+            this.devLog("A bean set to property");
             this.setRelationBean(name, value);
         } else {
             let key = Bean.internalName(name);
@@ -146,15 +147,15 @@ export class Bean {
                     throw "Error: self reference detected";
                 }
 
-                this[Bean.getRelationFieldName(alias)] = bean.id;
+                this[Bean.getInternalRelationFieldName(alias)] = bean.id;
             } else {
-                this[Bean.getRelationFieldName(alias)] = null;
+                this[Bean.getInternalRelationFieldName(alias)] = null;
             }
 
             this.beanMeta.typeBeanList[alias] = bean;
         } else {
             delete this.beanMeta.typeBeanList[alias];
-            this[Bean.getRelationFieldName(alias)] = null;
+            this[Bean.getInternalRelationFieldName(alias)] = null;
         }
     }
 

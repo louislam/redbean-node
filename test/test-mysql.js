@@ -15,7 +15,9 @@ if (process.env.MYSQL_HOST !== undefined) {
     password = "PYHjnKBBDl_1";
 }
 
-describe("Prepare MySQL database", () => {
+describe("Prepare MySQL database", function () {
+    this.timeout(10000);
+    console.log(host)
     R.freeze(false);
     R.devDebug = false;
     R.debug(false);

@@ -14,9 +14,11 @@ const ColumnCompiler = require('./schema/sqlite-columncompiler');
 const TableCompiler = require('./schema/sqlite-tablecompiler');
 const SQLite3_DDL = require('./schema/ddl');
 const Formatter = require('knex/lib/formatter');
+const Database = require('better-sqlite3');
 
 class Client_SQLite3 extends Client {
 
+    private db;
     options = {};
 
     constructor(config) {
@@ -31,7 +33,7 @@ class Client_SQLite3 extends Client {
     }
 
     _driver() {
-        return require('better-sqlite3');
+        return Database;
     }
 
     schemaCompiler() {
@@ -62,16 +64,28 @@ class Client_SQLite3 extends Client {
         return value !== '*' ? `\`${value.replace(/`/g, '``')}\`` : '*';
     }
 
+    async acquireConnection() {
+        if (! this.db) {
+            this.db = new Database(this.connectionSettings.filename, this.options);
+        }
+        return this.db;
+    }
+
     // Get a raw connection from the database, returning a promise with the connection object.
     async acquireRawConnection() {
-        const Database = this._driver();
-        return new Database(this.connectionSettings.filename, this.options);
+        throw new Error("Not used");
     }
 
     // Used to explicitly close a connection, called internally by the pool when
     // a connection times out or the pool is shutdown.
     async destroyRawConnection(connection) {
-        connection.close();
+        throw new Error("Not used");
+    }
+
+    async destroy(callback) {
+        if (this.db) {
+            this.db.close();
+        }
     }
 
     // Runs the query on the specified connection, providing the bindings and any

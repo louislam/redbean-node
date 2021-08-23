@@ -525,6 +525,7 @@ module.exports = () => {
             let shop6 = R.dispense("shop");
             shop6.productId = 7;
             shop6.product = p;
+            console.log(shop6)
             expect(shop6._productId).to.equal(p.id)
             expect(shop6.productId).to.equal(p.id)
 
@@ -532,24 +533,24 @@ module.exports = () => {
             let p2 = R.dispense("product");
             let shop7 = R.dispense("shop");
             shop7.productId = 7;
-            shop7.product = p;
+            shop7.product = p2;
             console.log(shop7)
-            expect(shop7.productId).to.be.null();
+            expect(shop7.productId).to.be.null;
             expect(await shop7.product).to.equal(p2)
 
             // Test
             let shop8 = R.dispense("shop");
             shop8.productId = 7;
             shop8.product = null;
-            expect(shop8.productId).to.be.null();
-            expect(await shop8.product).to.be.null();
+            expect(shop8.productId).to.be.null;
+            expect(await shop8.product).to.be.null;
 
             // Test
             let shop9 = R.dispense("shop");
             shop9.productId = 7;
             shop9.productId = null;
-            expect(shop9.productId).to.be.null();
-            expect(await shop9.product).to.be.null();
+            expect(shop9.productId).to.be.null
+            expect(await shop9.product).to.be.null
 
             // Change shop
             await R.store(shop2);
