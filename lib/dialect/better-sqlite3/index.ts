@@ -14,7 +14,7 @@ const ColumnCompiler = require('./schema/sqlite-columncompiler');
 const TableCompiler = require('./schema/sqlite-tablecompiler');
 const SQLite3_DDL = require('./schema/ddl');
 const Formatter = require('knex/lib/formatter');
-const Database = require('better-sqlite3');
+const Database = require('@louislam/better-sqlite3-with-prebuilds');
 
 class Client_SQLite3 extends Client {
 

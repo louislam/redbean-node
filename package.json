@@ -28,14 +28,6 @@
         "knex": "^0.95.9",
         "lodash": "^4.17.21"
     },
-    "peerDependencies": {
-        "better-sqlite3": "^7.4.3"
-    },
-    "peerDependenciesMeta": {
-        "better-sqlite3": {
-            "optional": true
-        }
-    },
     "homepage": "https://redbean-node.whatsticker.online",
     "bugs": {
         "url": "https://github.com/louislam/redbean-node/issues"
@@ -77,6 +69,7 @@
         "sqlite3": "^5.0.2",
         "tcp-ping": "^0.1.1",
         "ts-node": "^9.1.1",
-        "typescript": "^4.3.5"
+        "typescript": "^4.3.5",
+        "@louislam/better-sqlite3-with-prebuilds": "^7.4.3"
     }
 }
