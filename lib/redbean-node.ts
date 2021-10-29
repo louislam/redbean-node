@@ -502,20 +502,32 @@ export class RedBeanNode {
         ]);
     }
 
+    /**
+     *
+     * @param error
+     * @return string
+     * @protected
+     */
     protected normalizeErrorMsg(error) {
 
+        let e;
+
         if (this.dbType == "sqlite") {
-            return error.message;
+            e = error.message;
 
         } else if (this.dbType == "mysql") {
-            return error.code;
+            e = error.code;
 
         } else if (this.dbType == "mssql") {
-            return error.message;
+            e = error.message;
 
         }
 
-        return error;
+        if (!e) {
+            e = JSON.stringify(error);
+        }
+
+        return e;
     }
 
     protected checkError(error, allowedErrorList : (string | string[])[]) {
