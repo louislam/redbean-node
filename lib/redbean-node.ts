@@ -325,12 +325,20 @@ export class RedBeanNode {
                             this.debugLog("Create field (Datetime): " + fieldName);
                             col = table.dateTime(fieldName);
 
+                        } else if (valueType == "datetimemillis") {
+                            this.debugLog("Create field (Datetimemillis): " + fieldName);
+                            col = table.dateTime(fieldName);
+
                         } else if (valueType == "date") {
                             this.debugLog("Create field (Date): " + fieldName);
                             col = table.date(fieldName);
 
                         } else if (valueType == "time") {
                             this.debugLog("Create field (Time): " + fieldName);
+                            col = table.time(fieldName);
+
+                        } else if (valueType == "timemillis") {
+                            this.debugLog("Create field (Timemillis): " + fieldName);
                             col = table.time(fieldName);
 
                         } else {
@@ -393,10 +401,14 @@ export class RedBeanNode {
 
                 if (this.isDateTime(value)) {
                     return "datetime";
+                } else if (this.isDateTimeMillis(value)) {
+                    return "datetimemillis";
                 } else if (this.isDate(value)) {
                     return "date";
                 }  else if (this.isTime(value)) {
                     return "time";
+                }  else if (this.isTimeMillis(value)) {
+                    return "timemillis";
                 }
 
                 return "varchar";
@@ -414,7 +426,8 @@ export class RedBeanNode {
             if (
                 valueType == "integer" || valueType == "float" || valueType == "varchar" ||
                 valueType == "text" || valueType == "bigInteger" ||
-                valueType == "datetime" || valueType == "date" || valueType =="time"
+                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" || 
+                valueType =="time" || valueType == "timemillis"
             ) {
                 return false;
             }
@@ -424,7 +437,8 @@ export class RedBeanNode {
         if (columnType == "integer" || columnType == "int") {
             if (
                 valueType == "float" || valueType == "varchar" || valueType == "text" || valueType == "bigInteger" ||
-                valueType == "datetime" || valueType == "date" || valueType =="time"
+                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" || 
+                valueType =="time" || valueType == "timemillis"
             ) {
                 return false;
             }
@@ -434,7 +448,8 @@ export class RedBeanNode {
         if (columnType == "bigInteger" || columnType == "bigint") {
             if (
                 valueType == "float" || valueType == "varchar" || valueType == "text" ||
-                valueType == "datetime" || valueType == "date" || valueType =="time"
+                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" || 
+                valueType =="time" || valueType == "timemillis"
             ) {
                 return false;
             }
@@ -443,8 +458,9 @@ export class RedBeanNode {
         // Float
         if (columnType == "float") {
             if (
-                valueType == "varchar" || valueType == "text" ||
-                valueType == "datetime" || valueType == "date" || valueType =="time"
+                valueType == "varchar" || valueType == "text" || valueType == "datetime" || 
+                valueType == "datetimemillis" || valueType == "date" || valueType =="time" ||
+                valueType == "timemillis"
             ) {
                 return false;
             }
@@ -454,7 +470,7 @@ export class RedBeanNode {
         if (columnType == "time") {
             if (
                 valueType == "varchar" || valueType == "text" ||
-                valueType == "datetime" || valueType == "date"
+                valueType == "datetime" || valueType ==  "datetimemillis" || valueType == "date"
             ) {
                 return false;
             }
@@ -464,7 +480,7 @@ export class RedBeanNode {
         if (columnType == "date") {
             if (
                 valueType == "varchar" || valueType == "text" ||
-                valueType == "datetime"
+                valueType == "datetime" || valueType == "datetimemillis"
             ) {
                 return false;
             }
@@ -978,6 +994,18 @@ export class RedBeanNode {
         return dayjsObject.format('YYYY-MM-DD HH:mm:ss');
     }
 
+    isoDateTimeMillis(dateTime : dayjs.Dayjs | Date | undefined = undefined) : string {
+        let dayjsObject;
+
+        if (dateTime instanceof dayjs) {
+            dayjsObject = dateTime;
+        } else {
+            dayjsObject =  dayjs(dateTime);
+        }
+
+        return dayjsObject.format('YYYY-MM-DD HH:mm:ss.SSS');
+    }
+
     isoDate(date : dayjs.Dayjs | Date | undefined = undefined) : string {
         let dayjsObject;
 
@@ -1006,6 +1034,22 @@ export class RedBeanNode {
         return dayjsObject.format('HH:mm:ss');
     }
 
+    /**
+     * HH:mm:ss.SSS
+     * @param date
+     */
+    isoTimeMillis(date : dayjs.Dayjs | Date | undefined = undefined) {
+        let dayjsObject;
+
+        if (date instanceof dayjs) {
+            dayjsObject = date;
+        } else {
+            dayjsObject =  dayjs(date);
+        }
+
+        return dayjsObject.format('HH:mm:ss.SSS');
+    }
+
     isDate(value : string) {
         let format = "YYYY-MM-DD";
         return dayjs(value, format).format(format) === value;
@@ -1016,10 +1060,22 @@ export class RedBeanNode {
         return dayjs(value, format).format(format) === value;
     }
 
+    isDateTimeMillis(value : string) {
+        let format = "YYYY-MM-DD HH:mm:ss.SSS";
+        return dayjs(value, format).format(format) === value;
+    }
+
     isTime(value : string) {
         // Since dayjs is not supporting time only format, so prefix a fake date to parse
         value = "2020-10-20 " + value;
         let format = "YYYY-MM-DD HH:mm:ss";
+        return dayjs(value, format).format(format) === value;
+    }
+
+    isTimeMillis(value : string) {
+        // Since dayjs is not supporting time only format, so prefix a fake date to parse
+        value = "2020-10-20 " + value;
+        let format = "YYYY-MM-DD HH:mm:ss.SSS";
         return dayjs(value, format).format(format) === value;
     }
 
