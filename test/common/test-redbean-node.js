@@ -332,17 +332,21 @@ module.exports = () => {
 
         describe('#isoDateTime', () => {
             it('get the correct datetime with new Date()', () => {
-                let d = new Date(2018, 11, 24, 10, 33, 30, 0);
+                let d = new Date(2018, 11, 24, 10, 33, 30, 765);
                 expect(R.isoDateTime(d)).to.equal("2018-12-24 10:33:30");
+                expect(R.isoDateTimeMillis(d)).to.equal("2018-12-24 10:33:30.765");
                 expect(R.isoDate(d)).to.equal("2018-12-24");
                 expect(R.isoTime(d)).to.equal("10:33:30");
+                expect(R.isoTimeMillis(d)).to.equal("10:33:30.765");
             });
 
             it('get the correct datetime with new Dayjs', () => {
-                let d = dayjs(new Date(2018, 11, 24, 10, 33, 30, 0));
+                let d = dayjs(new Date(2018, 11, 24, 10, 33, 30, 765));
                 expect(R.isoDateTime(d)).to.equal("2018-12-24 10:33:30");
+                expect(R.isoDateTimeMillis(d)).to.equal("2018-12-24 10:33:30.765");
                 expect(R.isoDate(d)).to.equal("2018-12-24");
                 expect(R.isoTime(d)).to.equal("10:33:30");
+                expect(R.isoTimeMillis(d)).to.equal("10:33:30.765");
             });
         });
 
@@ -384,8 +388,10 @@ module.exports = () => {
             expect(R.getDataType("123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901")).to.equal("text");
 
             expect(R.getDataType(R.isoDateTime())).to.equal("datetime");
+            expect(R.getDataType(R.isoDateTimeMillis())).to.equal("datetimemillis");
             expect(R.getDataType(R.isoDate())).to.equal("date");
             expect(R.getDataType(R.isoTime())).to.equal("time");
+            expect(R.getDataType(R.isoTimeMillis())).to.equal("timemillis");
 
 
             expect(R.getDataType(0, "shop_id")).to.equal("integer");
@@ -400,6 +406,7 @@ module.exports = () => {
             expect(R.isValidType("bit", "integer")).to.be.false;
 
             expect(R.isValidType("datetime2", "datetime")).to.be.true;
+            expect(R.isValidType("datetime2", "datetimemillis")).to.be.true;
             expect(R.isValidType("bit", "boolean")).to.be.true;
             expect(R.isValidType("nvarchar", "boolean")).to.be.true;
         });
@@ -453,6 +460,11 @@ module.exports = () => {
             info = await R.inspect("test_field");
             expect(["datetime"]).to.include(info["date_time"].type);
 
+            bean.dateTimeMillis = R.isoDateTimeMillis();
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["datetime"]).to.include(info["date_time"].type);
+            
             bean.date = R.isoDate();
             await R.store(bean);
             info = await R.inspect("test_field");
@@ -463,6 +475,11 @@ module.exports = () => {
             info = await R.inspect("test_field");
             expect(["time"]).to.include(info["time"].type);
 
+            bean.timeMillis = R.isoTimeMillis();
+            await R.store(bean);
+            info = await R.inspect("test_field");
+            expect(["time"]).to.include(info["time"].type);
+            
             bean.bool = 2
 
             try {
