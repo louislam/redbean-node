@@ -2,7 +2,7 @@
 
 The column data type is automatically decided by RedBeanNode.
 
-You can use **R.isoDate()** and **R.isoDateTime()** to generate the current date(time) or parse your date.
+You can use **R.isoDate()**, **R.isoDateTime()**, or **R.isoDateTimeMillis()** to generate the current date(time) or parse your date.
 
 
 ## DateTime
@@ -20,6 +20,21 @@ book.created_at = R.isoDateTime(new Date())
 // Dayjs
 book.created_at = R.isoDateTime(dayjs())
 ```
+
+## DateTimeMillis
+
+```javascript
+// Current Date Time
+book.created_at = R.isoDateTimeMillis()
+
+// Datetime string format with YYYY-MM-DD HH:mm:ss.SSS
+book.created_at = "2020-10-20 17:43:00.000"
+
+// JS Date object
+book.created_at = R.isoDateTimeMillis(new Date())
+
+// Dayjs
+book.created_at = R.isoDateTimeMillis(dayjs())
 
 ## Date
 
@@ -53,6 +68,21 @@ book.time = R.isoTime(new Date())
 book.time = R.isoTime(dayjs())
 ```
 
+## TimeMillis
+
+```javascript
+// Current Time
+book.time = R.isoTimeMillis()
+
+// Time string format with HH:mm:ss.SSS
+book.time = "17:50:00.000"
+
+// JS Date object
+book.time = R.isoTimeMillis(new Date())
+
+// Dayjs
+book.time = R.isoTimeMillis(dayjs())
+```
 
 ## varchar
 
