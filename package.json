@@ -13,7 +13,7 @@
         "build": "tsc",
         "test": "npm run build && nyc --reporter=html mocha --timeout 60000",
         "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
-        "launch": "np",
+        "publish-release": "np",
         "example2": "node -r ts-node/register --inspect dev_example2.ts",
         "lxd_server": "ts-node ./test/lib/lxd-server.ts"
     },
