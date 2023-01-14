@@ -6,7 +6,7 @@
 [![npm](https://img.shields.io/npm/v/redbean-node)](https://www.npmjs.com/package/redbean-node) 
 
 
-### (Warning: Early Development. Do not use it on production!)
+### ⚠️Warning: Early Development. Do not use it on production!
 
 RedBeanNode is an easy to use **ORM** tool for Node.js, strongly inspired by RedBeanPHP. 
 
