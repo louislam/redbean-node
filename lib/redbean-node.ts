@@ -26,13 +26,6 @@ export class RedBeanNode {
     protected _transaction;
     protected _knex! : Knex;
     public dbType : string = "";
-    public useBetterSQLite3 = false;
-    public betterSQLite3Options = {
-        readonly: false,
-        fileMustExist: false,
-        timeout: 5000,
-        verbose: null,
-    };
 
     private _modelList : LooseObject<{new (type, R): BeanModel}> = {};
 
@@ -84,16 +77,8 @@ export class RedBeanNode {
 
             let useNullAsDefault = (dbType == "sqlite")
 
-            let client;
-
-            if (dbType === "sqlite") {
-                client = (! this.useBetterSQLite3) ? dbType : this.getBetterSQLiteDialect();
-            } else {
-                client = dbType;
-            }
-
             this._knex = knex({
-                client: client,
+                client: dbType,
                 connection,
                 useNullAsDefault,
                 pool
@@ -111,13 +96,6 @@ export class RedBeanNode {
      */
     dispense(type : string) : Bean {
         return this.createBean(type);
-    }
-
-    public getBetterSQLiteDialect() : typeof Client {
-        const client = require("./dialect/better-sqlite3/index");
-        client.options = this.betterSQLite3Options;
-
-        return client;
     }
 
     protected createBean(type : string, isDispense = true) {
@@ -426,7 +404,7 @@ export class RedBeanNode {
             if (
                 valueType == "integer" || valueType == "float" || valueType == "varchar" ||
                 valueType == "text" || valueType == "bigInteger" ||
-                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" || 
+                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" ||
                 valueType =="time" || valueType == "timemillis"
             ) {
                 return false;
@@ -437,7 +415,7 @@ export class RedBeanNode {
         if (columnType == "integer" || columnType == "int") {
             if (
                 valueType == "float" || valueType == "varchar" || valueType == "text" || valueType == "bigInteger" ||
-                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" || 
+                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" ||
                 valueType =="time" || valueType == "timemillis"
             ) {
                 return false;
@@ -448,7 +426,7 @@ export class RedBeanNode {
         if (columnType == "bigInteger" || columnType == "bigint") {
             if (
                 valueType == "float" || valueType == "varchar" || valueType == "text" ||
-                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" || 
+                valueType == "datetime" || valueType == "datetimemillis" || valueType == "date" ||
                 valueType =="time" || valueType == "timemillis"
             ) {
                 return false;
@@ -458,7 +436,7 @@ export class RedBeanNode {
         // Float
         if (columnType == "float") {
             if (
-                valueType == "varchar" || valueType == "text" || valueType == "datetime" || 
+                valueType == "varchar" || valueType == "text" || valueType == "datetime" ||
                 valueType == "datetimemillis" || valueType == "date" || valueType =="time" ||
                 valueType == "timemillis"
             ) {

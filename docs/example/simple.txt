@@ -1,4 +1,7 @@
-const {R} = require("redbean-node");
+require("redbean-node-runkit-demo");
+
+// Require
+const { R } = require("redbean-node");
 
 // Setup connection
 R.setup();
