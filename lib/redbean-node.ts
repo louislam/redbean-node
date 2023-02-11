@@ -87,6 +87,10 @@ export class RedBeanNode {
         } else {
             this._knex = dbType;
             this.dbType = this._knex.client.config.client;
+
+            if (this.dbType === "mysql2") {
+                this.dbType = "mysql";
+            }
         }
     }
 
