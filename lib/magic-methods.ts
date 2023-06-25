@@ -91,7 +91,7 @@ export function magicMethods (clazz) {
       }
     }
 
-    return new Proxy(instance, instanceHandler)
+    return new Proxy(<Object>instance, instanceHandler)
   }
 
   // __getStatic()

@@ -2,7 +2,7 @@ import knex, { Knex } from "knex";
 import {Bean} from "./bean";
 import {isEmptyObject, LooseObject} from "./helper/helper";
 import dayjs from "dayjs";
-import glob from "glob";
+import { glob } from "glob";
 import path from "path";
 import {BeanModel} from "./bean-model";
 import BeanConverterStream from "./bean-converter-stream";
