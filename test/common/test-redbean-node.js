@@ -330,6 +330,30 @@ module.exports = () => {
             expect(bean3.id).gt(0);
         });
 
+        it ("Test remove property", async () => {
+            let p2 = R.dispense("product");
+            p2.test = "123";
+            delete p2.test;
+            await R.store(p2)
+
+            expect(p2.test).to.equal(undefined);
+
+            let p3 = await R.findOne("product", " id = ? ", [ p2.id ]);
+            expect(p3.test).to.equal(undefined);
+
+            let p4 = R.dispense("product");
+            p4.test = "123";
+            await R.store(p4)
+            expect(p4.test).to.equal("123");
+
+            delete p4.test;
+            await R.store(p4)
+            expect(p4.test).to.equal(null);
+
+            let p5 = await R.findOne("product", " id = ? ", [ p4.id ]);
+            expect(p4.test).to.equal(null);
+        });
+
         describe('#isoDateTime', () => {
             it('get the correct datetime with new Date()', () => {
                 let d = new Date(2018, 11, 24, 10, 33, 30, 765);
@@ -464,7 +488,7 @@ module.exports = () => {
             await R.store(bean);
             info = await R.inspect("test_field");
             expect(["datetime"]).to.include(info["date_time"].type);
-            
+
             bean.date = R.isoDate();
             await R.store(bean);
             info = await R.inspect("test_field");
@@ -479,7 +503,7 @@ module.exports = () => {
             await R.store(bean);
             info = await R.inspect("test_field");
             expect(["time"]).to.include(info["time"].type);
-            
+
             bean.bool = 2
 
             try {

@@ -131,6 +131,27 @@ export class Bean {
         return (this[Bean.internalName(name)]) ? true : false;
     }
 
+    __unset(name) {
+        this.devLog("Unset property of ", name);
+
+        let key = Bean.internalName(name);
+
+
+        if (this[key]) {
+            // If there is a id, it was inserted to database, set it to null
+            // Otherwise, delete it
+            if (this["_id"]) {
+                this.devLog("Set it to null");
+                this.beanMeta.old[key] = this[key];
+                this[key] = null;
+            } else {
+                this.devLog("Remove property");
+                delete this[key];
+            }
+        }
+
+        return true;
+    }
 
     /**
      * Many-to-one
