@@ -1061,13 +1061,27 @@ export class RedBeanNode {
         return dayjs(value, format).format(format) === value;
     }
 
-    autoloadModels(dir: string) {
+    /**
+     *
+     * @param dir
+     * @param lang undefined = auto detect
+     */
+    autoloadModels(dir: string, lang: undefined | "ts" | "js") {
         let tsFileList, jsFileList;
 
-        let isTSNode = !! process[Symbol.for("ts-node.register.instance")];
+        let isTS;
+
+        if (lang === "ts") {
+            isTS = true;
+        } else if (lang === "js") {
+            isTS = false;
+        } else {
+            isTS = !! process[Symbol.for("ts-node.register.instance")]
+        }
+
         let ext, fileList;
 
-        if (isTSNode) {
+        if (isTS) {
             ext = ".ts";
         } else {
             ext = ".js";
