@@ -717,7 +717,7 @@ export class RedBeanNode {
         return list;
     }
 
-    async exec(sql: string, data: string[] = []) {
+    async exec(sql: string, data: RawBinding[] = []) {
         await this.normalizeRaw(sql, data);
     }
 
@@ -725,7 +725,7 @@ export class RedBeanNode {
         return this.normalizeRaw(sql, data);
     }
 
-    getAllStream(sql: string, data: string[] = []) {
+    getAllStream(sql: string, data: RawBinding[] = []) {
         return this.normalizeRawCore(sql, data).stream();
     }
 
@@ -803,7 +803,7 @@ export class RedBeanNode {
         }
     }
 
-    async getAssoc(sql: string, data: string[] = []) {
+    async getAssoc(sql: string, data: RawBinding[] = []) {
         let list = await this.getAll(sql, data);
         let keyKey : string;
         let valueKey : string;
