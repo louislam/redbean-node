@@ -11,8 +11,8 @@
     ],
     "scripts": {
         "build": "tsc",
-        "test": "tsc && pnpm run build && nyc --reporter=html mocha --timeout 60000",
-        "coverage": "pnpm test && nyc report --reporter=text-lcov | coveralls",
+        "test": "tsc && npm run build && nyc --reporter=html mocha --timeout 60000",
+        "coverage": "npm test && nyc report --reporter=text-lcov | coveralls",
         "publish-release": "np",
         "example2": "node -r ts-node/register --inspect dev_example2.ts",
         "simple-mariadb": "docker run --rm -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 mariadb"
@@ -20,7 +20,7 @@
     "author": "Louis Lam",
     "license": "MIT",
     "dependencies": {
-        "@types/node": "~26.6.2",
+        "@types/node": "~26.6.1",
         "await-lock": "~2.2.2",
         "dayjs": "~1.11.23",
         "glob": "~13.0.6",
@@ -67,5 +67,8 @@
         "tcp-ping": "~0.1.1",
         "ts-node": "~10.9.1",
         "typescript": "~7.0.2"
+    },
+    "allowScripts": {
+        "sqlite3@5.1.7": true
     }
 }
